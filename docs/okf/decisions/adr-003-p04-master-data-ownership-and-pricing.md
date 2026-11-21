@@ -26,6 +26,6 @@ P04 introduces reusable reference data without starting sales, purchasing, stock
 
 ## Consequences and limits
 
-Price entries use the product base unit. Unit conversions, discounts, and quote/order snapshots are out of scope. Forward migration 000005 retains product IDs and owner values; rolling it back removes P04 records and the added base-unit column, so only the disposable test schema was used for rollback rehearsal.
+Price entries use the product base unit and remain denominated in rials. P05 later consumes a selected amount as exact tenths of a toman for sales snapshots; product unit conversion remains outside P05. Forward migration 000005 retains product IDs and owner values; rolling it back removes P04 records and the added base-unit column, so only the disposable test schema was used for rollback rehearsal.
 
 See [P04 data model](../data/master-data.md), [API/workspace architecture](../architecture/p04-master-data.md), and [organization isolation](../security/p04-master-data-isolation.md).

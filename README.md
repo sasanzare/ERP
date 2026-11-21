@@ -146,6 +146,26 @@ Location choices are filtered by their warehouse. `POST /api/v1/locations/valida
 
 For a repeat browser run, start the local Laravel, Vite, and MariaDB services and run `node scripts/Verify-P04Browser.mjs`. It uses the ignored demo credentials locally and saves synthetic screenshots under `docs/screenshots/`.
 
+## P05 lead to confirmed sales order
+
+The existing `p03:provision-demo` command also provisions a repeatable P05 sales fixture under «سازمان پیش‌فرض»: two products with known base units and a dedicated quote price list. It creates missing P05 records with `firstOrCreate` and does not replace the existing P04 products, prices, or ownership.
+
+Apply the forward migration to an existing local database and then provision the P05 fixture:
+
+```powershell
+$env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
+& $env:ERP_PHP_BINARY artisan migrate --force
+& $env:ERP_PHP_BINARY artisan p03:provision-demo
+```
+
+P04 price-list values stay stored in whole rials. P05 sales documents display toman: each selected rial amount is copied exactly as tenths of a toman, and each discounted line is rounded once to a whole toman using half-up rounding. The P05 fixture list therefore stores 1,200,000 and 1,350,000 rials, which appear in sales documents as 120,000.0 and 135,000.0 toman. A line with no list entry or no product base unit is rejected; a deliberately saved zero price is valid.
+
+The sales workspace is available at `/leads`, `/follow-ups`, `/quotes`, and `/orders`. Start the local database and `npm run dev` as described above, then use the editor account to create a lead, add a dated activity, create a draft from the lead, add/reprice its lines, confirm it, and convert it to one sales order. Reader accounts can view these records but cannot write. P05 does not reserve stock or fulfill orders.
+
+The P05 Chrome harness is `node scripts/Verify-P05Browser.mjs`; it uses the ignored demo credentials in an isolated Chrome profile and stores synthetic screenshots under `docs/screenshots/`. The exact API, precision, snapshot, and order-line interface are documented in [P05 sales workflow](docs/okf/architecture/p05-sales-workflow.md) and [P05 data/pricing](docs/okf/data/p05-sales-documents.md).
+
+**P05 status: ACCEPTED (2026-11-21).** The guarded Laravel suite passed 45 tests / 363 assertions; TypeScript, production build, changed-file Pint, and PHP syntax checks passed. The P05-only rollback/reapply rehearsal on `erp_test` preserved the P04 layer. Google Chrome verified the journey at 1280×900 and 390×844, keyboard submission, and forced bright fallback. A MariaDB row-lock contention check returned the same order for both conversion requests (201/200), with one order and two copied lines. Price-list edits left both document snapshots at 178,831 toman; the demo list price was restored afterward. See the [P05 UI evidence](docs/UI_DESIGN.md#p05-sales-workflow-evidence) and [handoff](HANDOFF.md) for the synthetic local records and detailed run results.
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01, P02, P03, and P04 are accepted. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P05 are accepted. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

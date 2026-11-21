@@ -13,7 +13,7 @@ class ProvisionP03Demo extends Command
 {
     protected $signature = 'p03:provision-demo';
 
-    protected $description = 'Provision repeatable local P03 organizations, memberships, and synthetic products.';
+    protected $description = 'Provision repeatable local P03–P05 synthetic organizations, master data, and sales pricing fixtures.';
 
     private const ACCOUNTS = [
         'editor' => ['email' => 'editor@erp.local', 'name' => 'ویرایشگر آزمایشی'],
@@ -26,7 +26,7 @@ class ProvisionP03Demo extends Command
 
         app(P03DemoSeeder::class)->run($credentials);
 
-        $this->info('P03 organizations, memberships, products, and role audit entries plus repeatable P04 master data are provisioned.');
+        $this->info('P03 access, P04 master data, and P05 two-product sales pricing fixtures are provisioned.');
         $this->line('Local sign-in credentials are stored in the ignored private storage directory.');
 
         return self::SUCCESS;

@@ -4,16 +4,19 @@ okf_version: "0.2"
 
 # ERP Project Knowledge
 
-This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P04 are accepted. See the handoff for current runtime and verification evidence.
+This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P05 are accepted. See the handoff for current runtime and acceptance evidence.
 
 ## Start here
 
 - [Project overview](project-overview.md) — scope and phase boundaries.
 - [Architecture](architecture/index.md) — current and planned runtime shape.
 - [P04 master-data architecture](architecture/p04-master-data.md) — scoped APIs, shared registers/forms, and selected-list pricing.
+- [P05 sales workflow](architecture/p05-sales-workflow.md) — leads, follow-ups, quote snapshots, and confirmed order conversion.
 - [Data models](data/index.md) — organization-owned master data and exact rial amount storage.
+- [P05 sales documents](data/p05-sales-documents.md) — organization-scoped sales records and exact Rial-to-Toman calculations.
 - [Organization access security](security/organization-access.md) — session, membership, product isolation, and role boundary.
 - [P04 master-data isolation](security/p04-master-data-isolation.md) — reader/editor, selectors, foreign IDs, and relationship checks.
+- [P05 sales isolation](security/p05-sales-isolation.md) — document scoping, editor writes, transitions, and conversion safeguards.
 - [UI design reference](../UI_DESIGN.md) — P02 workspace and P03 organization/session visuals and browser evidence.
 - [Decisions](decisions/index.md) — accepted project decisions.
 - [Maintenance log](log.md) — significant knowledge updates.

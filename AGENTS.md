@@ -2,7 +2,7 @@
 
 ## Project scope
 
-Local-development-only ERP prototype. P01–P04 are accepted. P03 owns sign-in, organizations, roles, and access enforcement; P04 owns shared organization-scoped parties, units, products, warehouses, locations, and price lists. Implement only the currently requested phase. Use synthetic data; sales, inventory movements, finance, deployment, cloud, and external services remain out of scope.
+Local-development-only ERP prototype. P01–P05 are accepted. P03 owns sign-in, organizations, roles, and access enforcement; P04 owns shared organization-scoped parties, units, products, warehouses, locations, and Rial price lists; P05 owns leads, dated follow-ups, Toman quotes, and confirmed sales orders. Implement only the currently requested phase. Use synthetic data; stock, fulfillment, finance, deployment, cloud, and external services remain out of scope.
 
 ## Architecture and safety
 
@@ -21,5 +21,5 @@ Local-development-only ERP prototype. P01–P04 are accepted. P03 owns sign-in, 
 - Read [HANDOFF.md](HANDOFF.md) before development. The local runbook is [README.md](README.md); the phase roadmap is [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md); project knowledge lives in [docs/okf/index.md](docs/okf/index.md).
 - Setup: `C:\php8.5\php.exe C:\Users\moxfo\composer.phar install`, `npm ci`, then `scripts/Initialize-Local.ps1` as documented in README.
 - Daily run: start DB with `docker compose up -d --wait db` (manual Docker step); `npm run dev` starts Laravel and Vite together, and Ctrl+C stops both.
-- Checks: `php artisan test`, `npm run typecheck`, `npm run build`, and `node scripts/Verify-P04Browser.mjs` when the relevant phase is requested.
+- Checks: `php artisan test`, `npm run typecheck`, `npm run build`, `node scripts/Verify-P04Browser.mjs`, and `node scripts/Verify-P05Browser.mjs` when the relevant phase is requested. The P05 browser harness also starts a second local PHP worker and a temporary MariaDB quote-row lock to verify contention.
 - Laravel Boost is a development dependency; its generated agent/configuration files are local and ignored. Do not add cloud/deployment configuration in this local-only project.

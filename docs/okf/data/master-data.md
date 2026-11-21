@@ -37,9 +37,9 @@ P03 had no unit information. The P04 migration deliberately leaves `products.bas
 
 `price_list_entries.amount_rial` is MariaDB `BIGINT UNSIGNED`. The API accepts decimal digit strings and serializes exact amounts as strings to avoid floating-point conversion. The UI displays amounts with Persian digits and an explicit «ریال» label. A missing product/list entry is returned as `priced: false` with `amount_rial: null`.
 
-Prices are resolved from the explicitly selected price list and product. Entries are in the product's base unit. Unit conversions, discounts, and quote/order price snapshots belong to later phases.
+Prices are resolved from the explicitly selected price list and product. Entries are in the product's base unit and remain denominated in rials. P05 uses the selected P04 amount as exact tenths of a toman in sales snapshots, and adds discount calculation and quote/order snapshots. Product unit conversions remain outside P05.
 
-See [P04 master-data routes](../architecture/p04-master-data.md), [organization isolation](../security/p04-master-data-isolation.md), and [ADR-003](../decisions/adr-003-p04-master-data-ownership-and-pricing.md).
+See [P04 master-data routes](../architecture/p04-master-data.md), [organization isolation](../security/p04-master-data-isolation.md), [ADR-003](../decisions/adr-003-p04-master-data-ownership-and-pricing.md), and [P05 documents/pricing](p05-sales-documents.md).
 
 ## Migration and verification
 

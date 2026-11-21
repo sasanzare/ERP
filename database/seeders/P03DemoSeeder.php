@@ -31,6 +31,7 @@ class P03DemoSeeder extends Seeder
         );
 
         app(P04DemoSeeder::class)->run($organizationA);
+        app(P05DemoSeeder::class)->run($organizationA);
 
         $editor = User::query()->firstOrCreate(
             ['email' => $credentials['editor']['email']],

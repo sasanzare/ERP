@@ -81,3 +81,19 @@ Google Chrome exercised local synthetic editor and reader sessions, editor-creat
 The list A and B views show 120,000 and 135,000 rial respectively. Product DEMO-001 shows the unpriced state. At mobile scroll-to-end measurements, document width and layout client width both measured 375 CSS px in a 390×844 window; the last party-form action ended at y=609.53 with the dock starting at y=770, and the location-selector action ended at y=622.31 with the dock starting at y=770. The mobile register uses stacked rows and has no root horizontal overflow.
 
 The harness is [scripts/Verify-P04Browser.mjs](../scripts/Verify-P04Browser.mjs). The guarded Laravel suite separately verifies the database code index and foreign-key constraints.
+
+## P05 sales workflow evidence
+
+The sales screens reuse the Lens Inspector desktop hierarchy and Mobile Focus Sheet layout. The sales register/detail remains the focal surface, the shared toolbar and sales tabs remain command surfaces, and related lead/customer/price snapshots stay grouped in the document. Line cards keep Toman values sharp over a quiet work surface; shared Liquid Glass controls retain the existing reduced-transparency and forced-fallback behavior.
+
+Google Chrome exercised the editor workflow: create a customer lead, add an overdue follow-up, complete it and reload the overdue queue, create a draft from the lead, add two priced lines, confirm the quote, and convert it to an order. The line results were 135,000 and 43,831 toman; the quote/order total was 178,831 toman. A separate authorized P04 price update did not alter either snapshot; the P05 fixture price was restored after the check. Two requests held behind a MariaDB quote row lock returned statuses 201 and 200 with the same order ID. The order list showed one order for that source quote and two copied lines. Reader lead/quote writes returned 403.
+
+Keyboard Tab reached the customer selector and submit control; Enter submitted the lead form with a visible 2 CSS px focus outline. At 390×844, the document/client widths were both 375 CSS px; the focal surface ended at y=688.34, the total at y=671.34, and the dock began at y=770. Forced bright fallback exposed three glass surfaces and zero SVG-refraction surfaces. Chrome reported zero runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Overdue follow-up queue, desktop 1280×900 | [P05 overdue follow-ups](screenshots/p05-overdue-follow-up-desktop-2026-11-21T09-56-40-423Z.png) |
+| Quote line snapshots and exact Toman amounts, desktop 1280×900 | [P05 quote lines](screenshots/p05-quote-lines-desktop-2026-11-21T09-56-40-423Z.png) |
+| Confirmed order with source quote, lead, and customer, desktop 1280×900 | [P05 order](screenshots/p05-order-desktop-2026-11-21T09-56-40-423Z.png) |
+| Confirmed order lines, mobile 390×844 | [P05 mobile order](screenshots/p05-order-mobile-2026-11-21T09-56-40-423Z.png) |
+| Quote in forced bright fallback, mobile 390×844 | [P05 forced fallback](screenshots/p05-quote-fallback-mobile-2026-11-21T09-56-40-423Z.png) |

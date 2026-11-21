@@ -17,9 +17,9 @@ Establish a local ERP application that can be extended in later phases. P01's ac
 ## Boundaries
 
 - The project is local development only and uses synthetic data.
-- P02 covers the workspace UI and product views. P03 adds session authentication, organization membership, role-scoped access, and an audit trail. P04 adds shared parties, units, products, warehouses, locations, and price lists. Sales, inventory, finance, production deployment, and external services remain outside the current phase.
+- P02 covers the workspace UI and product views. P03 adds session authentication, organization membership, role-scoped access, and an audit trail. P04 adds shared parties, units, products, warehouses, locations, and Rial price lists. P05 adds leads, dated follow-ups, Toman quotes, and confirmed sales orders. Inventory, finance, production deployment, and external services remain outside the P05 boundary.
 - The existing repository root is the application root; no nested `erp/` directory should be created.
 
 ## Current phase
 
-P01, P02, P03, and P04 are accepted. The application preserves existing product IDs and ownership, leaves unknown legacy units unset, and applies the session/membership reader/editor boundary to organization-owned master data. See the [project handoff](../../HANDOFF.md) for current validation. Browser evidence is in the [UI design reference](../UI_DESIGN.md).
+P01–P05 are accepted. The application preserves existing product IDs and ownership, leaves unknown legacy units unset, and applies the session/membership reader/editor boundary to organization-owned records. P05 adds a Toman sales-document boundary while P04 price lists remain in rials. See the [project handoff](../../HANDOFF.md) for current validation. Browser evidence is in the [UI design reference](../UI_DESIGN.md).

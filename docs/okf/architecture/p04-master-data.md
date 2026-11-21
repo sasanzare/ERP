@@ -29,7 +29,7 @@ Reader memberships can read authorized registers and details. Editor memberships
 | `/locations`, `/locations/new`, `/locations/{id}` | `/api/v1/locations` | Warehouse-scoped location selector and server-side pair validation. |
 | `/price-lists`, `/price-lists/new`, `/price-lists/{id}` | `/api/v1/price-lists` | Manage lists and entries; resolve `/api/v1/price-lists/{listId}/products/{productId}` explicitly. |
 
-Price entries are created/upserted with `POST /api/v1/price-lists/{id}/entries`; deletion is `DELETE /api/v1/price-lists/{id}/entries/{productId}`. Location option queries accept a scoped `warehouse_id`; `POST /api/v1/locations/validate-selection` rejects a location from a different warehouse.
+Price entries are created/upserted with `POST /api/v1/price-lists/{id}/entries`; deletion is `DELETE /api/v1/price-lists/{id}/entries/{productId}`. P04 continues to store and display those amounts in rials. P05 sales lines convert the selected whole-rial entry to exact tenths of a toman for quote/order snapshots. Location option queries accept a scoped `warehouse_id`; `POST /api/v1/locations/validate-selection` rejects a location from a different warehouse.
 
 ## Workspace conventions
 
@@ -42,3 +42,5 @@ The new registers share the P02 `WorkspaceShell`, `GlassButton`, `GlassSearchFie
 Chrome verification passed at 1280×900 and 390×844. The seven inspected screenshots and mobile measurements are listed in the [UI design reference](../../UI_DESIGN.md#p04-verification-evidence). The final guarded Laravel suite passed 36 tests / 213 assertions; TypeScript, production build, PHP syntax, and Pint checks passed. Local runtime evidence is also recorded in [HANDOFF.md](../../../HANDOFF.md).
 
 For local development, `npm run dev` starts the Laravel and Vite servers together; start MariaDB separately with Docker as described in the [README](../../../README.md). Ctrl+C stops the two web processes.
+
+P05 sales routes and their Toman snapshot boundary are documented in the [P05 workflow](p05-sales-workflow.md) and [P05 data model](../data/p05-sales-documents.md).

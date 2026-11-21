@@ -34,6 +34,18 @@ const resourceLinks = [
     { id: 'price-lists', href: '/price-lists', label: 'فهرست قیمت' },
 ];
 
+const salesLinks = [
+    { id: 'leads', href: '/leads', label: 'سرنخ‌ها' },
+    { id: 'follow-ups', href: '/follow-ups', label: 'پیگیری‌های عقب‌افتاده' },
+    { id: 'quotes', href: '/quotes', label: 'پیش‌فاکتورها' },
+    { id: 'orders', href: '/orders', label: 'سفارش‌های فروش' },
+];
+
+const isMasterDataResource = (resource: string) => resourceLinks.some((item) => item.id === resource && item.id !== 'products');
+const isSalesResource = (resource: string) => salesLinks.some((item) => item.id === resource);
+const activeListHref = (resource: string) => salesLinks.find((item) => item.id === resource)?.href ?? '/parties';
+const activeListLabel = (resource: string) => salesLinks.find((item) => item.id === resource)?.label ?? 'اطلاعات پایه';
+
 function shellHref(path: string): string {
     const currentParams = new URLSearchParams(window.location.search);
     const preserved = new URLSearchParams();
@@ -112,7 +124,7 @@ export function WorkspaceShell({
                         <span className={`connection-indicator connection-${connectionState}`} aria-hidden="true" />
                         <span>{connectionLabel}</span>
                         <bdi className="topbar-separator" dir="ltr">/</bdi>
-                        <span>اطلاعات پایه</span>
+                        <span>{isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
                     </div>
                 </LiquidGlass>
 
@@ -157,6 +169,19 @@ export function WorkspaceShell({
                                 )}
                                 <div className="nav-group-label">اطلاعات پایه · P04</div>
                                 {resourceLinks.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`}
+                                        href={shellHref(item.href)}
+                                        aria-current={activeResource === item.id ? 'page' : undefined}
+                                    >
+                                        <NavGlyph kind="list" />
+                                        <span className="nav-link-text">{item.label}</span>
+                                        <span className="nav-link-mark" aria-hidden="true" />
+                                    </a>
+                                ))}
+                                <div className="nav-group-label">فروش · P05</div>
+                                {salesLinks.map((item) => (
                                     <a
                                         key={item.id}
                                         className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`}
@@ -217,9 +242,18 @@ export function WorkspaceShell({
                             {toolbar}
                         </div>
 
-                        {activeResource !== 'products' && (
+                        {isMasterDataResource(activeResource) && (
                             <nav className="master-data-tabs" aria-label="بخش‌های اطلاعات پایه">
-                                {resourceLinks.map((item) => (
+                                {resourceLinks.filter((item) => item.id !== 'products').map((item) => (
+                                    <a key={item.id} href={shellHref(item.href)} className={activeResource === item.id ? 'is-current' : ''} aria-current={activeResource === item.id ? 'page' : undefined}>
+                                        {item.label}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
+                        {isSalesResource(activeResource) && (
+                            <nav className="master-data-tabs" aria-label="بخش‌های فروش">
+                                {salesLinks.map((item) => (
                                     <a key={item.id} href={shellHref(item.href)} className={activeResource === item.id ? 'is-current' : ''} aria-current={activeResource === item.id ? 'page' : undefined}>
                                         {item.label}
                                     </a>
@@ -255,17 +289,23 @@ export function WorkspaceShell({
                             <span>جزئیات</span>
                         </a>
                     )}
-                    {activeResource !== 'products' && (
-                        <a className={activeResource !== 'products' ? 'is-current' : ''} href={shellHref('/parties')} aria-label="فهرست طرف‌های تجاری" aria-current={activeResource !== 'products' ? 'page' : undefined}>
+                    {isMasterDataResource(activeResource) && (
+                        <a className="is-current" href={shellHref('/parties')} aria-label="فهرست طرف‌های تجاری" aria-current="page">
                             <NavGlyph kind="list" />
                             <span>اطلاعات پایه</span>
+                        </a>
+                    )}
+                    {isSalesResource(activeResource) && (
+                        <a className="is-current" href={shellHref(activeListHref(activeResource))} aria-label={activeListLabel(activeResource)} aria-current="page">
+                            <NavGlyph kind="list" />
+                            <span>{activeListLabel(activeResource)}</span>
                         </a>
                     )}
                 </LiquidGlass>
 
                 <footer className="workspace-footer">
                     <span>محیط توسعهٔ محلی</span>
-                    <span><bdi dir="ltr">{activeResource === 'products' ? 'GET /api/v1/products' : `GET /api/v1/${activeResource}`}</bdi></span>
+                    <span><bdi dir="ltr">{activeResource === 'products' ? 'GET /api/v1/products' : activeResource === 'orders' ? 'GET /api/v1/sales-orders' : activeResource === 'follow-ups' ? 'GET /api/v1/lead-activities/overdue' : `GET /api/v1/${activeResource}`}</bdi></span>
                 </footer>
             </div>
         </main>

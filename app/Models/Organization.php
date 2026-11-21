@@ -52,4 +52,19 @@ class Organization extends Model
     {
         return $this->hasMany(PriceList::class);
     }
+
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class);
+    }
+
+    public function salesQuotes(): HasMany
+    {
+        return $this->hasMany(SalesQuote::class);
+    }
+
+    public function salesOrders(): HasMany
+    {
+        return $this->hasMany(SalesOrder::class);
+    }
 }

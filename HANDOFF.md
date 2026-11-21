@@ -6,26 +6,26 @@
 
 ## Project Summary
 
-Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace, P03 session-authenticated organization access, and P04 shared master data are accepted. Runtime data is synthetic and stored in local MariaDB.
+Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace, P03 session-authenticated organization access, P04 shared master data, and P05 lead-to-confirmed-sales-order are accepted. Runtime data is synthetic and stored in local MariaDB.
 
 ## Current Objective
 
-P04 is accepted. IranSansX has been added to the Persian UI with matching static weights. Await the next requested task.
+P05 is accepted at its requested boundary. Preserve P01–P05 and wait for a new phase request.
 
 ## Current Phase or Milestone
 
-P01–P04 ACCEPTED. IranSansX integration is complete: standard and FaNum WOFF2 files for nine weights are bundled; Persian UI uses FaNum. Build and TypeScript checks passed.
+P01–P05 are accepted. P05 API, scoped data model, exact calculator, quote/order transitions, workspace UI, fixture seeder, tests, browser workflow, snapshots, and migration rollback/reapply are verified locally. Full suite and build checks pass. No production, deployment, stock, fulfillment, or accounting work is included.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `b97e66bd343c0f81702d939840f009783265f12f`
-- Current HEAD: `b97e66bd343c0f81702d939840f009783265f12f`
-- Working tree status: six tracked font/documentation edits and 18 untracked WOFF2 assets. P04/launcher changes were committed at the starting HEAD.
+- Base or starting commit: `95fe2735616be131f41acfa5a383cedadf5c4a7d`
+- Current HEAD: `95fe2735616be131f41acfa5a383cedadf5c4a7d`
+- Working tree status: P05 changes are uncommitted on the original `main` branch; Git fsmonitor reported an unavailable IPC endpoint, so status was rechecked with `core.fsmonitor=false`.
 - Staged changes: none
-- Unstaged changes: `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, `docs/okf/architecture/ui-workspace.md`, `docs/okf/log.md`, and `resources/css/products.css`.
-- Untracked files: 18 IranSansX WOFF2 weights in `resources/fonts/iran-sans-x/`.
+- Unstaged changes: P05 implementation and documentation, plus this handoff.
+- Untracked files: P05 API/controllers/models/service/migration/seeder/UI/OKF documents/tests; no unrelated files observed.
 
 ## Completed Work
 
@@ -55,18 +55,27 @@ P01–P04 ACCEPTED. IranSansX integration is complete: standard and FaNum WOFF2 
 - Copied all 18 user-provided IranSansX WOFF2 files into `resources/fonts/iran-sans-x/`: nine static weights each for standard and FaNum variants.
 - Registered weights 100–900 per family. Persian UI text uses `IRANSansXFaNum`; LTR fields and identifiers use standard IRANSansX where applicable, while monospace code styling remains with FaNum glyph fallback.
 - Updated README, UI design, UI workspace architecture, and the OKF log with the local font and weight mapping.
+- Implemented P05 organization-scoped leads, customer validation, dated lead activities with strict `due_at < now()` overdue cutoff and idempotent completion, searchable registers/details, draft quotes, editable/repriceable lines, confirmation, and confirmed sales orders. Readers can view; editor writes are checked server-side.
+- Added forward migration `2026_11_21_000006_create_p05_sales_tables.php` with composite organization foreign keys, unique source quote/order and source quote-line/order-line constraints, snapshot fields, and P07 source-line links. Applied it to `erp_dev`; P05-only rollback/reapply was rehearsed on `erp_test` and P04 remained applied.
+- Kept P04 price entries in rials. P05 persists the exact source value as tenths of a toman, calculates with scaled integers and half-up whole-toman line rounding, sends exact amount strings, and refreshes prices only when a draft line is added or explicitly repriced. A quantity/discount edit preserves its saved price.
+- Added repeatable `P05DemoSeeder` fixtures: products P05-DEMO-001/002 with EA and a P05-QUOTE price list at 1,200,000/1,350,000 rials, rendering as 120,000.0/135,000.0 toman. Running `p03:provision-demo` twice preserved P04 product IDs/prices and the P05 fixture.
+- Added the Persian RTL sales workspace, shared shell navigation, lead/activity/quote/order links, accessible forms and status feedback, sharp Toman values, and reduced-transparency/forced-fallback styling.
+- Verified the exact fixture lines at 135,000 and 43,831 toman and total 178,831 toman, plus the half-Toman rounding edge. Guarded Laravel suite passed 45 tests / 363 assertions after migration rehearsal; TypeScript, production build, PHP syntax, and changed-file Pint passed.
+- Chrome acceptance passed at 1280×900 and 390×844, with Tab/Enter form submission, overdue completion and queue reload, zero/missing price and unit validation coverage, reader 403s, forced bright fallback with SVG refraction disabled, and zero browser runtime errors. Two conversion requests waited on a held MariaDB quote-row lock and returned 201/200 with the same order; only one source order and two copied lines existed.
+- An authorized P04 price-list update was read back while the confirmed quote and order retained their Toman price, line, label, and total snapshots. The seeded P05 price was restored to 1,200,000 rials afterward.
+- Added P05 UI screenshots, README/runbook details, project AGENTS scope, P05 OKF architecture/data/security/ADR documents and indexes/log, and this handoff. The OKF validation parsed 21 Markdown files, 15 concepts, and 91 internal file links without errors.
 
 ## Work in Progress
 
-None. Font assets and weight mappings are integrated; build and typecheck pass. Existing P04/launcher changes remain uncommitted.
+None. P05 has passed its acceptance boundary. The repository remains uncommitted and unstaged; the P05 local Notion queue event is appended and remains pending explicit sync.
 
 ## Remaining Work
 
-No font work remains. P05 is unstarted and requires a separate user request.
+No P05 implementation remains. If the user requests the next phase, begin with the current `main` HEAD and this handoff. P06 owns stock balances/reservations; P07 owns fulfillment from confirmed sales-order lines. Do not stage, commit, push, or change branches without a new request.
 
 ## Exact Next Steps
 
-No implementation work remains. An optional browser visual review may be repeated when the local dev server is available. Do not stage, commit, push, or change branches.
+Next agent: read current Git status and continue only the newly requested phase. Keep P04 price lists in rials; P05 quote/order snapshots are in toman using exact tenths-of-toman source values. Preserve the development volume and accepted master data. No staging, commit, push, reset, or branch change was performed.
 
 ## Files Created
 
@@ -87,6 +96,9 @@ No implementation work remains. An optional browser visual review may be repeate
 - `scripts/Verify-P03Browser.mjs`
 - `docs/okf/architecture/authentication-and-organization-access.md`, `docs/okf/decisions/adr-002-p03-session-and-organization-boundary.md`, `docs/okf/security/index.md`, `docs/okf/security/organization-access.md`
 - Seven Google Chrome screenshots listed in `docs/UI_DESIGN.md#p03-verification-evidence`
+- P05 files: `app/Http/Controllers/Api/V1/{LeadController,LeadActivityController,SalesWorkspaceController,SalesQuoteController,SalesOrderController,SalesController}.php`; `app/Models/{Lead,LeadActivity,SalesQuote,SalesQuoteLine,SalesOrder,SalesOrderLine}.php`; `app/Services/Sales/SalesDocumentCalculator.php`; migration `2026_11_21_000006_create_p05_sales_tables.php`; `database/seeders/P05DemoSeeder.php`; `resources/js/api/sales.ts`; `resources/js/screens/SalesScreen.tsx`; `tests/Feature/P05SalesWorkflowTest.php`; `tests/Unit/SalesDocumentCalculatorTest.php`; `scripts/Verify-P05Browser.mjs`; and `scripts/Lock-P05QuoteForConcurrency.php`.
+- P05 OKF concepts: `docs/okf/architecture/p05-sales-workflow.md`, `docs/okf/data/p05-sales-documents.md`, `docs/okf/security/p05-sales-isolation.md`, and `docs/okf/decisions/adr-004-p05-sales-currency-and-snapshots.md`.
+- P05 browser evidence screenshots linked in `docs/UI_DESIGN.md#p05-sales-workflow-evidence`.
 
 ## Files Modified
 
@@ -96,6 +108,7 @@ No implementation work remains. An optional browser visual review may be repeate
 - Font integration: `resources/css/products.css` and 18 files under `resources/fonts/iran-sans-x/`; documented in README, `docs/UI_DESIGN.md`, and the UI workspace architecture.
 - Instructions/docs: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, and P03-related OKF overview, indexes, architecture, decision, security, and log documents
 - P01/P02 source files in the integration list were already untracked at task start. P03-specific entries above were created this phase and are also untracked. `README.md` was already modified at task start and received further P03 documentation. Git's tracking status cannot separate changes within existing untracked files, so the lists above identify the files touched in this phase without implying staged/tracked state.
+- P05 modified `routes/api.php`, `routes/web.php`, `app/Http/Controllers/Api/V1/WorkspaceController.php`, `app/Models/Organization.php`, `app/Policies/OrganizationPolicy.php`, `app/Console/Commands/ProvisionP03Demo.php`, `database/seeders/P03DemoSeeder.php`, `resources/js/api/products.ts`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, and `resources/css/products.css`. It also updated README, AGENTS, UI_DESIGN, P04 OKF documents/indexes, the OKF root/project overview/decisions/security/data/architecture indexes/log, and this handoff.
 
 ## Important Architecture and Design Decisions
 
@@ -107,6 +120,8 @@ No implementation work remains. An optional browser visual review may be repeate
 - P04 keeps that collection envelope and still accepts a name-only PATCH; product detail uses a separate API route for base-unit data, and editor PATCH may also change code/base unit.
 - A party row is shared by its customer/supplier role rows. P04 relationships are organization-scoped; legacy products with unknown units remain nullable until assigned.
 - Price entries store unsigned integer rials, serialize amounts as strings, and resolve from explicit list/product IDs. Missing entries remain unpriced; conversions/discounts/snapshots are not part of P04.
+- P05 keeps that P04 contract: one whole rial is represented as one tenth of a toman in the sales snapshot. Quantity uses thousandths, discount uses basis points, and integer scaled arithmetic rounds each net line once to a whole toman half-up. Only adding or explicitly repricing a draft line refreshes its selected-list price.
+- A quote transitions only from draft to confirmed. Conversion locks the confirmed quote, recalculates persisted snapshots, and creates one order plus source-linked lines in one transaction; a unique `source_quote_id` and unique `source_quote_line_id` protect retries and P07 traceability.
 - The `npm run dev` Node launcher spawns PHP and the repository Vite CLI without an added dependency. It uses `ERP_PHP_BINARY` or `C:\php8.5\php.exe`, binds loopback ports 8000/5173, stops both children on Ctrl+C or unexpected exit, and leaves Docker alone.
 - The UI loads the supplied static IRANSansX weights 100–900 locally. Persian text uses FaNum glyphs; LTR identifiers use the standard family when styled as LTR and code badges retain monospace with a Persian fallback.
 - The organization/code unique index may only be removed when no code repeats between organizations. The down migration checks and refuses unsafe restoration of global uniqueness.
@@ -114,6 +129,12 @@ No implementation work remains. An optional browser visual review may be repeate
 
 ## Commands Executed
 
+- Read the supplied P05 request, repository instructions, local handoff, P03/P04 OKF concepts, UI design, pricing resolver, and current repository state. Verified the ERP mistakes log fingerprint. The user resolved the arithmetic fixture in favor of the stated formula (43,831 and 178,831), then chose P05 Toman with exact P04 Rial-to-tenths-of-Toman conversion.
+- Normal-shell `artisan migrate:status` was blocked by sandbox loopback access. Elevated documented `docker compose up -d --wait db` reported the existing `erp-local-db-1` healthy; the existing `erp_mariadb_data` volume was kept.
+- Elevated `artisan migrate:status` on `erp_dev` showed only `2026_11_21_000006_create_p05_sales_tables` pending. `artisan migrate --force` applied that additive migration.
+- Elevated `artisan p03:provision-demo` ran twice. Readbacks kept products `DEMO-001` IDs 1 and 2 and `DEMO-002` ID 3; P05 products remain IDs 4 and 5 with unit EA. Price list `P05-QUOTE` ID 3 has 1,200,000 and 1,350,000 rial entries.
+- `artisan test --filter=SalesDocumentCalculatorTest` — passed 4 tests / 9 assertions. `artisan test tests/Feature/P05SalesWorkflowTest.php` — passed 5 tests / 141 assertions. Full serial `artisan test` — passed 45 tests / 363 assertions on guarded `erp_test`.
+- Final current `npm run typecheck` and `npm run build` passed. PHP `-l` passed on changed PHP files; `artisan route:list --path=api/v1 --except-vendor` registered the P05 routes. Browser harness `node --check` and concurrency lock-worker PHP syntax checks passed; live browser acceptance remains pending.
 - Read repository instructions, HANDOFF, README, user plan, UI reference, relevant OKF architecture/database decisions, and the Liquid Glass Design skill.
 - `git -c core.fsmonitor=false status --short --branch --untracked-files=all`, `git -c core.fsmonitor=false diff --stat`, `git -c core.fsmonitor=false diff --cached --stat`, `git -c core.fsmonitor=false branch --show-current`, `git -c core.fsmonitor=false rev-parse HEAD`.
 - PHP 8.5 `artisan route:list`, `artisan migrate:status`; before migration, verified MariaDB 11.8.9 healthy and one product row ID 1 with its original code/name.
@@ -148,9 +169,23 @@ No implementation work remains. An optional browser visual review may be repeate
 - Sent Ctrl+C to the launcher and confirmed there were no listeners left on ports 8000/5173. Docker was not invoked. Vite's bare `/` returned 404 as expected because the Laravel app is the page host; the actual Vite client and entry module returned 200.
 - Read the verified ERP mistakes log at task start; its serial-`erp_test` lesson did not apply to the launcher, so no new mistake entry was needed.
 - Font integration: copied 18 supplied WOFF2 assets; `npm run typecheck` and `npm run build` passed. Vite emitted 18 hashed font assets in production output. Browser visual inspection was attempted, but startup reported port 5173 already in use; a later listener check found no active server. No page screenshot or computed-font browser check completed.
+- P05 focused tests passed (calculator 4/4 tests, 9 assertions; workflow 5/5 tests, 141 assertions); final full serial guarded suite passed 45/45 tests, 363 assertions.
+- P05 production `npm run typecheck`, `npm run build`, changed-PHP `pint --test`, and PHP syntax checks passed. Final OKF validation parsed 21 Markdown files, checked 15 typed concepts and 91 internal file links, and found no errors.
+- `erp_test` rehearsal: P05 rollback preview listed only the six P05 tables; actual P05 rollback left all P03/P04 migrations ran and P05 pending; path-specific P05 reapply succeeded; the full suite passed again afterward.
+- P05 Chrome harness `node scripts/Verify-P05Browser.mjs` passed at 1280×900 and 390×844, forced bright fallback, keyboard Tab/Enter, zero-overdue-after-reload, exact quote UI/API amounts, snapshot after authorized price change, and reader 403 checks. It held the quote row lock while conversion requests reached two PHP workers; statuses 201/200 returned the same order ID. Final run saved six screenshots under `docs/screenshots/` and reported zero browser runtime errors. The harness restored the P05 fixture price.
+- Development fixture readback after repeat provisioning kept products ID 1/2/3 and P05 fixture IDs 4/5, list ID 3, and source prices 1,200,000/1,350,000 rials.
 
 ## Validation and Test Results
 
+- PASS: P05 migration `2026_11_21_000006_create_p05_sales_tables` applied to `erp_dev`; no database or volume reset was run. The P05 provisioning command ran twice and readback preserved existing product IDs 1–3 while adding products 4–5 and list ID 3 with the expected P04 Rial prices.
+- PASS: P05 calculator suite: 4 tests / 9 assertions, including exact formula totals, half-Toman half-up rounding, precision/range rejection, and overflow rejection.
+- PASS: P05 feature suite: 5 tests / 141 assertions. It covers customer/organization scope, fixed-clock overdue cutoff and completion retry, exact quote snapshots and conversion retries, zero/missing pricing, draft repricing, label/price snapshots, reader denial, invalid transitions, and atomic failure rollback.
+- PASS: Full guarded Laravel suite: 45 tests / 363 assertions on `erp_test`, run serially.
+- PASS: `npm run typecheck`, `npm run build`, changed-file PHP syntax checks, and P05 API route registration.
+- PASS: P05 Chrome acceptance at 1280×900 and 390×844, keyboard Tab/Enter, forced bright fallback, overdue completion/reload, exact quote UI/API amounts, snapshot persistence, reader 403, and concurrent MariaDB conversion. Six final screenshots are linked from `docs/UI_DESIGN.md`; no browser runtime errors.
+- PASS: P05-only migration rollback/reapply rehearsal on guarded `erp_test`; P03/P04 remained applied. The final serial guarded suite after reapply passed 45 tests / 363 assertions.
+- PASS: Final TypeScript, production build, changed-file Pint, PHP syntax, API routes, and OKF frontmatter/internal-link validation.
+- PASS: Appended local Notion event `erp-p05-sales-20261121T101356Z-7b4e61d2` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
 - PASS: Forward migration preserved the original development product ID/code/name and backfilled it to `legacy-local` before ownership became required.
 - PASS: The `products` foreign key restricts organization deletion; the composite unique index uses (`organization_id`, `code`).
 - PASS: Two organizations each store `DEMO-001`; duplicate codes within one organization fail at the database index in feature tests.
@@ -172,13 +207,14 @@ No implementation work remains. An optional browser visual review may be repeate
 
 ## Known Issues and Blockers
 
-- The project-specific mistakes log is available at `D:\All projects\Mistakes\ERP\mistakes.md`; its fingerprint was verified and one reusable concurrency note was added.
-- Three ERP report-only events were appended to `D:\All projects\notion\notion.md`; each is `PENDING` with zero entity changes (45 queue events total). Existing records were preserved. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
+- The project-specific mistakes log is available at `D:\All projects\Mistakes\ERP\mistakes.md`; its fingerprint was verified at task start. No additional reusable P05 mistake was found.
+- Three prior ERP local report events plus P05 are in `D:\All projects\notion\notion.md`; the P05 event `erp-p05-sales-20261121T101356Z-7b4e61d2` and its task change remain `PENDING`. The shared queue has 47 event headers. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
 - The user-provided `docs/MASTER_PLAN.md` has pre-existing links to absent `docs/reverse-engineering/` files. It was preserved unchanged; this does not block P04.
 - Requested model/effort was GPT-6 Luna at maximum reasoning when available; the current session did not expose an execution-profile value, so Luna/max cannot be confirmed.
+- The normal sandbox shell could not access MariaDB loopback; the documented elevated local path worked for Docker, migrations, and guarded tests. Docker was stopped after acceptance, preserving the named volume.
 - An early overlapping double invocation of `artisan test` produced `erp_test` table races; the final serial suite passed 36/36 tests and 213 assertions. The correction is recorded in `AGENTS.md` and the ERP-specific mistakes log.
-- The Vite watcher reported `EBUSY` while observing temporary Chrome profile files, but Chrome acceptance finished with zero application runtime errors. Laravel and Vite servers were stopped afterward. The pre-existing `public/hot` file still points to the documented Vite dev URL; start `npm run dev` before opening the local app.
-- The local web servers are stopped after launcher verification; MariaDB/Docker remains a manual user-managed prerequisite. `npm run dev` itself must not be run as Administrator unless the user's environment specifically requires it.
+- During Chrome runs, the Laravel/Vite watcher logged Windows `EBUSY` while observing temporary Chrome-profile files under `storage/framework/testing`. This did not affect page/API acceptance; the final browser harness exited cleanly, removed its profile, and reported zero browser runtime errors. The servers were stopped after acceptance. The ignored `public/hot` file still points to the documented Vite URL; start `npm run dev` when reopening the app.
+- MariaDB was stopped after acceptance with `docker compose stop db`; `erp_mariadb_data` remains intact. `npm run dev` was stopped with Ctrl+C. No listeners remain on ports 8000, 5173, or the temporary worker port 8001.
 
 ## Risks and Assumptions
 
@@ -188,23 +224,24 @@ No implementation work remains. An optional browser visual review may be repeate
 
 ## Database or Migration State
 
-- MariaDB 11.8.9 Compose service is healthy. The existing `erp_mariadb_data` volume was retained.
-- All eight migrations are applied; P03 migration batch is 2 and P04 migration batch is 3. The development schema and `erp_mariadb_data` volume were not reset.
-- After Chrome acceptance: `organizations` 2; `organization_memberships` 3; `organization_role_audits` 3; `products` 3; `parties` 2; `party_roles` 4; `units` 3; `warehouses` 2; `locations` 2; `price_lists` 2; `price_list_entries` 2.
-- Product ID 1 remains `DEMO-001`, «کالای نمونه», `organization_id=1`; product ID 2 remains the organization B `DEMO-001`. Both still have unknown base unit (`NULL`). P04 added `DEMO-002` with unit `EA` and exact 120000/135000 rial entries for the two sample lists.
+- MariaDB 11.8.9 Compose service is stopped after acceptance. The existing `erp_mariadb_data` volume was retained.
+- All nine migrations are applied on `erp_dev`; P03 migration batch is 2, P04 is 3, and P05 is 4. The development schema and `erp_mariadb_data` volume were not reset.
+- After repeat provisioning: `organizations` 2; `organization_memberships` 3; `organization_role_audits` 3; `products` 5; `parties` 2; `party_roles` 4; `units` 3; `warehouses` 2; `locations` 2; `price_lists` 3; `price_list_entries` 4.
+- Product ID 1 remains `DEMO-001`, «کالای نمونه», `organization_id=1`; product ID 2 remains the organization B `DEMO-001`. Both still have unknown base unit (`NULL`). P04 product ID 3 remains `DEMO-002` with unit `EA`. P05 added `P05-DEMO-001` ID 4 and `P05-DEMO-002` ID 5, plus `P05-QUOTE` list ID 3 with 1,200,000 and 1,350,000 rial entries. P05 snapshots display these as 120,000.0 and 135,000.0 toman.
+- Browser acceptance left synthetic development records: 5 P05 leads with 5 completed activities, 4 quotes (one empty draft, three confirmed), and 2 confirmed orders. One confirmed quote has no order; the two converted quote/orders each contain two lines. No existing master-data row or price was changed; the P05 first entry was restored to 1,200,000 rials.
 - `erp_test` remains separate and was the only target for Laravel database-refresh tests.
 
 ## Configuration and Environment Notes
 
 - PHP executable: `C:\php8.5\php.exe` (8.5.13); Composer PHAR: `C:\Users\moxfo\composer.phar` (2.11.2).
 - Node/npm: 26.13.1 / 11.17.0. Google Chrome is installed and used headless through a fresh isolated CDP profile for the final browser pass.
-- App URL: `http://127.0.0.1:8000`; run `npm run dev` from the repository root to start Laravel and Vite together. There are no active listeners after verification. Start MariaDB separately with Docker before using database-backed pages.
+- App URL: `http://127.0.0.1:8000`; run `npm run dev` from the repository root to start Laravel and Vite together. Development listeners are stopped after acceptance; start MariaDB separately with Docker before using database-backed pages.
 - MariaDB loopback port defaults to 3307. Docker operations on this host require Administrator PowerShell; no Windows security/group settings were changed.
 - `.env`, `.env.testing`, database credentials, `APP_KEY`, and P03 demo credentials remain ignored local data. Laravel/Vite servers were stopped after Chrome verification; the pre-existing `public/hot` file still points to Vite at 5173, so start `npm run dev` when reopening the UI.
 
 ## Uncommitted or Partially Applied Changes
 
-Only the font integration remains uncommitted on `main`: six tracked edits and 18 WOFF2 assets. Nothing was staged, committed, discarded, or reset. P04/launcher were committed at starting HEAD `b97e66bd343c0f81702d939840f009783265f12f`.
+P05 implementation and documentation remain uncommitted on `main`. No files were staged, committed, discarded, or reset. HEAD remains `95fe2735616be131f41acfa5a383cedadf5c4a7d`.
 
 ## Recovery or Rollback Notes
 
@@ -213,7 +250,7 @@ Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored P03 credential file
 ## Related Documentation
 
 - `AGENTS.md` — repository-specific rules and runbook pointers.
-- `README.md` — setup, ignored local P03 credentials, role matrix, P03/P04 provisioning, routes, and phase verification.
+- `README.md` — setup, ignored local demo credentials, role matrix, P03–P05 provisioning, routes, and phase verification.
 - `docs/MASTER_PLAN.md` — preserved phase roadmap.
 - `docs/UI_DESIGN.md` — P02/P03/P04 UI behavior, Chrome screenshots, and mobile geometry evidence.
 - `docs/okf/index.md`, P04 architecture/data/security/decision concepts, and P03 access documents — current project knowledge and security boundary.
@@ -221,4 +258,4 @@ Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored P03 credential file
 
 ## Notes for the Next Agent
 
-P01–P04 are accepted. Local Persian UI text uses bundled IRANSansXFaNum weights 100–900; LTR identifiers have the standard family and monospace fallbacks. `npm run dev` starts Laravel and Vite together; the user starts Docker/MariaDB manually. Three report-only queue events are `PENDING`; no Notion API was called. P05 is unstarted; wait for a separate user request. Do not stage, commit, push, or change branches.
+P01–P05 are accepted. Local Persian UI text uses bundled IRANSansXFaNum weights 100–900; LTR identifiers have the standard family and monospace fallbacks. `npm run dev` starts Laravel and Vite together; start MariaDB separately without deleting its volume. P05 browser acceptance records remain synthetic local data. The P05 Notion queue event is local-only and will remain `PENDING`; no Notion API was called. P06 is the next planned phase if requested. Do not stage, commit, push, or change branches.

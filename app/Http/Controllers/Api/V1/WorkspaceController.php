@@ -33,6 +33,9 @@ class WorkspaceController extends Controller
                 'products' => [
                     'update' => $role === OrganizationRole::Editor->value,
                 ],
+                'sales' => [
+                    'manage' => $role === OrganizationRole::Editor->value,
+                ],
             ],
         ]);
     }
@@ -67,6 +70,9 @@ class WorkspaceController extends Controller
                 ],
                 'products' => [
                     'update' => $organization->pivot->role === OrganizationRole::Editor->value,
+                ],
+                'sales' => [
+                    'manage' => $organization->pivot->role === OrganizationRole::Editor->value,
                 ],
             ],
         ]);

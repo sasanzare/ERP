@@ -4,6 +4,11 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\PartyController;
 use App\Http\Controllers\Api\V1\PriceListController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\LeadActivityController;
+use App\Http\Controllers\Api\V1\LeadController;
+use App\Http\Controllers\Api\V1\SalesOrderController;
+use App\Http\Controllers\Api\V1\SalesQuoteController;
+use App\Http\Controllers\Api\V1\SalesWorkspaceController;
 use App\Http\Controllers\Api\V1\UnitController;
 use App\Http\Controllers\Api\V1\WarehouseController;
 use App\Http\Controllers\Api\V1\WorkspaceController;
@@ -28,6 +33,15 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/price-lists/{priceList}/products/{productId}', [PriceListController::class, 'resolvePrice'])
             ->whereNumber('priceList')->whereNumber('productId');
         Route::get('/workspace', [WorkspaceController::class, 'show']);
+        Route::get('/sales/options', [SalesWorkspaceController::class, 'options']);
+        Route::get('/leads', [LeadController::class, 'index']);
+        Route::get('/leads/{lead}', [LeadController::class, 'show'])->whereNumber('lead');
+        Route::get('/lead-activities/overdue', [LeadActivityController::class, 'overdue']);
+        Route::get('/lead-activities/{activity}', [LeadActivityController::class, 'show'])->whereNumber('activity');
+        Route::get('/quotes', [SalesQuoteController::class, 'index']);
+        Route::get('/quotes/{quote}', [SalesQuoteController::class, 'show'])->whereNumber('quote');
+        Route::get('/sales-orders', [SalesOrderController::class, 'index']);
+        Route::get('/sales-orders/{order}', [SalesOrderController::class, 'show'])->whereNumber('order');
 
         Route::middleware(RequireExplicitCsrfToken::class)->group(function (): void {
             Route::post('/products', [ProductController::class, 'store']);
@@ -47,6 +61,16 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::delete('/price-lists/{priceList}/entries/{productId}', [PriceListController::class, 'removeEntry'])
                 ->whereNumber('priceList')->whereNumber('productId');
             Route::post('/active-organization', [WorkspaceController::class, 'switchOrganization']);
+            Route::post('/leads', [LeadController::class, 'store']);
+            Route::post('/leads/{lead}/activities', [LeadActivityController::class, 'store'])->whereNumber('lead');
+            Route::post('/lead-activities/{activity}/complete', [LeadActivityController::class, 'complete'])->whereNumber('activity');
+            Route::post('/leads/{lead}/quotes', [SalesQuoteController::class, 'store'])->whereNumber('lead');
+            Route::post('/quotes/{quote}/lines', [SalesQuoteController::class, 'addLine'])->whereNumber('quote');
+            Route::patch('/quotes/{quote}/lines/{line}', [SalesQuoteController::class, 'updateLine'])->whereNumber('quote')->whereNumber('line');
+            Route::post('/quotes/{quote}/lines/{line}/reprice', [SalesQuoteController::class, 'repriceLine'])->whereNumber('quote')->whereNumber('line');
+            Route::delete('/quotes/{quote}/lines/{line}', [SalesQuoteController::class, 'removeLine'])->whereNumber('quote')->whereNumber('line');
+            Route::post('/quotes/{quote}/confirm', [SalesQuoteController::class, 'confirm'])->whereNumber('quote');
+            Route::post('/quotes/{quote}/convert', [SalesQuoteController::class, 'convert'])->whereNumber('quote');
         });
     });
 });
