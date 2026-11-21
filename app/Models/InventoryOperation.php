@@ -43,4 +43,9 @@ class InventoryOperation extends Model
     {
         return $this->hasMany(InventoryMovement::class, 'operation_id');
     }
+
+    public function salesOrderDeliveries(): HasMany
+    {
+        return $this->hasMany(SalesOrderDelivery::class, 'inventory_operation_id');
+    }
 }

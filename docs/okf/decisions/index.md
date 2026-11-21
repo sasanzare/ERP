@@ -7,3 +7,4 @@ This directory records accepted architecture and scope decisions.
 - [P04 master-data ownership and rial pricing](adr-003-p04-master-data-ownership-and-pricing.md) — dual-role parties, same-organization relationships, explicit unknown units, and exact price amounts.
 - [P05 Toman sales snapshots and order conversion](adr-004-p05-sales-currency-and-snapshots.md) — exact Rial-to-Toman conversion, snapshot timing, rounding, and idempotent order conversion.
 - [P06 immutable stock ledger and stable key locks](adr-005-p06-stock-ledger-and-locks.md) — derived balances, exact thousandths, opening/correction policy, and MariaDB serialization.
+- [P07 reserved sales-order issues](adr-006-p07-reserved-sales-order-issues.md) — atomic issue from reserved stock, partial delivery, idempotency, cancellation, and lock order.

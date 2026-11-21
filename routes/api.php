@@ -76,6 +76,12 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::delete('/quotes/{quote}/lines/{line}', [SalesQuoteController::class, 'removeLine'])->whereNumber('quote')->whereNumber('line');
             Route::post('/quotes/{quote}/confirm', [SalesQuoteController::class, 'confirm'])->whereNumber('quote');
             Route::post('/quotes/{quote}/convert', [SalesQuoteController::class, 'convert'])->whereNumber('quote');
+            Route::post('/sales-orders/{order}/lines/{line}/reservations', [SalesOrderController::class, 'reserveLine'])
+                ->whereNumber('order')->whereNumber('line');
+            Route::post('/sales-orders/{order}/lines/{line}/deliveries', [SalesOrderController::class, 'deliverLine'])
+                ->whereNumber('order')->whereNumber('line');
+            Route::post('/sales-orders/{order}/lines/{line}/cancel-remainder', [SalesOrderController::class, 'cancelRemainder'])
+                ->whereNumber('order')->whereNumber('line');
             Route::post('/stock/operations', [StockController::class, 'postOperation']);
             Route::post('/stock/reservations', [StockController::class, 'reserve']);
             Route::post('/stock/reservations/{reservation}/release', [StockController::class, 'release'])->whereNumber('reservation');

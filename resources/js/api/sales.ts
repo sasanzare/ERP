@@ -86,6 +86,45 @@ export interface SalesQuote extends QuoteSummary {
     lines: QuoteLine[];
 }
 
+export interface SalesFulfillmentReservation {
+    id: number;
+    status: 'open' | 'released' | 'consumed';
+    quantity: string;
+    consumed_quantity: string;
+    released_quantity: string;
+    remaining_quantity: string;
+    location: { id: number; code: string; name: string; warehouse: { id: number; code: string; name: string } | null };
+    created_at: string;
+    created_by: string | null;
+    released_at: string | null;
+    released_by: string | null;
+}
+
+export interface SalesDelivery {
+    id: number;
+    quantity: string;
+    created_at: string;
+    actor: string | null;
+    reservation: { id: number };
+    operation: { id: number; reference: string; operation_type: 'issue' } | null;
+    movement: { id: number; direction: 'outbound'; quantity: string } | null;
+}
+
+export interface SalesOrderLineFulfillment {
+    ordered_quantity: string;
+    reserved_quantity: string;
+    delivered_quantity: string;
+    cancelled_quantity: string;
+    pending_quantity: string;
+    status: 'pending' | 'partial' | 'delivered' | 'cancelled' | 'partially_cancelled';
+    unit_compatible: boolean;
+    current_base_unit: { id: number; code: string; name: string; symbol: string } | null;
+    cancelled_at: string | null;
+    cancelled_by: string | null;
+    reservations: SalesFulfillmentReservation[];
+    deliveries: SalesDelivery[];
+}
+
 export interface SalesOrder {
     id: number;
     code: string;
@@ -96,7 +135,7 @@ export interface SalesOrder {
     lead: Pick<LeadSummary, 'id' | 'code' | 'title'>;
     customer: SalesCustomer;
     price_list: Pick<SalesPriceList, 'code' | 'name'>;
-    lines: QuoteLine[];
+    lines: (QuoteLine & { fulfillment: SalesOrderLineFulfillment })[];
 }
 
 export class SalesApiError extends Error {
@@ -224,4 +263,45 @@ export async function confirmQuote(quoteId: number): Promise<SalesQuote> {
 export async function convertQuote(quoteId: number): Promise<{ order: SalesOrder; alreadyExists: boolean }> {
     const payload = await request<{ data: SalesOrder; already_exists: boolean }>(`/api/v1/quotes/${quoteId}/convert`, mutation('POST'));
     return { order: payload.data, alreadyExists: payload.already_exists };
+}
+
+export async function reserveSalesOrderLine(
+    orderId: number,
+    lineId: number,
+    values: { quantity: string; warehouse_id: number; location_id: number },
+    idempotencyKey: string,
+): Promise<{ order: SalesOrder; alreadyExists: boolean }> {
+    const payload = await request<{ data: SalesOrder; already_exists: boolean }>(
+        `/api/v1/sales-orders/${orderId}/lines/${lineId}/reservations`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Idempotency-Key': idempotencyKey },
+            body: JSON.stringify(values),
+        },
+    );
+    return { order: payload.data, alreadyExists: payload.already_exists };
+}
+
+export async function deliverSalesOrderLine(
+    orderId: number,
+    lineId: number,
+    values: { reservation_id: number; quantity: string },
+    idempotencyKey: string,
+): Promise<{ order: SalesOrder; alreadyExists: boolean }> {
+    const payload = await request<{ data: SalesOrder; already_exists: boolean }>(
+        `/api/v1/sales-orders/${orderId}/lines/${lineId}/deliveries`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Idempotency-Key': idempotencyKey },
+            body: JSON.stringify(values),
+        },
+    );
+    return { order: payload.data, alreadyExists: payload.already_exists };
+}
+
+export async function cancelSalesOrderLineRemainder(orderId: number, lineId: number): Promise<{ order: SalesOrder; alreadyCancelled: boolean }> {
+    const payload = await request<{ data: SalesOrder; already_cancelled: boolean }>(
+        `/api/v1/sales-orders/${orderId}/lines/${lineId}/cancel-remainder`, mutation('POST'),
+    );
+    return { order: payload.data, alreadyCancelled: payload.already_cancelled };
 }

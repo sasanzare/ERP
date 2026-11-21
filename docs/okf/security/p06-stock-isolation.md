@@ -16,7 +16,7 @@ status: active
 
 The authenticated P03 session and active membership are the ownership source. The API does not accept an `organization_id` override. Product, warehouse, location, stock operation, movement, reservation, and balance reads are scoped to the active organization before serialization or mutation. Foreign product, warehouse, location, and reservation IDs are returned as not found without foreign values.
 
-Readers can load stock options and view balances, movement history, and reservations. Editors can post opening/receipt/issue/transfer operations, create reservations, and release them. Laravel `manageStock` authorization runs independently of UI capability visibility. Every mutation requires the existing explicit `X-CSRF-TOKEN` check inside the session-authenticated `web` route group.
+Readers can load stock options and view balances, movement history, and reservations. Editors can post opening/receipt/issue/transfer operations, create standalone reservations, and release those reservations. Laravel `manageStock` authorization runs independently of UI capability visibility. Every mutation requires the existing explicit `X-CSRF-TOKEN` check inside the session-authenticated `web` route group. P07 actions also require `manageSales`; the P06 release route rejects a line-managed reservation with HTTP 409.
 
 ## Relationship validation
 
@@ -26,6 +26,6 @@ Products without a base unit cannot enter stock. A product's base unit and a loc
 
 ## Concurrency and failure boundaries
 
-All writers lock the product row, then sorted warehouse/location rows, then stable stock-key registry rows in ascending location order. Missing registry rows are inserted inside the transaction before `SELECT ... FOR UPDATE`. Under that lock, the service reads current movement legs and open reservations with locking reads and checks availability. Transfer legs, reservations, and releases are atomic; deadlock victims retry up to three times. Unique per-organization idempotency keys prevent duplicate successful operation/reservation writes on retry. The application has no path that edits or deletes posted movement history.
+P06 writers lock the product row, then sorted warehouse/location rows, then stable stock-key registry rows in ascending location order. P07 first locks its order line, then follows that P06 stock order and locks linked reservation rows afterward. Missing registry rows are inserted inside the transaction before `SELECT ... FOR UPDATE`. Under the stock-key lock, the service reads current movement legs and open reservation outstanding amounts with locking reads. Transfer legs, reservations, releases, and P07 delivery/cancellation effects are atomic; deadlock victims retry up to three times. Unique per-organization idempotency keys prevent duplicate successful operation/reservation/delivery writes on retry. The application has no path that edits or deletes posted movement history.
 
 See [P03 organization access](organization-access.md), [P06 workflow](../architecture/p06-stock-workflow.md), and [P06 data equations](../data/p06-stock-balances.md).

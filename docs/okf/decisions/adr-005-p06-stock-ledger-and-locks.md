@@ -30,6 +30,6 @@ The product-row lock also serializes base-unit edits with stock writes. Location
 
 ## Consequences and boundaries
 
-Operation writes for the same product are serialized at the product row as well as by stock key, which is conservative for this local prototype. P06 supports standalone operations and complete reservation release. P07 may add order-line relation records and partial-delivery semantics; P06 does not store order-line or purchase-order IDs. Unit conversion, stock take, valuation, accounting, and production scale/performance qualification are not included.
+Operation writes for the same product are serialized at the product row as well as by stock key, which is conservative for this local prototype. P06 standalone reservations keep no sales-order-line relation and support complete release. P07 adds optional line ownership plus consumed/released counters and a delivery link table; the P06 release route rejects linked holds. P07 acquires the order-line lock before continuing through the P06 product/location/key/reservation order. Unit conversion, stock take, valuation, accounting, and production scale/performance qualification are not included.
 
-See [P06 data](../data/p06-stock-balances.md), [P06 workflow](../architecture/p06-stock-workflow.md), and [P06 isolation](../security/p06-stock-isolation.md).
+See [P06 data](../data/p06-stock-balances.md), [P06 workflow](../architecture/p06-stock-workflow.md), [P06 isolation](../security/p06-stock-isolation.md), and [ADR-006](adr-006-p07-reserved-sales-order-issues.md).

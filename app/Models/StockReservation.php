@@ -11,6 +11,7 @@ class StockReservation extends Model
 
     protected $fillable = [
         'organization_id', 'product_id', 'base_unit_id', 'location_id', 'quantity_milli', 'status',
+        'sales_order_line_id', 'consumed_quantity_milli', 'released_quantity_milli',
         'product_code_snapshot', 'product_name_snapshot', 'unit_code_snapshot', 'unit_name_snapshot',
         'unit_symbol_snapshot', 'location_code_snapshot', 'location_name_snapshot', 'idempotency_key',
         'request_hash', 'created_by', 'created_at', 'released_by', 'released_at',
@@ -18,7 +19,13 @@ class StockReservation extends Model
 
     protected function casts(): array
     {
-        return ['created_at' => 'immutable_datetime', 'released_at' => 'immutable_datetime'];
+        return [
+            'created_at' => 'immutable_datetime',
+            'released_at' => 'immutable_datetime',
+            'quantity_milli' => 'integer',
+            'consumed_quantity_milli' => 'integer',
+            'released_quantity_milli' => 'integer',
+        ];
     }
 
     public function product(): BelongsTo
@@ -39,5 +46,10 @@ class StockReservation extends Model
     public function releasedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'released_by');
+    }
+
+    public function salesOrderLine(): BelongsTo
+    {
+        return $this->belongsTo(SalesOrderLine::class, 'sales_order_line_id');
     }
 }

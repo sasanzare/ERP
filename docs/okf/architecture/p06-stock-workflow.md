@@ -37,6 +37,6 @@ Every operation and reservation create request requires an `Idempotency-Key` UUI
 
 ## P07 interface
 
-P07 can reference `stock_reservations.id` from a sales-order-line reservation link and reference posted `inventory_movements.id` (or its parent `inventory_operations.id`) from a delivery link. Because one order line may be delivered in several partial issues, P07 should use organization-scoped link rows rather than a single movement ID on the line. P06 deliberately stores no sales-order-line reference; P07 can introduce those links without changing the P06 ledger key or quantity representation.
+The P07 migration adds nullable `stock_reservations.sales_order_line_id` for line-owned holds, without changing standalone reservation behavior. `sales_order_deliveries` records each partial delivery against its reservation, issue operation, and outbound movement. P06 deliberately does not accept order-line IDs on its standalone routes; its release route returns conflict for a line-managed reservation so line reconciliation must go through P07. These links do not change the P06 ledger key or quantity representation.
 
-See [P06 stock data](../data/p06-stock-balances.md), [P06 isolation](../security/p06-stock-isolation.md), [ADR-005](../decisions/adr-005-p06-stock-ledger-and-locks.md), and the [UI verification evidence](../../UI_DESIGN.md#p06-verification-evidence).
+See [P06 stock data](../data/p06-stock-balances.md), [P06 isolation](../security/p06-stock-isolation.md), [P07 fulfillment](p07-sales-fulfillment.md), [ADR-005](../decisions/adr-005-p06-stock-ledger-and-locks.md), and the [UI verification evidence](../../UI_DESIGN.md#p06-verification-evidence).

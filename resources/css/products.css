@@ -2018,6 +2018,15 @@ input:focus-visible,
     background: rgba(176, 190, 199, 0.08);
 }
 
+.stock-status-consumed {
+    border-color: rgba(130, 194, 222, 0.36);
+    color: #c5eaff;
+    background: rgba(53, 116, 151, 0.15);
+}
+
+.stock-leg-links { display: flex; flex-wrap: wrap; gap: 5px 9px; }
+.stock-leg-links a { color: #bde7df; text-decoration: underline; text-underline-offset: 3px; }
+
 .stock-release-button {
     min-height: 32px;
     margin-top: 7px;
@@ -2519,6 +2528,88 @@ html[data-lg-scene="bright"] .workspace-nav .nav-link-resource.is-current {
 .sales-text-button:disabled { opacity: 0.55; cursor: wait; }
 .sales-line-edit .edit-result { grid-column: 1 / -1; }
 
+.sales-fulfillment-card { gap: 14px; }
+
+.fulfillment-section {
+    display: grid;
+    min-width: 0;
+    gap: 12px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(222, 237, 246, 0.1);
+}
+
+.fulfillment-heading {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.fulfillment-heading .eyebrow { margin: 0 0 2px; }
+.fulfillment-heading h5,
+.fulfillment-history h6 { margin: 0; color: #e9f3f5; font-size: 12px; font-weight: 620; }
+.fulfillment-state { white-space: normal; text-align: center; }
+
+.state-partial {
+    border-color: rgba(130, 194, 222, 0.36);
+    color: #c5eaff;
+    background: rgba(53, 116, 151, 0.15);
+}
+
+.state-delivered {
+    border-color: rgba(118, 217, 194, 0.34);
+    color: #b8f0df;
+    background: rgba(48, 145, 117, 0.13);
+}
+
+.state-cancelled,
+.state-partially_cancelled {
+    border-color: rgba(255, 188, 164, 0.32);
+    color: #f3c5b8;
+    background: rgba(174, 75, 45, 0.11);
+}
+
+.fulfillment-facts {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 7px;
+    margin: 0;
+}
+
+.fulfillment-facts > div {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
+    padding: 8px 9px;
+    border: 1px solid rgba(222, 237, 246, 0.085);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.fulfillment-facts dt { color: #a4b7c0; font-size: 9px; }
+.fulfillment-facts dd { margin: 0; color: #f0f6f7; font-size: 11px; font-variant-numeric: tabular-nums; }
+
+.fulfillment-history { display: grid; min-width: 0; gap: 7px; }
+.fulfillment-history ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.fulfillment-history li { display: grid; min-width: 0; gap: 3px; padding: 8px 10px; border-inline-start: 2px solid rgba(131, 203, 208, 0.42); border-radius: 8px; background: rgba(255, 255, 255, 0.025); color: #dbe8eb; font-size: 10px; }
+.fulfillment-history li small { color: #aebfc7; line-height: 1.8; overflow-wrap: anywhere; }
+.fulfillment-history a,
+.stock-leg-links a { color: #bde7df; text-decoration: underline; text-underline-offset: 3px; }
+.fulfillment-history a:focus-visible,
+.stock-leg-links a:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: var(--focus-ring-offset); border-radius: 3px; }
+
+.fulfillment-actions { display: grid; min-width: 0; gap: 9px; }
+.fulfillment-reserve-form { display: grid; min-width: 0; grid-template-columns: minmax(100px, 0.8fr) minmax(130px, 1fr) minmax(130px, 1fr) auto; align-items: end; gap: 9px; padding: 11px; border: 1px solid rgba(222, 237, 246, 0.09); border-radius: 12px; background: rgba(8, 18, 27, 0.24); }
+.fulfillment-reserve-form .glass-button,
+.fulfillment-delivery-form .glass-button { min-height: 42px; white-space: nowrap; }
+.fulfillment-delivery-form { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 9px; padding: 11px; border: 1px solid rgba(222, 237, 246, 0.09); border-radius: 12px; background: rgba(8, 18, 27, 0.24); }
+.fulfillment-cancel { justify-self: start; }
+.fulfillment-warning,
+.fulfillment-feedback { margin: 0; padding: 9px 11px; border-radius: 9px; font-size: 10px; line-height: 1.9; }
+.fulfillment-warning { border: 1px solid rgba(245, 190, 116, 0.27); color: #f4d7ae; background: rgba(138, 91, 31, 0.12); }
+.fulfillment-feedback { border: 1px solid rgba(255, 171, 141, 0.3); color: #ffd0ba; background: rgba(174, 75, 45, 0.12); }
+
 .sales-total {
     display: flex;
     min-height: 58px;
@@ -2562,6 +2653,12 @@ html[data-lg-scene="bright"] .workspace-nav .nav-link-resource.is-current {
     .sales-line-edit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .sales-line-edit .glass-button,
     .sales-line-edit .sales-text-button { width: 100%; }
+    .fulfillment-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fulfillment-reserve-form,
+    .fulfillment-delivery-form { grid-template-columns: minmax(0, 1fr); }
+    .fulfillment-reserve-form .glass-button,
+    .fulfillment-delivery-form .glass-button { width: 100%; }
+    .fulfillment-cancel { width: 100%; }
     .sales-form-actions,
     .sales-transition-actions { align-items: stretch; flex-direction: column; }
     .sales-form-actions .glass-button,
@@ -2577,6 +2674,17 @@ html[data-lg-scene="bright"] .workspace-nav .nav-link-resource.is-current {
     .sales-cutoff-note,
     .sales-line-facts > div,
     .sales-total {
+        background: rgba(17, 27, 37, 0.97);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .fulfillment-facts > div,
+    .fulfillment-history li,
+    .fulfillment-reserve-form,
+    .fulfillment-delivery-form,
+    .fulfillment-warning,
+    .fulfillment-feedback {
         background: rgba(17, 27, 37, 0.97);
         -webkit-backdrop-filter: none;
         backdrop-filter: none;

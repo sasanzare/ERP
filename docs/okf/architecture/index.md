@@ -8,3 +8,4 @@ This section tracks the implemented runtime architecture, the local database top
 - [P04 master-data API and workspace](p04-master-data.md) — organization-scoped parties, products/units, locations, price lists, and Persian registers/forms.
 - [P05 sales workflow](p05-sales-workflow.md) — scoped lead and activity routes, quote states, snapshots, conversion, and the P07 order-line contract.
 - [P06 stock workflow](p06-stock-workflow.md) — standalone operations, location balances, reservations, locking, and the P07 link boundary.
+- [P07 sales fulfillment](p07-sales-fulfillment.md) — confirmed order-line reservation, outbound issue, delivery history, and remainder cancellation.

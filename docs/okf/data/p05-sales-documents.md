@@ -20,7 +20,7 @@ status: active
 | `sales_quotes` | Lead, customer party, selected P04 price list, status, display snapshots, and integer `total_toman`. |
 | `sales_quote_lines` | Product/unit IDs and label snapshots, quantity, unit-price snapshot, discount basis points, and integer `line_net_toman`. |
 | `sales_orders` | Unique source quote, lead/customer links and snapshots, confirmed status, and integer `total_toman`. |
-| `sales_order_lines` | Copied quote-line snapshot and unique `source_quote_line_id` for P07 traceability. |
+| `sales_order_lines` | Copied quote-line snapshot and unique `source_quote_line_id` for P07 traceability; P07 adds cancellation amount/actor/time while leaving commercial snapshot fields unchanged. |
 
 Composite organization foreign keys and scoped API lookups keep every reference within the active organization. Product and unit IDs remain as traceable references; display fields preserve the historical document if master-data labels later change.
 

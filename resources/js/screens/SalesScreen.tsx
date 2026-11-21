@@ -3,6 +3,7 @@ import {
     addQuoteLine,
     completeActivity,
     confirmQuote,
+    cancelSalesOrderLineRemainder,
     convertQuote,
     createActivity,
     createLead,
@@ -16,6 +17,8 @@ import {
     fetchQuote,
     fetchQuotes,
     fetchSalesOptions,
+    reserveSalesOrderLine,
+    deliverSalesOrderLine,
     repriceQuoteLine,
     removeQuoteLine,
     updateQuoteLine,
@@ -26,8 +29,10 @@ import {
     type QuoteSummary,
     type SalesOptions,
     type SalesOrder,
+    type SalesOrderLineFulfillment,
     type SalesQuote,
 } from '../api/sales';
+import { fetchStockOptions, type StockOptions } from '../api/stock';
 import { fetchWorkspaceContext, selectOrganization, signOut, type WorkspaceContext } from '../api/products';
 import { GlassButton } from '../components/GlassButton';
 import { GlassSearchField } from '../components/GlassSearchField';
@@ -90,6 +95,30 @@ function dateTime(value: string): string {
     return Number.isNaN(parsed.getTime()) ? value : new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium', timeStyle: 'short' }).format(parsed);
 }
 
+type ClientRetryKey = { signature: string; value: string } | null;
+
+function nextRetryKey(previous: ClientRetryKey, payload: unknown): NonNullable<ClientRetryKey> {
+    const signature = JSON.stringify(payload);
+    return previous?.signature === signature ? previous : { signature, value: crypto.randomUUID() };
+}
+
+function quantityToMilli(value: string): number {
+    const [whole, fraction = ''] = value.split('.', 2);
+    return Number(whole) * 1000 + Number(fraction.padEnd(3, '0'));
+}
+
+function milliToQuantity(value: number): string {
+    return `${Math.floor(value / 1000)}.${String(value % 1000).padStart(3, '0')}`;
+}
+
+const fulfillmentStatusLabels: Record<SalesOrderLineFulfillment['status'], string> = {
+    pending: 'در انتظار',
+    partial: 'در حال تکمیل',
+    delivered: 'تحویل کامل',
+    cancelled: 'لغوشده',
+    partially_cancelled: 'بخشی تحویل و بخشی لغو شد',
+};
+
 function localDateTime(value: Date): string {
     const offset = value.getTimezoneOffset() * 60_000;
     return new Date(value.getTime() - offset).toISOString().slice(0, 16);
@@ -125,7 +154,7 @@ function SalesRegister({
     return (
         <section className="focus-content sales-register" aria-labelledby="sales-register-title" data-lg-role="focus">
             <div className="surface-heading">
-                <div><p className="eyebrow">دفترهای فروش · P05</p><h2 id="sales-register-title">{resourceMeta[resource].title}</h2></div>
+                <div><p className="eyebrow">دفترهای فروش · {resource === 'orders' ? 'P07' : 'P05'}</p><h2 id="sales-register-title">{resourceMeta[resource].title}</h2></div>
                 <span className="result-count" aria-live="polite"><bdi dir="ltr">{rows.length}</bdi><span>مورد</span></span>
                 {resource === 'follow-ups' && <GlassButton onClick={onRefresh} forceFallback={forceFallback}>تازه‌سازی صف</GlassButton>}
             </div>
@@ -396,7 +425,145 @@ function ActivityDetailPanel({ activity, canManage, forceFallback, onComplete }:
     </section>;
 }
 
-function OrderDetailPanel({ order }: { order: SalesOrder }) {
+function OrderLineFulfillmentCard({
+    orderId, line, stockOptions, stockOptionsError, canManage, forceFallback, onReserve, onDeliver, onCancel,
+}: {
+    orderId: number;
+    line: SalesOrder['lines'][number];
+    stockOptions: StockOptions | null;
+    stockOptionsError: string;
+    canManage: boolean;
+    forceFallback: boolean;
+    onReserve: (lineId: number, quantity: string, warehouseId: number, locationId: number, key: string) => Promise<void>;
+    onDeliver: (lineId: number, reservationId: number, quantity: string, key: string) => Promise<void>;
+    onCancel: (lineId: number) => Promise<void>;
+}) {
+    const fulfillment = line.fulfillment;
+    const [warehouseId, setWarehouseId] = useState('');
+    const [locationId, setLocationId] = useState('');
+    const [reserveQuantity, setReserveQuantity] = useState('');
+    const [deliveryQuantities, setDeliveryQuantities] = useState<Record<number, string>>({});
+    const [reserveRetry, setReserveRetry] = useState<ClientRetryKey>(null);
+    const [deliveryRetries, setDeliveryRetries] = useState<Record<number, NonNullable<ClientRetryKey>>>({});
+    const [busy, setBusy] = useState<string | null>(null);
+    const [message, setMessage] = useState('');
+    const warehouse = stockOptions?.warehouses.find((item) => String(item.id) === warehouseId);
+    const unreservedPending = Math.max(0, quantityToMilli(fulfillment.pending_quantity) - quantityToMilli(fulfillment.reserved_quantity));
+    const activeReservations = fulfillment.reservations.filter((item) => item.status === 'open' && quantityToMilli(item.remaining_quantity) > 0);
+
+    useEffect(() => {
+        if (!warehouseId && stockOptions?.warehouses[0]) setWarehouseId(String(stockOptions.warehouses[0].id));
+    }, [stockOptions, warehouseId]);
+
+    useEffect(() => {
+        setReserveQuantity(milliToQuantity(unreservedPending));
+    }, [line.id, unreservedPending]);
+
+    async function reserve(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!stockOptions || !warehouseId || !locationId || !fulfillment.unit_compatible) return;
+        const payload = { line_id: line.id, quantity: reserveQuantity, warehouse_id: Number(warehouseId), location_id: Number(locationId) };
+        const retry = nextRetryKey(reserveRetry, payload);
+        setReserveRetry(retry);
+        setBusy('reserve');
+        setMessage('');
+        try {
+            await onReserve(line.id, reserveQuantity, Number(warehouseId), Number(locationId), retry.value);
+            setReserveRetry(null);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'رزرو سفارش انجام نشد.');
+        } finally {
+            setBusy(null);
+        }
+    }
+
+    async function deliver(reservationId: number) {
+        const quantity = deliveryQuantities[reservationId] ?? fulfillment.reservations.find((item) => item.id === reservationId)?.remaining_quantity ?? '';
+        const payload = { line_id: line.id, reservation_id: reservationId, quantity };
+        const retry = nextRetryKey(deliveryRetries[reservationId] ?? null, payload);
+        setDeliveryRetries((current) => ({ ...current, [reservationId]: retry }));
+        setBusy(`deliver-${reservationId}`);
+        setMessage('');
+        try {
+            await onDeliver(line.id, reservationId, quantity, retry.value);
+            setDeliveryRetries((current) => {
+                const next = { ...current };
+                delete next[reservationId];
+                return next;
+            });
+            setDeliveryQuantities((current) => {
+                const next = { ...current };
+                delete next[reservationId];
+                return next;
+            });
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'تحویل سفارش انجام نشد.');
+        } finally {
+            setBusy(null);
+        }
+    }
+
+    async function cancel() {
+        setBusy('cancel');
+        setMessage('');
+        try { await onCancel(line.id); }
+        catch (error) { setMessage(error instanceof Error ? error.message : 'لغو باقیمانده انجام نشد.'); }
+        finally { setBusy(null); }
+    }
+
+    return <article className="sales-line-card sales-fulfillment-card" data-testid={`order-line-${line.id}`}>
+        <div className="sales-line-heading"><div><h4>{line.product_name}</h4><p><bdi dir="ltr">{line.product_code}</bdi> · {line.unit.name} ({line.unit.symbol})</p></div><strong><bdi dir="auto">{money(line.line_net_toman)}</bdi> تومان</strong></div>
+        <dl className="sales-line-facts"><div><dt>مقدار سفارش</dt><dd><bdi dir="ltr">{line.quantity}</bdi></dd></div><div><dt>قیمت واحد · تومان</dt><dd><bdi dir="auto">{tomanPrice(line.unit_price_toman)}</bdi></dd></div><div><dt>تخفیف</dt><dd><bdi dir="ltr">{line.discount_percent}%</bdi></dd></div><div><dt>خالص سطر</dt><dd><bdi dir="auto">{money(line.line_net_toman)}</bdi> تومان</dd></div></dl>
+        <p className="sales-inline-note">پیوند سطر مبدأ: <bdi dir="ltr">{line.source_quote_line_id}</bdi></p>
+        <section className="fulfillment-section" aria-label={`وضعیت اجرای ${line.product_name}`}>
+            <div className="fulfillment-heading"><div><p className="eyebrow">اجرای سفارش</p><h5>موجودی و تحویل</h5></div><span className={`sales-state fulfillment-state state-${fulfillment.status}`}>{fulfillmentStatusLabels[fulfillment.status]}</span></div>
+            <dl className="fulfillment-facts" data-lg-role="rail">
+                <div><dt>سفارش‌داده‌شده</dt><dd><bdi dir="ltr">{fulfillment.ordered_quantity}</bdi></dd></div>
+                <div><dt>رزروشده</dt><dd><bdi dir="ltr">{fulfillment.reserved_quantity}</bdi></dd></div>
+                <div><dt>تحویل‌شده</dt><dd><bdi dir="ltr">{fulfillment.delivered_quantity}</bdi></dd></div>
+                <div><dt>لغوشده</dt><dd><bdi dir="ltr">{fulfillment.cancelled_quantity}</bdi></dd></div>
+                <div><dt>باقی‌مانده</dt><dd><bdi dir="ltr">{fulfillment.pending_quantity}</bdi></dd></div>
+            </dl>
+            {!fulfillment.unit_compatible && <p className="fulfillment-warning" role="alert">واحد پایهٔ فعلی کالا با واحد snapshot سطر سفارش سازگار نیست؛ عملیات موجودی برای این سطر غیرفعال است.</p>}
+            {fulfillment.reservations.length > 0 && <div className="fulfillment-history"><h6>تاریخچهٔ رزرو</h6><ul>{fulfillment.reservations.map((reservation) => <li key={reservation.id}>
+                <span><bdi dir="ltr">{reservation.quantity}</bdi> {line.unit.symbol} · {reservation.location.warehouse?.name ?? 'انبار'} / {reservation.location.name}</span>
+                <small>مصرف <bdi dir="ltr">{reservation.consumed_quantity}</bdi> · آزادشده <bdi dir="ltr">{reservation.released_quantity}</bdi> · باقیمانده <bdi dir="ltr">{reservation.remaining_quantity}</bdi></small>
+            </li>)}</ul></div>}
+            {fulfillment.deliveries.length > 0 && <div className="fulfillment-history"><h6>تحویل‌های ثبت‌شده</h6><ul>{fulfillment.deliveries.map((delivery) => <li key={delivery.id}>
+                <span>تحویل <bdi dir="ltr">{delivery.quantity}</bdi> {line.unit.symbol} · رزرو <bdi dir="ltr">{delivery.reservation.id}</bdi></span>
+                <small>{delivery.operation && <a href={`/stock/movements#operation-${delivery.operation.id}`}>حوالهٔ <bdi dir="ltr">{delivery.operation.reference}</bdi></a>}{delivery.operation && delivery.movement && ' · '}{delivery.movement && <a href={`/stock/movements#movement-${delivery.movement.id}`}>حرکت خروجی <bdi dir="ltr">{delivery.movement.id}</bdi></a>} · {dateTime(delivery.created_at)}</small>
+            </li>)}</ul></div>}
+            {canManage && quantityToMilli(fulfillment.pending_quantity) > 0 && <div className="fulfillment-actions">
+                <form className="fulfillment-reserve-form" onSubmit={(event) => void reserve(event)} aria-label={`رزرو برای ${line.product_name}`}>
+                    <label className="sales-field" htmlFor={`fulfillment-quantity-${line.id}`}><span>مقدار رزرو ({line.unit.symbol})</span><input id={`fulfillment-quantity-${line.id}`} type="text" inputMode="decimal" pattern="[0-9]+([.][0-9]{1,3})?" maxLength={13} value={reserveQuantity} onChange={(event) => setReserveQuantity(event.currentTarget.value)} required disabled={!fulfillment.unit_compatible} /></label>
+                    <label className="sales-field" htmlFor={`fulfillment-warehouse-${line.id}`}><span>انبار</span><select id={`fulfillment-warehouse-${line.id}`} value={warehouseId} onChange={(event) => { setWarehouseId(event.currentTarget.value); setLocationId(''); }} required disabled={!stockOptions || !fulfillment.unit_compatible}><option value="">انتخاب انبار</option>{(stockOptions?.warehouses ?? []).map((item) => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}</select></label>
+                    <label className="sales-field" htmlFor={`fulfillment-location-${line.id}`}><span>مکان</span><select id={`fulfillment-location-${line.id}`} value={locationId} onChange={(event) => setLocationId(event.currentTarget.value)} required disabled={!warehouse || !fulfillment.unit_compatible}><option value="">انتخاب مکان</option>{(warehouse?.locations ?? []).map((item) => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}</select></label>
+                    <GlassButton type="submit" variant="tinted" disabled={busy !== null || !stockOptions || !warehouseId || !locationId || unreservedPending === 0 || !fulfillment.unit_compatible} forceFallback={forceFallback}>{busy === 'reserve' ? 'در حال رزرو…' : 'رزرو برای سفارش'}</GlassButton>
+                </form>
+                {stockOptionsError && <p className="fulfillment-warning" role="status">{stockOptionsError}</p>}
+                {stockOptions && unreservedPending === 0 && <p className="sales-inline-note">تمام باقیماندهٔ سفارش از قبل رزرو شده است.</p>}
+                {activeReservations.map((reservation) => <div className="fulfillment-delivery-form" key={reservation.id}>
+                    <label className="sales-field" htmlFor={`delivery-quantity-${line.id}-${reservation.id}`}><span>تحویل از رزرو <bdi dir="ltr">{reservation.id}</bdi> · مقدار باقیمانده {reservation.remaining_quantity}</span><input id={`delivery-quantity-${line.id}-${reservation.id}`} type="text" inputMode="decimal" pattern="[0-9]+([.][0-9]{1,3})?" maxLength={13} value={deliveryQuantities[reservation.id] ?? reservation.remaining_quantity} onChange={(event) => { const value = event.currentTarget.value; setDeliveryQuantities((current) => ({ ...current, [reservation.id]: value })); }} required disabled={!fulfillment.unit_compatible} /></label>
+                    <GlassButton type="button" variant="regular" disabled={busy !== null || !fulfillment.unit_compatible} forceFallback={forceFallback} onClick={() => void deliver(reservation.id)}>{busy === `deliver-${reservation.id}` ? 'در حال تحویل…' : 'ثبت تحویل'}</GlassButton>
+                </div>)}
+                <button className="sales-text-button fulfillment-cancel" type="button" onClick={() => void cancel()} disabled={busy !== null}>{busy === 'cancel' ? 'در حال لغو…' : 'لغو باقیماندهٔ سطر'}</button>
+            </div>}
+            {fulfillment.cancelled_at && <p className="sales-inline-note">باقیمانده در {dateTime(fulfillment.cancelled_at)} لغو شد.</p>}
+            {message && <p className="fulfillment-feedback" role="alert" aria-live="polite">{message}</p>}
+        </section>
+    </article>;
+}
+
+function OrderDetailPanel({ order, stockOptions, stockOptionsError, canManage, forceFallback, onReserve, onDeliver, onCancel }: {
+    order: SalesOrder;
+    stockOptions: StockOptions | null;
+    stockOptionsError: string;
+    canManage: boolean;
+    forceFallback: boolean;
+    onReserve: (lineId: number, quantity: string, warehouseId: number, locationId: number, key: string) => Promise<void>;
+    onDeliver: (lineId: number, reservationId: number, quantity: string, key: string) => Promise<void>;
+    onCancel: (lineId: number) => Promise<void>;
+}) {
     return <section className="focus-content sales-detail" data-lg-role="focus">
         <div className="detail-topline"><a className="back-link" href={href('/orders')}>← سفارش‌های فروش</a><span className="detail-id">کد <bdi dir="ltr">{order.code}</bdi></span></div>
         <div className="sales-detail-heading"><p className="eyebrow">سفارش فروش · تأییدشده</p><h2>{order.lead.title}</h2></div>
@@ -408,11 +575,7 @@ function OrderDetailPanel({ order }: { order: SalesOrder }) {
             <div className="detail-field"><dt>تأیید</dt><dd><bdi dir="auto">{dateTime(order.confirmed_at)}</bdi></dd></div>
         </dl>
         <div className="sales-detail-section"><div className="surface-heading"><div><p className="eyebrow">تصویر ذخیره‌شدهٔ پیش‌فاکتور</p><h3>سطرهای سفارش</h3></div></div>
-            <div className="sales-line-list">{order.lines.map((line) => <article className="sales-line-card" key={line.id}>
-                <div className="sales-line-heading"><div><h4>{line.product_name}</h4><p><bdi dir="ltr">{line.product_code}</bdi> · {line.unit.name} ({line.unit.symbol})</p></div><strong><bdi dir="auto">{money(line.line_net_toman)}</bdi> تومان</strong></div>
-                <dl className="sales-line-facts"><div><dt>مقدار</dt><dd><bdi dir="ltr">{line.quantity}</bdi></dd></div><div><dt>قیمت واحد · تومان</dt><dd><bdi dir="auto">{tomanPrice(line.unit_price_toman)}</bdi></dd></div><div><dt>تخفیف</dt><dd><bdi dir="ltr">{line.discount_percent}%</bdi></dd></div><div><dt>خالص سطر</dt><dd><bdi dir="auto">{money(line.line_net_toman)}</bdi> تومان</dd></div></dl>
-                <p className="sales-inline-note">پیوند سطر مبدأ: <bdi dir="ltr">{line.source_quote_line_id}</bdi></p>
-            </article>)}</div>
+            <div className="sales-line-list">{order.lines.map((line) => <OrderLineFulfillmentCard key={line.id} orderId={order.id} line={line} stockOptions={stockOptions} stockOptionsError={stockOptionsError} canManage={canManage} forceFallback={forceFallback} onReserve={onReserve} onDeliver={onDeliver} onCancel={onCancel} />)}</div>
         </div>
         <div className="sales-total"><span>جمع سفارش</span><strong><bdi dir="auto">{money(order.total_toman)}</bdi> تومان</strong></div>
     </section>;
@@ -433,6 +596,8 @@ export function SalesScreen() {
     const [activity, setActivity] = useState<LeadActivity | null>(null);
     const [quote, setQuote] = useState<SalesQuote | null>(null);
     const [order, setOrder] = useState<SalesOrder | null>(null);
+    const [stockOptions, setStockOptions] = useState<StockOptions | null>(null);
+    const [stockOptionsError, setStockOptionsError] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [switching, setSwitching] = useState(false);
     const forceFallback = new URLSearchParams(window.location.search).get('glass') === 'fallback';
@@ -486,6 +651,23 @@ export function SalesScreen() {
         void load();
         return () => controller.abort();
     }, [attempt, filter, route.creating, route.id, route.leadId, route.resource]);
+
+    useEffect(() => {
+        if (route.resource !== 'orders' || route.id === null) {
+            setStockOptions(null);
+            setStockOptionsError('');
+            return;
+        }
+        const controller = new AbortController();
+        fetchStockOptions(controller.signal)
+            .then((value) => { setStockOptions(value); setStockOptionsError(''); })
+            .catch((error: unknown) => {
+                if (controller.signal.aborted) return;
+                setStockOptions(null);
+                setStockOptionsError(error instanceof Error ? error.message : 'فهرست انبارها دریافت نشد.');
+            });
+        return () => controller.abort();
+    }, [attempt, route.id, route.resource]);
 
     const canManage = context?.capabilities.sales.manage ?? false;
     const meta = resourceMeta[route.resource];
@@ -544,6 +726,24 @@ export function SalesScreen() {
         window.location.assign(href(`/orders/${result.order.id}`));
     }
 
+    async function reserveOrderLine(lineId: number, quantity: string, warehouseId: number, locationId: number, idempotencyKey: string) {
+        if (!order) return;
+        await reserveSalesOrderLine(order.id, lineId, { quantity, warehouse_id: warehouseId, location_id: locationId }, idempotencyKey);
+        setAttempt((value) => value + 1);
+    }
+
+    async function deliverOrderLine(lineId: number, reservationId: number, quantity: string, idempotencyKey: string) {
+        if (!order) return;
+        await deliverSalesOrderLine(order.id, lineId, { reservation_id: reservationId, quantity }, idempotencyKey);
+        setAttempt((value) => value + 1);
+    }
+
+    async function cancelOrderLine(lineId: number) {
+        if (!order) return;
+        await cancelSalesOrderLineRemainder(order.id, lineId);
+        setAttempt((value) => value + 1);
+    }
+
     let content: ReactNode;
     if (loadState === 'loading' || context === null) {
         content = <section className="focus-content" data-lg-role="focus" aria-busy="true"><div className="state-panel" role="status"><span className="loading-mark" aria-hidden="true" /><h2>در حال دریافت فضای فروش</h2><p>فهرست‌ها از سازمان فعال خوانده می‌شوند.</p></div></section>;
@@ -569,7 +769,7 @@ export function SalesScreen() {
     } else if (route.resource === 'follow-ups' && route.id !== null && activity) {
         content = <ActivityDetailPanel activity={activity} canManage={canManage} forceFallback={forceFallback} onComplete={complete} />;
     } else if (route.resource === 'orders' && route.id !== null && order) {
-        content = <OrderDetailPanel order={order} />;
+        content = <OrderDetailPanel order={order} stockOptions={stockOptions} stockOptionsError={stockOptionsError} canManage={canManage} forceFallback={forceFallback} onReserve={reserveOrderLine} onDeliver={deliverOrderLine} onCancel={cancelOrderLine} />;
     } else {
         content = <SalesRegister resource={route.resource} leads={leads} activities={activities} quotes={quotes} orders={orders} filter={filter} onFilterChange={setFilter}
             canManage={canManage} forceFallback={forceFallback} onComplete={complete} onRefresh={() => setAttempt((value) => value + 1)} />;
@@ -578,7 +778,7 @@ export function SalesScreen() {
     if (context === null) return <main className="app-shell" data-lg-role="stage">{content}</main>;
 
     return <WorkspaceShell title={meta.title} eyebrow={meta.eyebrow} subtitle={meta.subtitle} activePage={pageIsDetail ? 'detail' : 'list'}
-        activeResource={route.resource} phaseLabel="P05" connectionState={loadState === 'error' || loadState === 'missing' || loadState === 'denied' ? 'error' : loadState === 'loading' ? 'loading' : 'ready'}
+        activeResource={route.resource} phaseLabel={route.resource === 'orders' ? 'P07' : 'P05'} connectionState={loadState === 'error' || loadState === 'missing' || loadState === 'denied' ? 'error' : loadState === 'loading' ? 'loading' : 'ready'}
         connectionLabel={loadState === 'success' ? 'دادهٔ فروش دریافت شد' : loadState === 'loading' ? 'در حال دریافت داده' : 'نیاز به بررسی'} toolbar={toolbar}
         forceFallback={forceFallback} activeOrganization={context.active_organization} organizations={context.organizations} onOrganizationChange={changeOrganization}
         onSignOut={signOut} organizationSwitching={switching}>

@@ -7,6 +7,8 @@ use App\Models\InventoryOperation;
 use App\Models\Location;
 use App\Models\Organization;
 use App\Models\Product;
+use App\Models\SalesOrderDelivery;
+use App\Models\SalesOrderLine;
 use App\Models\StockReservation;
 use App\Models\User;
 use App\Models\Warehouse;
@@ -183,12 +185,16 @@ class StockService
     public function reserve(Organization $organization, User $actor, array $input): array
     {
         $quantityMilli = self::quantityToMilli($input['quantity']);
-        $requestHash = $this->requestHash([
+        $hashPayload = [
             'product_id' => (int) $input['product_id'],
             'quantity_milli' => $quantityMilli,
             'warehouse_id' => (int) $input['warehouse_id'],
             'location_id' => (int) $input['location_id'],
-        ]);
+        ];
+        if (isset($input['sales_order_line_id'])) {
+            $hashPayload['sales_order_line_id'] = (int) $input['sales_order_line_id'];
+        }
+        $requestHash = $this->requestHash($hashPayload);
 
         try {
             return DB::transaction(function () use ($organization, $actor, $input, $quantityMilli, $requestHash): array {
@@ -220,6 +226,18 @@ class StockService
                     $this->invalid('product_id', 'برای رزرو موجودی، ابتدا واحد پایهٔ کالا را در اطلاعات کالا تعیین کنید.');
                 }
 
+                if (isset($input['sales_order_line_id'])) {
+                    $line = SalesOrderLine::query()
+                        ->where('organization_id', $organization->getKey())
+                        ->where('product_id', $product->getKey())
+                        ->lockForUpdate()
+                        ->findOrFail($input['sales_order_line_id']);
+
+                    if ((int) $line->unit_id !== (int) $product->base_unit_id) {
+                        $this->invalid('product_id', 'واحد پایهٔ فعلی کالا با واحد ثبت‌شده در سطر سفارش سازگار نیست.');
+                    }
+                }
+
                 $locationIds = [(int) $input['location_id']];
                 [$location] = $this->lockSelectedLocations($organization, $input, $locationIds);
                 $this->lockStockKeys($organization, (int) $product->getKey(), $locationIds);
@@ -234,7 +252,10 @@ class StockService
                     'product_id' => $product->getKey(),
                     'base_unit_id' => $product->base_unit_id,
                     'location_id' => $location->getKey(),
+                    'sales_order_line_id' => $input['sales_order_line_id'] ?? null,
                     'quantity_milli' => $quantityMilli,
+                    'consumed_quantity_milli' => 0,
+                    'released_quantity_milli' => 0,
                     'status' => 'open',
                     'product_code_snapshot' => $product->code,
                     'product_name_snapshot' => $product->name,
@@ -280,17 +301,16 @@ class StockService
                 ->where('organization_id', $organization->getKey())
                 ->lockForUpdate()
                 ->findOrFail($initial->product_id);
-            $locationIds = [(int) $initial->location_id];
-            $locations = Location::query()
+            $location = Location::query()
                 ->where('organization_id', $organization->getKey())
-                ->whereIn('id', $locationIds)
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->get()
-                ->keyBy('id');
-            $location = $locations->get($initial->location_id);
+                ->findOrFail($initial->location_id);
+            $locationIds = [(int) $location->getKey()];
+            [$location] = $this->lockSelectedLocations($organization, [
+                'warehouse_id' => (int) $location->warehouse_id,
+                'location_id' => (int) $location->getKey(),
+            ], $locationIds);
 
-            if ($location === null) {
+            if ($location->getKey() !== $initial->location_id) {
                 abort(404);
             }
 
@@ -300,19 +320,253 @@ class StockService
                 ->lockForUpdate()
                 ->findOrFail($reservationId);
 
-            if ($reservation->status === 'released') {
+            if ($reservation->sales_order_line_id !== null) {
+                throw new HttpException(409, 'این رزرو به سطر سفارش فروش متصل است و باید از همان سفارش آزاد شود.');
+            }
+
+            if ($reservation->status !== 'open') {
                 return ['record' => $reservation->load(['createdBy', 'releasedBy']), 'already_exists' => true];
             }
 
             $this->lockedBalance($organization, $product, (int) $location->getKey());
+            $remainingMilli = $this->reservationOutstanding($reservation);
             $reservation->forceFill([
                 'status' => 'released',
+                'released_quantity_milli' => (int) $reservation->released_quantity_milli + $remainingMilli,
                 'released_by' => $actor->getKey(),
                 'released_at' => now(),
             ])->save();
 
             return ['record' => $reservation->load(['createdBy', 'releasedBy']), 'already_exists' => false];
         }, 3);
+    }
+
+    public function releaseSalesReservation(Organization $organization, User $actor, int $lineId, int $reservationId): array
+    {
+        $initial = StockReservation::query()
+            ->where('organization_id', $organization->getKey())
+            ->where('sales_order_line_id', $lineId)
+            ->findOrFail($reservationId);
+
+        return DB::transaction(function () use ($organization, $actor, $lineId, $reservationId, $initial): array {
+            $product = Product::query()
+                ->where('organization_id', $organization->getKey())
+                ->lockForUpdate()
+                ->findOrFail($initial->product_id);
+            $location = Location::query()
+                ->where('organization_id', $organization->getKey())
+                ->findOrFail($initial->location_id);
+            $locationIds = [(int) $location->getKey()];
+            [$location] = $this->lockSelectedLocations($organization, [
+                'warehouse_id' => (int) $location->warehouse_id,
+                'location_id' => (int) $location->getKey(),
+            ], $locationIds);
+            $this->lockStockKeys($organization, (int) $product->getKey(), $locationIds);
+            $reservation = StockReservation::query()
+                ->where('organization_id', $organization->getKey())
+                ->where('sales_order_line_id', $lineId)
+                ->lockForUpdate()
+                ->findOrFail($reservationId);
+
+            if ($reservation->status !== 'open') {
+                return ['record' => $reservation->load(['createdBy', 'releasedBy']), 'already_exists' => true];
+            }
+
+            $this->lockedBalance($organization, $product, (int) $location->getKey());
+            $remainingMilli = $this->reservationOutstanding($reservation);
+            $reservation->forceFill([
+                'status' => 'released',
+                'released_quantity_milli' => (int) $reservation->released_quantity_milli + $remainingMilli,
+                'released_by' => $actor->getKey(),
+                'released_at' => now(),
+            ])->save();
+
+            return ['record' => $reservation->load(['createdBy', 'releasedBy']), 'already_exists' => false];
+        }, 3);
+    }
+
+    public function deliverFromReservation(
+        Organization $organization,
+        User $actor,
+        int $orderId,
+        int $lineId,
+        int $reservationId,
+        string $quantity,
+        string $idempotencyKey,
+    ): array {
+        $quantityMilli = self::quantityToMilli($quantity);
+        $requestHash = $this->requestHash([
+            'purpose' => 'sales-order-delivery',
+            'order_id' => $orderId,
+            'sales_order_line_id' => $lineId,
+            'reservation_id' => $reservationId,
+            'quantity_milli' => $quantityMilli,
+        ]);
+
+        try {
+            return DB::transaction(function () use (
+                $organization, $actor, $orderId, $lineId, $reservationId, $quantityMilli, $idempotencyKey, $requestHash,
+            ): array {
+                $existing = InventoryOperation::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('idempotency_key', $idempotencyKey)
+                    ->first();
+
+                if ($existing !== null) {
+                    return $this->existingSalesDeliveryResult($existing, $requestHash, $lineId, $reservationId);
+                }
+
+                $line = SalesOrderLine::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('sales_order_id', $orderId)
+                    ->lockForUpdate()
+                    ->findOrFail($lineId);
+
+                $existing = InventoryOperation::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('idempotency_key', $idempotencyKey)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing !== null) {
+                    return $this->existingSalesDeliveryResult($existing, $requestHash, $lineId, $reservationId);
+                }
+
+                if ($line->order()->where('organization_id', $organization->getKey())->value('status') !== 'confirmed') {
+                    $this->invalid('order', 'فقط سفارش تأییدشده قابل تحویل است.');
+                }
+
+                $orderedMilli = self::quantityToMilli((string) $line->quantity);
+                $deliveredMilli = (int) SalesOrderDelivery::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('sales_order_line_id', $line->getKey())
+                    ->sum('quantity_milli');
+                $pendingMilli = $orderedMilli - $deliveredMilli - (int) $line->cancelled_quantity_milli;
+
+                if ($pendingMilli <= 0 || $quantityMilli > $pendingMilli) {
+                    $this->invalid('quantity', 'مقدار تحویل از باقیماندهٔ سطر سفارش بیشتر است.');
+                }
+
+                $product = Product::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->lockForUpdate()
+                    ->findOrFail($line->product_id);
+
+                if ($product->base_unit_id === null || (int) $line->unit_id !== (int) $product->base_unit_id) {
+                    $this->invalid('product_id', 'واحد پایهٔ فعلی کالا با واحد ثبت‌شده در سطر سفارش سازگار نیست.');
+                }
+
+                $initialReservation = StockReservation::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('sales_order_line_id', $line->getKey())
+                    ->findOrFail($reservationId);
+                $location = Location::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->findOrFail($initialReservation->location_id);
+                $locationIds = [(int) $location->getKey()];
+                [$location] = $this->lockSelectedLocations($organization, [
+                    'warehouse_id' => (int) $location->warehouse_id,
+                    'location_id' => (int) $location->getKey(),
+                ], $locationIds);
+                $this->lockStockKeys($organization, (int) $product->getKey(), $locationIds);
+                $balance = $this->lockedBalance($organization, $product, (int) $location->getKey());
+                $reservation = StockReservation::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('sales_order_line_id', $line->getKey())
+                    ->lockForUpdate()
+                    ->findOrFail($reservationId);
+
+                if ($reservation->status !== 'open'
+                    || (int) $reservation->product_id !== (int) $product->getKey()
+                    || (int) $reservation->base_unit_id !== (int) $product->base_unit_id
+                    || (int) $reservation->location_id !== (int) $location->getKey()) {
+                    $this->invalid('reservation_id', 'رزرو انتخاب‌شده برای این سطر سفارش فعال یا سازگار نیست.');
+                }
+
+                if ($quantityMilli > $this->reservationOutstanding($reservation)) {
+                    $this->invalid('quantity', 'مقدار تحویل از باقیماندهٔ رزرو انتخاب‌شده بیشتر است.');
+                }
+
+                if ($quantityMilli > $balance['physical_milli']) {
+                    throw new \RuntimeException('The linked reservation exceeds physical stock.');
+                }
+
+                $now = now();
+                $operation = InventoryOperation::query()->create([
+                    'organization_id' => $organization->getKey(),
+                    'product_id' => $product->getKey(),
+                    'base_unit_id' => $product->base_unit_id,
+                    'operation_type' => 'issue',
+                    'quantity_milli' => $quantityMilli,
+                    'from_location_id' => $location->getKey(),
+                    'to_location_id' => null,
+                    'product_code_snapshot' => $product->code,
+                    'product_name_snapshot' => $product->name,
+                    'unit_code_snapshot' => $product->baseUnit()->value('code'),
+                    'unit_name_snapshot' => $product->baseUnit()->value('name'),
+                    'unit_symbol_snapshot' => $product->baseUnit()->value('symbol'),
+                    'from_location_code_snapshot' => $location->code,
+                    'from_location_name_snapshot' => $location->name,
+                    'to_location_code_snapshot' => null,
+                    'to_location_name_snapshot' => null,
+                    'idempotency_key' => $idempotencyKey,
+                    'request_hash' => $requestHash,
+                    'actor_id' => $actor->getKey(),
+                    'created_at' => $now,
+                ]);
+                $movement = $this->persistMovement($operation, [
+                    'organization_id' => $organization->getKey(),
+                    'product_id' => $product->getKey(),
+                    'base_unit_id' => $product->base_unit_id,
+                    'location_id' => $location->getKey(),
+                    'direction' => 'outbound',
+                    'quantity_milli' => $quantityMilli,
+                    'created_at' => $now,
+                ]);
+                SalesOrderDelivery::query()->create([
+                    'organization_id' => $organization->getKey(),
+                    'sales_order_line_id' => $line->getKey(),
+                    'stock_reservation_id' => $reservation->getKey(),
+                    'inventory_operation_id' => $operation->getKey(),
+                    'inventory_movement_id' => $movement->getKey(),
+                    'quantity_milli' => $quantityMilli,
+                    'idempotency_key' => $idempotencyKey,
+                    'request_hash' => $requestHash,
+                    'actor_id' => $actor->getKey(),
+                    'created_at' => $now,
+                ]);
+
+                $consumedMilli = (int) $reservation->consumed_quantity_milli + $quantityMilli;
+                $remainingMilli = (int) $reservation->quantity_milli - $consumedMilli - (int) $reservation->released_quantity_milli;
+                $reservation->forceFill([
+                    'consumed_quantity_milli' => $consumedMilli,
+                    'status' => $remainingMilli === 0 ? 'consumed' : 'open',
+                ])->save();
+
+                $operation->load(['actor', 'movements']);
+                $delivery = SalesOrderDelivery::query()
+                    ->where('organization_id', $organization->getKey())
+                    ->where('idempotency_key', $idempotencyKey)
+                    ->firstOrFail();
+
+                return ['record' => $delivery->load(['reservation', 'operation', 'movement', 'actor']), 'operation' => $operation, 'already_exists' => false];
+            }, 3);
+        } catch (QueryException $exception) {
+            if (! $this->isDuplicateKey($exception)) {
+                throw $exception;
+            }
+
+            $existing = InventoryOperation::query()
+                ->where('organization_id', $organization->getKey())
+                ->where('idempotency_key', $idempotencyKey)
+                ->first();
+
+            if ($existing === null) {
+                throw $exception;
+            }
+
+            return $this->existingSalesDeliveryResult($existing, $requestHash, $lineId, $reservationId);
+        }
     }
 
     public static function quantityToMilli(string $quantity): int
@@ -456,8 +710,8 @@ class StockService
             ->where('status', 'open')
             ->orderBy('id')
             ->lockForUpdate()
-            ->get(['quantity_milli']);
-        $reservedMilli = (int) $reservationRows->sum(fn (StockReservation $reservation): int => (int) $reservation->quantity_milli);
+            ->get(['quantity_milli', 'consumed_quantity_milli', 'released_quantity_milli']);
+        $reservedMilli = (int) $reservationRows->sum(fn (StockReservation $reservation): int => $this->reservationOutstanding($reservation));
 
         if ($physicalMilli < 0 || $physicalMilli > self::MAX_QUANTITY_MILLI || $reservedMilli > $physicalMilli) {
             throw new \RuntimeException('The stock ledger and open reservations are inconsistent.');
@@ -492,6 +746,40 @@ class StockService
         }
 
         return ['record' => $existing->load(['createdBy', 'releasedBy']), 'already_exists' => true];
+    }
+
+    private function existingSalesDeliveryResult(InventoryOperation $existing, string $requestHash, int $lineId, int $reservationId): array
+    {
+        if (! hash_equals($existing->request_hash, $requestHash)) {
+            throw new HttpException(409, 'این کلید درخواست قبلاً برای تحویل دیگری استفاده شده است.');
+        }
+
+        $delivery = SalesOrderDelivery::query()
+            ->where('organization_id', $existing->organization_id)
+            ->where('idempotency_key', $existing->idempotency_key)
+            ->first();
+
+        if ($delivery === null
+            || (int) $delivery->sales_order_line_id !== $lineId
+            || (int) $delivery->stock_reservation_id !== $reservationId
+            || (int) $delivery->inventory_operation_id !== (int) $existing->getKey()) {
+            throw new HttpException(409, 'این کلید درخواست به عملیات موجود دیگری تعلق دارد.');
+        }
+
+        $existing->load(['actor', 'movements']);
+
+        return [
+            'record' => $delivery->load(['reservation', 'operation', 'movement', 'actor']),
+            'operation' => $existing,
+            'already_exists' => true,
+        ];
+    }
+
+    private function reservationOutstanding(StockReservation $reservation): int
+    {
+        return (int) $reservation->quantity_milli
+            - (int) $reservation->consumed_quantity_milli
+            - (int) $reservation->released_quantity_milli;
     }
 
     private function requestHash(array $payload): string

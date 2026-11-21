@@ -59,7 +59,12 @@ export interface StockReservation {
     base_unit: StockUnit;
     location: StockLocation;
     quantity: string;
-    status: 'open' | 'released';
+    consumed_quantity: string;
+    released_quantity: string;
+    remaining_quantity: string;
+    sales_order_line_id: number | null;
+    sales_order: { id: number; code: string } | null;
+    status: 'open' | 'released' | 'consumed';
     created_by: { id: number | null; name: string | null };
     created_at: string;
     released_by: { id: number; name: string | null } | null;

@@ -6,3 +6,4 @@ This section records application access boundaries and their enforcement points.
 - [P04 master-data isolation](p04-master-data-isolation.md) — scoped relationships, selector filtering, price resolution, and editor policy.
 - [P05 sales isolation](p05-sales-isolation.md) — organization-scoped documents, role capability, transitions, and transactional conversion.
 - [P06 stock isolation](p06-stock-isolation.md) — active-organization scoping, reader/editor permission, location pairing, and concurrent writes.
+- [P07 fulfillment isolation](p07-sales-fulfillment.md) — order-line scoping, editor-only fulfillment, foreign-ID hiding, and P06 release-route protection.

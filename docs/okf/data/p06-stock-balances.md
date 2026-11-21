@@ -31,11 +31,11 @@ A product without a base unit receives a clear `422` validation response. Existi
 
 ## Balance equation and negative-stock rule
 
-No persisted balance totals are maintained. The API derives physical quantity from the immutable movement ledger and reserved quantity from open reservations:
+No persisted balance totals are maintained. The API derives physical quantity from the immutable movement ledger and reserved quantity from open reservation outstanding amounts:
 
 ```text
 physical  = sum(inbound movement quantity) - sum(outbound movement quantity)
-reserved  = sum(quantity for open reservations)
+reserved  = sum(quantity - consumed - released for open reservations)
 available = physical - reserved
 ```
 
@@ -47,7 +47,7 @@ An opening stock operation is allowed only when it is the first movement for tha
 
 ## Reservation lifecycle
 
-Reservations hold a positive quantity against one organization/product/location/base-unit key. Creation checks availability under the stock-key lock and does not add a physical movement. Releasing records status, releasing actor, and timestamp in the same transaction as the protected balance read. Repeating release returns the released record without changing the timestamp or effective reserved quantity.
+Reservations hold a positive original quantity against one organization/product/location/base-unit key. Creation checks availability under the stock-key lock and does not add a physical movement. Standalone P06 reservations retain `sales_order_line_id = NULL` and zero consumed/released counters. P07 may attach a reservation to one sales-order line and increase its consumed counter by each delivered amount without changing the original quantity. Cancelling the line increases the released counter by the outstanding amount. A reservation remains `open` while any amount is held, becomes `consumed` when all original quantity was delivered, or becomes `released` when its remainder was released. P06 release records actor/time and remains idempotent for standalone reservations; the route rejects P07-linked reservations so line reconciliation cannot be bypassed.
 
 `stock_locks` is a serialization registry, not a balance cache. It has a unique organization/product/location key and is inserted before locking, so first writes also have a durable lock target. Because balances are derived, there is no cached total to reconcile; the live API and acceptance helpers independently sum the ledger/reservation rows.
 

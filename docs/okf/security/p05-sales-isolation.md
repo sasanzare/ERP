@@ -25,7 +25,7 @@ Order conversion locks the confirmed quote, verifies its stored calculations, an
 
 ## Boundary
 
-P05 does not read or reserve stock, issue fulfillment, invoice, post accounting, or contact external services. P06 owns stock balances/reservations; P07 consumes the stable order-line source interface.
+P05 does not read or reserve stock, issue fulfillment, invoice, post accounting, or contact external services. P06 owns stock balances/reservations; P07 consumes the stable order-line source interface under the same active-organization boundary.
 
 ## Verification
 

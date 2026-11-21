@@ -272,8 +272,10 @@ function MovementsTable({ rows }: { rows: StockOperation[] }) {
     if (rows.length === 0) return <EmptyState title="دفتر حرکت خالی است">رسید، حواله، انتقال یا موجودی افتتاحیه در این سازمان ثبت نشده است.</EmptyState>;
     return <div className="stock-table-wrap"><table className="stock-table stock-history-table" aria-label="تاریخچهٔ عملیات موجودی">
         <thead><tr><th scope="col">عملیات</th><th scope="col">کالا</th><th scope="col">مقدار</th><th scope="col">مسیر</th><th scope="col">ثبت‌کننده و زمان</th></tr></thead>
-        <tbody>{rows.map((item) => <tr key={item.id}>
-            <td data-label="عملیات"><strong>{operationLabels[item.operation_type]}</strong><small><bdi dir="ltr">{item.reference}</bdi></small></td>
+        <tbody>{rows.map((item) => <tr key={item.id} id={`operation-${item.id}`}>
+            <td data-label="عملیات"><strong>{operationLabels[item.operation_type]}</strong><small><bdi dir="ltr">{item.reference}</bdi></small>
+                {item.legs.length > 0 && <small className="stock-leg-links">{item.legs.map((leg) => <a key={leg.id} id={`movement-${leg.id}`} href={`#movement-${leg.id}`}>حرکت <bdi dir="ltr">{leg.id}</bdi></a>)}</small>}
+            </td>
             <td data-label="کالا"><strong>{item.product.name}</strong><small><bdi dir="ltr">{item.product.code}</bdi></small></td>
             <td data-label="مقدار"><bdi dir="ltr">{formatQuantity(item.quantity)}</bdi> {item.base_unit.symbol}</td>
             <td data-label="مسیر"><strong>{item.operation_type === 'transfer'
@@ -298,9 +300,10 @@ function ReservationsTable({ rows, canManage, releasing, onRelease }: {
         <tbody>{rows.map((item) => <tr key={item.id}>
             <td data-label="کالا و مکان"><strong>{item.product.name}</strong><small><bdi dir="ltr">{item.product.code}</bdi> · {item.location.name}</small></td>
             <td data-label="مقدار"><bdi dir="ltr">{formatQuantity(item.quantity)}</bdi> {item.base_unit.symbol}</td>
-            <td data-label="وضعیت"><span className={`stock-status stock-status-${item.status}`}>{item.status === 'open' ? 'باز' : 'آزادشده'}</span></td>
+            <td data-label="وضعیت"><span className={`stock-status stock-status-${item.status}`}>{item.status === 'open' ? 'باز' : item.status === 'consumed' ? 'تحویل کامل' : 'آزادشده'}</span></td>
             <td data-label="زمان و اقدام"><strong>{item.created_by.name ?? 'کاربر'} · {formatDate(item.created_at)}</strong>
-                {item.status === 'open' && canManage ? <button className="stock-release-button" type="button" onClick={() => void onRelease(item.id)} disabled={releasing === item.id}>{releasing === item.id ? 'در حال آزادسازی…' : 'آزادسازی رزرو'}</button> : item.released_at ? <small>آزاد شد: {formatDate(item.released_at)}</small> : null}
+                {item.sales_order && <small><a href={`/orders/${item.sales_order.id}`}>مرتبط با سفارش <bdi dir="ltr">{item.sales_order.code}</bdi></a></small>}
+                {item.status === 'open' && canManage && item.sales_order_line_id === null ? <button className="stock-release-button" type="button" onClick={() => void onRelease(item.id)} disabled={releasing === item.id}>{releasing === item.id ? 'در حال آزادسازی…' : 'آزادسازی رزرو'}</button> : item.released_at ? <small>آزاد شد: {formatDate(item.released_at)}</small> : null}
             </td>
         </tr>)}</tbody>
     </table></div>;

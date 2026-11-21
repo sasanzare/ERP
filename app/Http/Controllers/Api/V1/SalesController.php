@@ -10,6 +10,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderLine;
 use App\Models\SalesQuote;
 use App\Models\SalesQuoteLine;
+use App\Services\Sales\SalesFulfillmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -164,6 +165,7 @@ abstract class SalesController extends Controller
             'lines' => $order->lines->map(fn (SalesOrderLine $line): array => [
                 ...$this->serializeQuoteLine($this->quoteLineView($line)),
                 'source_quote_line_id' => $line->source_quote_line_id,
+                'fulfillment' => app(SalesFulfillmentService::class)->serializeLine($line),
             ])->values(),
         ];
     }

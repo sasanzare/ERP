@@ -114,3 +114,23 @@ At mobile scroll end, `documentWidth` and `clientWidth` both measured 375 CSS px
 | Balances in forced bright fallback, mobile 390×844 | [P06 forced fallback](screenshots/p06-fallback-mobile-2026-11-21T14-52-28-542Z.png) |
 
 The full guarded serial Laravel suite passed 50 tests / 464 assertions; `npm run typecheck` and `npm run build` passed. The implementation and remaining migration rehearsal boundary are recorded in [HANDOFF.md](../HANDOFF.md).
+
+## P07 sales-fulfillment evidence
+
+The confirmed-order detail keeps the P05 commercial snapshot intact and adds one fulfillment group to each line. Ordered, reserved, delivered, cancelled, and pending quantities remain sharp content; the line's reserve/deliver/cancel controls reuse the shared Liquid Glass buttons. Warehouse and location selectors, exact decimal text fields, and visible focus follow the established RTL forms. Each delivery shows its reservation ID and links directly to the immutable P06 operation and movement in `/stock/movements`.
+
+Google Chrome verified a dedicated synthetic `erp_dev` order line for 3.000 EA at 1280×900 and 390×844. Reserve produced physical/reserved/available `10.000/3.000/7.000`; delivery of 2.000 produced `8.000/1.000/7.000`; cancelling the remaining 1.000 produced `8.000/0.000/8.000`. The final line retained ordered 3.000, delivered 2.000, cancelled 1.000, its P05 300,000-toman line/total snapshot, one outbound movement, and an unchanged cancellation timestamp on retry. The verified fixture uses order 8, line 10, delivery 3, operation 14, and movement 15.
+
+Two requests on independent local PHP/MariaDB connections used the same delivery key and payload while the stock-key row was held. They returned 201 and 200 with the same delivery and operation IDs; database-backed API readback showed one delivery and one outbound issue. Reusing the key with changed quantity returned 409; a new request exceeding the remaining order/reservation returned 422. Reader history remained visible, reader writes were forbidden, foreign order/line and unrelated reservation IDs remained hidden, explicit CSRF was required, and an injected outbound-movement failure left no partial issue, consumption, or link. The guarded P07 migration rollback/reapply on `erp_test` preserved the P06 tables and operation foreign key/support index.
+
+The mobile document/client widths were both 375 CSS px in the 390×844 viewport. Keyboard Tab reached the warehouse selector, location selector, and reserve action with a visible focus outline. Forced bright fallback kept three shared glass surfaces and zero SVG-refraction surfaces. The harness reported zero runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Fulfillment controls and full reservation, desktop 1280×900 | [P07 reserve](screenshots/p07-reserve-desktop-2026-11-21T16-58-33-946Z.png) |
+| Partial delivery with linked issue/movement, desktop 1280×900 | [P07 delivery](screenshots/p07-delivery-desktop-2026-11-21T16-58-33-946Z.png) |
+| Delivered and cancelled quantities, desktop 1280×900 | [P07 cancellation](screenshots/p07-cancel-desktop-2026-11-21T16-58-33-946Z.png) |
+| Fulfillment history and fixed dock, mobile 390×844 | [P07 mobile order](screenshots/p07-order-mobile-2026-11-21T16-58-33-946Z.png) |
+| Fulfillment in forced bright fallback, mobile 390×844 | [P07 forced fallback](screenshots/p07-fallback-mobile-2026-11-21T16-58-33-946Z.png) |
+
+P08 can reuse the stock options/quantity interface, stock-key locking, and P06 receipt operation while maintaining purchase-order-specific traceability.

@@ -85,7 +85,7 @@ class StockController extends Controller
             ->where('organization_id', $organization->getKey())
             ->where('status', 'open')
             ->select(['product_id', 'base_unit_id', 'location_id'])
-            ->selectRaw('SUM(quantity_milli) AS reserved_milli')
+            ->selectRaw('SUM(quantity_milli - consumed_quantity_milli - released_quantity_milli) AS reserved_milli')
             ->groupBy('product_id', 'base_unit_id', 'location_id')
             ->get();
 
@@ -161,7 +161,7 @@ class StockController extends Controller
         $organization = $this->activeOrganization($request);
         $reservations = StockReservation::query()
             ->where('organization_id', $organization->getKey())
-            ->with(['createdBy', 'releasedBy'])
+            ->with(['createdBy', 'releasedBy', 'salesOrderLine.order'])
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
@@ -308,7 +308,7 @@ class StockController extends Controller
 
     private function serializeReservation(StockReservation $reservation): array
     {
-        $reservation->loadMissing(['createdBy', 'releasedBy']);
+        $reservation->loadMissing(['createdBy', 'releasedBy', 'salesOrderLine.order']);
 
         return [
             'id' => $reservation->getKey(),
@@ -329,6 +329,16 @@ class StockController extends Controller
                 'name' => $reservation->location_name_snapshot,
             ],
             'quantity' => StockService::milliToQuantity($reservation->quantity_milli),
+            'consumed_quantity' => StockService::milliToQuantity($reservation->consumed_quantity_milli),
+            'released_quantity' => StockService::milliToQuantity($reservation->released_quantity_milli),
+            'remaining_quantity' => StockService::milliToQuantity(
+                (int) $reservation->quantity_milli - (int) $reservation->consumed_quantity_milli - (int) $reservation->released_quantity_milli,
+            ),
+            'sales_order_line_id' => $reservation->sales_order_line_id === null ? null : (int) $reservation->sales_order_line_id,
+            'sales_order' => $reservation->salesOrderLine?->order === null ? null : [
+                'id' => $reservation->salesOrderLine->order->getKey(),
+                'code' => $reservation->salesOrderLine->order->code,
+            ],
             'status' => $reservation->status,
             'created_by' => ['id' => $reservation->createdBy?->getKey(), 'name' => $reservation->createdBy?->name],
             'created_at' => $reservation->created_at?->toIso8601String(),

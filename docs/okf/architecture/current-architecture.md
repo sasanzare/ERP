@@ -1,7 +1,7 @@
 ---
 type: Architecture
 title: Local Runtime Architecture
-description: Records the actual local application topology, organization boundaries, sales workflow, and partial P06 stock workflow.
+description: Records the actual local application topology, organization boundaries, sales workflow, and P06/P07 inventory integration.
 tags:
   - architecture
   - runtime
@@ -12,7 +12,7 @@ status: active
 
 ## Implementation state
 
-The Laravel 13 application and P01 source/configuration are at the repository root. Composer and npm dependencies are locked and installed. P01–P06 are accepted after validating their migrations, repeatable provisioning, browser/API paths, and Persian RTL workspaces. P06 includes an immutable stock ledger, location balances/reservations, concurrency controls, and verified P05-to-P06 rollback/reapply on `erp_test`. P03 session, organization, membership, policy, and audit behavior remain the authorization base. P04 adds organization-owned master data and P05 adds sales documents.
+The Laravel 13 application and P01 source/configuration are at the repository root. Composer and npm dependencies are locked and installed. P01–P07 are accepted after validating their migrations, repeatable provisioning, browser/API paths, and Persian RTL workspaces. P06 includes an immutable stock ledger, location balances/reservations, and concurrency controls. P07 connects confirmed order lines to those reservations and issues with partial delivery, cancellation, and operation/movement traceability. P03 session, organization, membership, policy, and audit behavior remain the authorization base.
 
 ## Implemented P01 topology
 
@@ -35,8 +35,9 @@ The Laravel 13 application and P01 source/configuration are at the repository ro
 - The existing `p03:provision-demo` command also provisions repeatable P04 fixtures. On `erp_dev`, two consecutive runs retained 2 organizations, 3 memberships, 3 role-audit rows, 3 products, 1 party with 2 roles, 3 units across two organizations, 2 warehouses, 2 locations, 2 price lists, and 2 price entries.
 - P05 adds organization-scoped leads, activities, quotes, and confirmed orders. P04 prices remain exact rials while P05 document snapshots use integer tenths of a toman and thousandth-unit quantities; quote conversion is transactional and idempotent.
 - P06 adds `inventory_operations`, immutable `inventory_movements`, `stock_reservations`, and a unique `(organization_id, product_id, location_id)` `stock_locks` registry. Balances are derived from inbound/outbound legs and open reservations. The local dev migration is applied and the accepted fixtures keep product IDs/units 1–5 unchanged.
-- The P06 workspace uses `/stock`, `/stock/movements`, and `/stock/reservations`; API writes require an editor role, explicit CSRF, and organization-unique idempotency UUID. MariaDB writers lock product and location rows plus sorted stock-key rows; P06 does not add sales-order-line links, which remain P07 work.
+- The P06 workspace uses `/stock`, `/stock/movements`, and `/stock/reservations`; API writes require an editor role, explicit CSRF, and organization-unique idempotency UUID. MariaDB writers lock product and location rows plus sorted stock-key rows.
+- P07 migration `2026_11_21_000008_add_p07_sales_fulfillment` adds reservation ownership/counters, line cancellation state, a delivery trace table, and operation/movement keys. Sales fulfillment locks the order line before following the P06 product/location/stock-key/reservation order. Delivery posts one outbound issue and delivery trace atomically; cancellation releases the unfulfilled reservation remainder without a movement. P06 standalone release rejects line-managed reservations.
 
-The framework version follows the user's direction to use the latest Laravel release. PHP 8.5.13 is installed at `C:\php8.5`; the user removed the old `C:\php-8.2` directory. MariaDB 11.8.9 was healthy during P06 verification, and product IDs/base units remained unchanged through migration 000007. On this Windows host, Docker commands require an elevated PowerShell because normal Docker Desktop pipe access is denied. See [Laravel 13 support requirements](https://laravel.com/framework/docs/13.x/releases), the [P06 workflow](p06-stock-workflow.md), and [project handoff](../../../HANDOFF.md).
+The framework version follows the user's direction to use the latest Laravel release. PHP 8.5.13 is installed at `C:\php8.5`; the user removed the old `C:\php-8.2` directory. The P07 migration is applied on the existing `erp_dev` volume. P07-only rollback/reapply on guarded `erp_test` preserved P06 tables and restored its operation foreign key/support index. On this Windows host, Docker commands require an elevated PowerShell because normal Docker Desktop pipe access is denied. See [Laravel 13 support requirements](https://laravel.com/docs/13.x/releases), the [P06 workflow](p06-stock-workflow.md), the [P07 workflow](p07-sales-fulfillment.md), and [project handoff](../../../HANDOFF.md).
 
 The test schema is disposable and separate from the development schema. The guard runs before `RefreshDatabase` and rejects `erp_dev`; see [the P01 stack and isolation decision](../decisions/adr-001-p01-stack-and-isolation.md).

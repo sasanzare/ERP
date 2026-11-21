@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryMovement extends Model
 {
@@ -27,5 +28,10 @@ class InventoryMovement extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function salesOrderDeliveries(): HasMany
+    {
+        return $this->hasMany(SalesOrderDelivery::class, 'inventory_movement_id');
     }
 }
