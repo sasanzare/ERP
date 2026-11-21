@@ -26,6 +26,10 @@ P02 establishes the reusable Persian RTL workspace around the existing synthetic
 
 The LiquidGlass primitive retains its measured displacement map, geometry cache, and forced fallback. `GlassButton` is the shared action control; `GlassSearchField` is the shared labeled filter; `WorkspaceShell` owns desktop and mobile navigation; `ProductQuickViewDialog` owns dialog focus behavior.
 
+## Typography
+
+The workspace uses the locally supplied IRANSansX WOFF2 assets in `resources/fonts/iran-sans-x/`. `IRANSansXFaNum` is the root UI family so Persian text and Persian-formatted digits share the Persian-number glyph design. `@font-face` maps the supplied static files to CSS weights 100–900 (Thin, UltraLight, Light, Regular, Medium, DemiBold, Bold, ExtraBold, Black), and `font-synthesis: none` prevents fabricated bold faces. LTR inputs and non-monospace LTR identifiers use the standard IRANSansX family; existing monospace product/code badges remain monospace.
+
 ## Contrast and fallback behavior
 
 - Add `?glass=fallback` to force the CSS material fallback on any workspace route.

@@ -10,22 +10,22 @@ Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace
 
 ## Current Objective
 
-The one-command local web-server launcher is complete: `npm run dev` starts Laravel and Vite; MariaDB/Docker remains manual.
+P04 is accepted. IranSansX has been added to the Persian UI with matching static weights. Await the next requested task.
 
 ## Current Phase or Milestone
 
-P01–P04 ACCEPTED. The requested `npm run dev` launcher is implemented and validated. It starts Laravel and Vite together, stops both on Ctrl+C, and does not invoke Docker.
+P01–P04 ACCEPTED. IranSansX integration is complete: standard and FaNum WOFF2 files for nine weights are bundled; Persian UI uses FaNum. Build and TypeScript checks passed.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `68bcd283c9f52096dc63b4be314cb9b42c8b2746`
-- Current HEAD: `68bcd283c9f52096dc63b4be314cb9b42c8b2746`
-- Working tree status: 29 tracked files are modified and 34 new P04/launcher source, documentation, test, script, and evidence files are untracked. The worktree was clean before P04.
+- Base or starting commit: `b97e66bd343c0f81702d939840f009783265f12f`
+- Current HEAD: `b97e66bd343c0f81702d939840f009783265f12f`
+- Working tree status: six tracked font/documentation edits and 18 untracked WOFF2 assets. P04/launcher changes were committed at the starting HEAD.
 - Staged changes: none
-- Unstaged changes: tracked modifications to instructions, README/package scripts, handoff, P03/P04 integration, UI/CSS, routes, and affected OKF/UI documentation.
-- Untracked files: six P04 API controllers, seven P04 models, `OrganizationPolicy.php`, migration/seeder, three React/TypeScript files, P04 tests/browser harness, seven OKF/evidence concepts and screenshots, and `scripts/Run-LocalDev.mjs`.
+- Unstaged changes: `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, `docs/okf/architecture/ui-workspace.md`, `docs/okf/log.md`, and `resources/css/products.css`.
+- Untracked files: 18 IranSansX WOFF2 weights in `resources/fonts/iran-sans-x/`.
 
 ## Completed Work
 
@@ -48,22 +48,25 @@ P01–P04 ACCEPTED. The requested `npm run dev` launcher is implemented and vali
 - Completed Chrome acceptance at 1280×900, 390×844, and forced bright glass fallback. Seven final screenshots are linked from `docs/UI_DESIGN.md`; no browser runtime errors occurred. Mobile party-form action ended at y=609.53 and location-selector action at y=622.31; both were above the dock at y=770. `document.scrollWidth` and `clientWidth` were both 375 px in the 390 px emulated window.
 - Rehearsed P04-only rollback/reapply on `erp_test`. The rollback removed P04 tables and `products.base_unit_id` while retaining P03 `products` and `organization_id`; reapply succeeded and the final guarded suite passed again.
 - Updated `AGENTS.md`, README, P04 OKF architecture/data/security/decision concepts and indexes, the OKF maintenance log, and the UI evidence. OKF validation passed for 17 Markdown files, the root OKF 0.2 declaration, concept types, and 63 internal targets.
-- Created the verified ERP-specific mistakes log with one reusable note about serial use of the shared `erp_test` schema. Appended one P04 completion event to the local Notion queue; no Notion API was called and the event remains `PENDING`.
+- Created the verified ERP-specific mistakes log with one reusable note about serial use of the shared `erp_test` schema. Appended report-only P04, launcher, and font events to the local Notion queue; all remain `PENDING`, and no Notion API was called.
 - Added a dependency-free Node launcher: `npm run dev` starts `php artisan serve` on 8000 and Vite on 5173, handles their exit/shutdown together, honors `ERP_PHP_BINARY`, and never invokes Docker. `npm run dev:vite` remains available for a Vite-only session.
 - Updated README, AGENTS, current runtime/P04 architecture OKF documents, and the OKF log to document the one-command startup while keeping the user-managed DB lifecycle manual.
 - No migrations, provisioning, or database tests were run for the launcher change; no database or Docker state was modified. The existing P04 suite still has 36 passing tests / 213 assertions.
+- Copied all 18 user-provided IranSansX WOFF2 files into `resources/fonts/iran-sans-x/`: nine static weights each for standard and FaNum variants.
+- Registered weights 100–900 per family. Persian UI text uses `IRANSansXFaNum`; LTR fields and identifiers use standard IRANSansX where applicable, while monospace code styling remains with FaNum glyph fallback.
+- Updated README, UI design, UI workspace architecture, and the OKF log with the local font and weight mapping.
 
 ## Work in Progress
 
-None. The launcher request is implemented and verified. The existing P04 work remains uncommitted.
+None. Font assets and weight mappings are integrated; build and typecheck pass. Existing P04/launcher changes remain uncommitted.
 
 ## Remaining Work
 
-No implementation work remains for the launcher. P05 is unstarted and requires a separate user request.
+No font work remains. P05 is unstarted and requires a separate user request.
 
 ## Exact Next Steps
 
-When ready to develop, start Docker/MariaDB manually, then run `npm run dev` from the repository root and open `http://127.0.0.1:8000`. Preserve the current P04 work. Do not stage, commit, push, or change branches.
+No implementation work remains. An optional browser visual review may be repeated when the local dev server is available. Do not stage, commit, push, or change branches.
 
 ## Files Created
 
@@ -80,6 +83,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 - P04 API/controllers/models/policy, additive migration, repeatable `P04DemoSeeder`, `resources/js/api/masterData.ts`, `resources/js/components/LabeledInput.tsx`, `resources/js/screens/MasterDataScreen.tsx`, `tests/Feature/P04MasterDataTest.php`, and `scripts/Verify-P04Browser.mjs`
 - P04 OKF architecture/data/security/ADR documents and seven final screenshots listed in `docs/UI_DESIGN.md#p04-verification-evidence`
 - `scripts/Run-LocalDev.mjs` — dependency-free local Laravel/Vite process launcher
+- 18 user-provided IRANSansX WOFF2 files under `resources/fonts/iran-sans-x/`
 - `scripts/Verify-P03Browser.mjs`
 - `docs/okf/architecture/authentication-and-organization-access.md`, `docs/okf/decisions/adr-002-p03-session-and-organization-boundary.md`, `docs/okf/security/index.md`, `docs/okf/security/organization-access.md`
 - Seven Google Chrome screenshots listed in `docs/UI_DESIGN.md#p03-verification-evidence`
@@ -89,6 +93,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 - P03/P04 integration: `app/Console/Commands/ProvisionP03Demo.php`, P03/P04 product, workspace, master-data controllers/models/policies, provider, P03/P04 seeders, `routes/api.php`, and `routes/web.php`
 - P02/P03/P04 UI: product API client, `resources/js/app.tsx`, `WorkspaceShell.tsx`, `ProductsScreen.tsx`, new `MasterDataScreen.tsx`, shared labeled field, master-data API, and `resources/css/products.css`
 - Local developer commands: `package.json`, `README.md`, `AGENTS.md`, current architecture/P04 architecture OKF documents, and `docs/okf/log.md` describe the `npm run dev` orchestrator.
+- Font integration: `resources/css/products.css` and 18 files under `resources/fonts/iran-sans-x/`; documented in README, `docs/UI_DESIGN.md`, and the UI workspace architecture.
 - Instructions/docs: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, and P03-related OKF overview, indexes, architecture, decision, security, and log documents
 - P01/P02 source files in the integration list were already untracked at task start. P03-specific entries above were created this phase and are also untracked. `README.md` was already modified at task start and received further P03 documentation. Git's tracking status cannot separate changes within existing untracked files, so the lists above identify the files touched in this phase without implying staged/tracked state.
 
@@ -103,6 +108,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 - A party row is shared by its customer/supplier role rows. P04 relationships are organization-scoped; legacy products with unknown units remain nullable until assigned.
 - Price entries store unsigned integer rials, serialize amounts as strings, and resolve from explicit list/product IDs. Missing entries remain unpriced; conversions/discounts/snapshots are not part of P04.
 - The `npm run dev` Node launcher spawns PHP and the repository Vite CLI without an added dependency. It uses `ERP_PHP_BINARY` or `C:\php8.5\php.exe`, binds loopback ports 8000/5173, stops both children on Ctrl+C or unexpected exit, and leaves Docker alone.
+- The UI loads the supplied static IRANSansX weights 100–900 locally. Persian text uses FaNum glyphs; LTR identifiers use the standard family when styled as LTR and code badges retain monospace with a Persian fallback.
 - The organization/code unique index may only be removed when no code repeats between organizations. The down migration checks and refuses unsafe restoration of global uniqueness.
 - P03 uses synthetic local accounts. No registration, invitation, password reset, role-management UI, cloud, or deployment behavior was added.
 
@@ -131,6 +137,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 - Created `D:\All projects\Mistakes\ERP\mistakes.md` after verifying the project-root fingerprint; recorded the reusable shared-`erp_test` concurrency lesson.
 - Appended local Notion queue event `erp-p04-acceptance-20261121071210Z-dd69a580` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
 - Appended local Notion queue event `erp-dev-launcher-20261121075622Z-babcc74e` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
+- Appended local Notion queue event `erp-iransansx-font-20261121083746Z-3bf80e79` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
 - `C:\php8.5\php.exe artisan test` — final result: 27 tests / 94 assertions passed on guarded `erp_test`.
 - `npm run typecheck` — passed. `npm run build` — passed. `vendor\bin\pint --test` on changed PHP files — passed. `node --check scripts/Verify-P03Browser.mjs` — passed.
 - `node scripts/Verify-P03Browser.mjs` using installed Google Chrome headless — passed. Seven desktop/mobile PNGs saved in `docs/screenshots/`; P03 checks produced zero uncaught browser exceptions.
@@ -140,6 +147,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 - `npm run dev` — started Laravel at `127.0.0.1:8000` and Vite at `127.0.0.1:5173`. Read-only HTTP checks returned 200 for `/sign-in`, Vite `/@vite/client`, and Vite `/resources/js/app.tsx`; the Laravel HTML referenced the Vite client.
 - Sent Ctrl+C to the launcher and confirmed there were no listeners left on ports 8000/5173. Docker was not invoked. Vite's bare `/` returned 404 as expected because the Laravel app is the page host; the actual Vite client and entry module returned 200.
 - Read the verified ERP mistakes log at task start; its serial-`erp_test` lesson did not apply to the launcher, so no new mistake entry was needed.
+- Font integration: copied 18 supplied WOFF2 assets; `npm run typecheck` and `npm run build` passed. Vite emitted 18 hashed font assets in production output. Browser visual inspection was attempted, but startup reported port 5173 already in use; a later listener check found no active server. No page screenshot or computed-font browser check completed.
 
 ## Validation and Test Results
 
@@ -165,7 +173,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 ## Known Issues and Blockers
 
 - The project-specific mistakes log is available at `D:\All projects\Mistakes\ERP\mistakes.md`; its fingerprint was verified and one reusable concurrency note was added.
-- Two ERP report-only events were appended to `D:\All projects\notion\notion.md`; both are `PENDING` with zero entity changes (43 queue events total). Existing records were preserved. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
+- Three ERP report-only events were appended to `D:\All projects\notion\notion.md`; each is `PENDING` with zero entity changes (45 queue events total). Existing records were preserved. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
 - The user-provided `docs/MASTER_PLAN.md` has pre-existing links to absent `docs/reverse-engineering/` files. It was preserved unchanged; this does not block P04.
 - Requested model/effort was GPT-6 Luna at maximum reasoning when available; the current session did not expose an execution-profile value, so Luna/max cannot be confirmed.
 - An early overlapping double invocation of `artisan test` produced `erp_test` table races; the final serial suite passed 36/36 tests and 213 assertions. The correction is recorded in `AGENTS.md` and the ERP-specific mistakes log.
@@ -196,7 +204,7 @@ When ready to develop, start Docker/MariaDB manually, then run `npm run dev` fro
 
 ## Uncommitted or Partially Applied Changes
 
-All P04 and launcher changes remain unstaged and uncommitted on `main`; final inventory is 29 tracked modifications and 34 untracked implementation/document/evidence files. No changes were staged, committed, discarded, or reset. Development DB changes are the additive P04 migration and repeatable synthetic provisioning plus one synthetic party created through the editor UI.
+Only the font integration remains uncommitted on `main`: six tracked edits and 18 WOFF2 assets. Nothing was staged, committed, discarded, or reset. P04/launcher were committed at starting HEAD `b97e66bd343c0f81702d939840f009783265f12f`.
 
 ## Recovery or Rollback Notes
 
@@ -213,4 +221,4 @@ Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored P03 credential file
 
 ## Notes for the Next Agent
 
-P01–P04 are accepted. `npm run dev` starts Laravel and Vite together; the user starts Docker/MariaDB manually. The P04 and launcher reports are local queue events in `PENDING`; no Notion API was called. P05 is unstarted; wait for a separate user request. Do not stage, commit, push, or change branches.
+P01–P04 are accepted. Local Persian UI text uses bundled IRANSansXFaNum weights 100–900; LTR identifiers have the standard family and monospace fallbacks. `npm run dev` starts Laravel and Vite together; the user starts Docker/MariaDB manually. Three report-only queue events are `PENDING`; no Notion API was called. P05 is unstarted; wait for a separate user request. Do not stage, commit, push, or change branches.

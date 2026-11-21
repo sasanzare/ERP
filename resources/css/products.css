@@ -1,6 +1,150 @@
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Thin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-UltraLight.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Light.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Regular.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Medium.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-DemiBold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Bold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-ExtraBold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansX";
+    src: url("../fonts/iran-sans-x/IRANSansX-Black.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Thin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-UltraLight.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Light.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Regular.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Medium.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-DemiBold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Bold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-ExtraBold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "IRANSansXFaNum";
+    src: url("../fonts/iran-sans-x/IRANSansXFaNum-Black.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+}
+
 :root {
     color-scheme: dark;
-    font-family: Tahoma, "Segoe UI", sans-serif;
+    font-family: "IRANSansXFaNum", Tahoma, "Segoe UI", sans-serif;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -113,6 +257,11 @@ a,
 input {
     color: inherit;
     font: inherit;
+}
+
+input[dir="ltr"],
+bdi[dir="ltr"]:not(.product-code) {
+    font-family: "IRANSansX", "Segoe UI", sans-serif;
 }
 
 button,
@@ -720,7 +869,7 @@ input:focus-visible,
     color: #deebf0;
     background: rgba(255, 255, 255, 0.055);
     direction: ltr;
-    font-family: Consolas, "Courier New", monospace;
+    font-family: Consolas, "Courier New", "IRANSansXFaNum", monospace;
     font-size: 12px;
     letter-spacing: 0.025em;
     white-space: nowrap;
@@ -763,7 +912,7 @@ input:focus-visible,
 .register-footnote bdi {
     margin-inline-start: auto;
     color: #c3d0d8;
-    font-family: Consolas, "Courier New", monospace;
+    font-family: Consolas, "Courier New", "IRANSansXFaNum", monospace;
     font-size: 10px;
 }
 
@@ -884,7 +1033,7 @@ input:focus-visible,
 .detail-id bdi {
     margin-inline-start: 6px;
     color: #d8e9ef;
-    font-family: Consolas, "Courier New", monospace;
+    font-family: Consolas, "Courier New", "IRANSansXFaNum", monospace;
 }
 
 .product-detail-card {
@@ -996,7 +1145,7 @@ input:focus-visible,
 
 .detail-field dd bdi {
     direction: ltr;
-    font-family: Consolas, "Courier New", monospace;
+    font-family: Consolas, "Courier New", "IRANSansXFaNum", monospace;
     letter-spacing: 0.02em;
 }
 
@@ -1120,7 +1269,7 @@ input:focus-visible,
 
 .workspace-footer bdi {
     color: var(--page-muted);
-    font-family: Consolas, "Courier New", monospace;
+    font-family: Consolas, "Courier New", "IRANSansXFaNum", monospace;
 }
 
 .mobile-focus-dock {

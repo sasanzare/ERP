@@ -24,6 +24,8 @@ status: active
 
 The UI reuses the existing LiquidGlass component and displacement-map implementation. Shared material, radius, focus, and motion tokens are defined in [the P02 UI design reference](../../UI_DESIGN.md). `?glass=fallback` forces the solid/blur fallback; bright and dark backdrop review is available via the `scene` query setting. Reduced transparency, increased contrast, and reduced motion have explicit CSS behavior.
 
+The Persian interface uses local IRANSansX WOFF2 files from `resources/fonts/iran-sans-x/`. The root family uses IRANSansXFaNum with explicit static weights from 100 through 900. LTR identifiers use standard IRANSansX where appropriate, and code badges keep monospace. See the [UI typography reference](../../UI_DESIGN.md#typography).
+
 ## Current verification state
 
 P02 is accepted. TypeScript, Vite asset build, and the guarded Laravel suite passed during implementation. The closeout captured the live register and dialog at 1280×900 and 390×844 and rechecked Escape and focus return. The corrected 390×844 detail view had 17.31 CSS px of clearance above the mobile dock and zero horizontal overflow. See the [UI design reference](../../UI_DESIGN.md#verification-evidence) for captures and [project handoff](../../../HANDOFF.md) for acceptance evidence.

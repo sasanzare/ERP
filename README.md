@@ -56,6 +56,8 @@ npm run dev
 
 Open [http://127.0.0.1:8000/products](http://127.0.0.1:8000/products). The root `/` also opens the product register, `/products/{id}` opens a product detail, and the React page fetches `/api/v1/products` from the same origin.
 
+The Persian RTL UI uses the locally bundled IRANSansX and IRANSansXFaNum WOFF2 weights from `resources/fonts/iran-sans-x/`; `npm run build` bundles them for production assets. Latin identifiers retain their existing LTR/monospace presentation.
+
 ## P03 local sign-in and organization provisioning
 
 The local initializer runs the forward migrations, seeds the existing product, then invokes `php artisan p03:provision-demo`. That existing command now also runs the repeatable P04 master-data seeder. For an already initialized development database, run these commands from the repository root in Administrator PowerShell after starting the existing MariaDB service:
