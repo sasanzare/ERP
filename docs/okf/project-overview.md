@@ -1,7 +1,7 @@
 ---
 type: Project
 title: ERP Local Development Prototype
-description: A local-only ERP application with accepted product data, reusable Persian RTL workspace, and session-authenticated organization-scoped product access.
+description: A local-only ERP application with accepted product data, Persian RTL workspace, organization access, and shared organization-scoped master data.
 tags:
   - project
   - local-development
@@ -17,9 +17,9 @@ Establish a local ERP application that can be extended in later phases. P01's ac
 ## Boundaries
 
 - The project is local development only and uses synthetic data.
-- P02 covers the workspace UI and product views. P03 adds session authentication, organization membership, role-scoped product access, and an audit trail. Sales, inventory, finance, production deployment, and external services remain outside the current phase.
+- P02 covers the workspace UI and product views. P03 adds session authentication, organization membership, role-scoped access, and an audit trail. P04 adds shared parties, units, products, warehouses, locations, and price lists. Sales, inventory, finance, production deployment, and external services remain outside the current phase.
 - The existing repository root is the application root; no nested `erp/` directory should be created.
 
 ## Current phase
 
-P01, P02, and P03 are accepted. The application preserves the seeded product, backfills it to the documented starting organization, and enforces session authentication, current membership, and reader/editor product permissions. See the [project handoff](../../HANDOFF.md) for current validation and environment limits. Browser evidence for each accepted phase is in the [UI design reference](../UI_DESIGN.md).
+P01, P02, P03, and P04 are accepted. The application preserves existing product IDs and ownership, leaves unknown legacy units unset, and applies the session/membership reader/editor boundary to organization-owned master data. See the [project handoff](../../HANDOFF.md) for current validation. Browser evidence is in the [UI design reference](../UI_DESIGN.md).

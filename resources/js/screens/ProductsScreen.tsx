@@ -4,12 +4,13 @@ import {
     fetchWorkspaceContext,
     selectOrganization,
     signOut,
-    updateProductName,
     type Product,
     type WorkspaceContext,
 } from '../api/products';
+import { createProduct, fetchProductDetail, fetchUnits, updateProduct, type ProductDetailRecord, type UnitRecord } from '../api/masterData';
 import { GlassButton } from '../components/GlassButton';
 import { GlassSearchField } from '../components/GlassSearchField';
+import { LabeledInput } from '../components/LabeledInput';
 import { ProductQuickViewDialog } from '../components/ProductQuickViewDialog';
 import { WorkspaceShell } from '../components/WorkspaceShell';
 
@@ -78,19 +79,72 @@ function ErrorState({ onRetry, forceFallback }: { onRetry: () => void; forceFall
     );
 }
 
+function ProductCreateForm({ units, onCancel, onCreate }: {
+    units: UnitRecord[];
+    onCancel: () => void;
+    onCreate: (values: { code: string; name: string; base_unit_id: number | null }) => Promise<void>;
+}) {
+    const [code, setCode] = useState('');
+    const [name, setName] = useState('');
+    const [baseUnitId, setBaseUnitId] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState('');
+
+    async function submit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setSaving(true);
+        setMessage('');
+        try {
+            await onCreate({ code: code.trim(), name: name.trim(), base_unit_id: baseUnitId ? Number(baseUnitId) : null });
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'ثبت کالا انجام نشد.');
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <form className="master-form product-create-form" onSubmit={submit} aria-label="ثبت کالای جدید">
+            <div className="master-detail-heading"><p className="eyebrow">فرم مشترک اطلاعات پایه · کالا</p><h3>ثبت کالای جدید</h3></div>
+            <div className="master-form-grid">
+                <LabeledInput id="new-product-code" label="کد کالا" value={code} direction="ltr" maxLength={64} required onChange={setCode} />
+                <LabeledInput id="new-product-name" label="نام نمایشی کالا" value={name} maxLength={255} required onChange={setName} />
+                <label className="master-field" htmlFor="new-product-unit"><span>واحد پایه</span>
+                    <select id="new-product-unit" value={baseUnitId} onChange={(event) => setBaseUnitId(event.currentTarget.value)}>
+                        <option value="">نامشخص · بعداً تعیین می‌شود</option>
+                        {units.filter((unit) => unit.is_active).map((unit) => <option key={unit.id} value={unit.id}>{unit.name} · {unit.symbol}</option>)}
+                    </select>
+                </label>
+            </div>
+            <div className="master-form-actions">
+                <GlassButton type="submit" variant="tinted" disabled={saving}>{saving ? 'در حال ثبت' : 'ثبت کالا'}</GlassButton>
+                <button className="dialog-dismiss-button" type="button" onClick={onCancel}>انصراف</button>
+                <span className="edit-result" role="status" aria-live="polite">{message}</span>
+            </div>
+        </form>
+    );
+}
+
 function ProductRegister({
     products,
     filter,
     onFilterChange,
     onOpenQuickView,
     forceFallback,
+    canManage,
+    units,
+    onCreateProduct,
 }: {
     products: Product[];
     filter: string;
     onFilterChange: (value: string) => void;
     onOpenQuickView: (product: Product, trigger: HTMLButtonElement) => void;
     forceFallback: boolean;
+    canManage: boolean;
+    units: UnitRecord[];
+    onCreateProduct: (values: { code: string; name: string; base_unit_id: number | null }) => Promise<void>;
 }) {
+    const [creating, setCreating] = useState(false);
     const needle = filter.trim().toLocaleLowerCase();
     const matches = products.filter((product) => (
         `${product.name} ${product.code}`.toLocaleLowerCase().includes(needle)
@@ -107,7 +161,10 @@ function ProductRegister({
                     <bdi dir="ltr">{matches.length.toString().padStart(2, '0')}</bdi>
                     <span>مورد</span>
                 </span>
+                {canManage && !creating && <GlassButton variant="tinted" onClick={() => setCreating(true)} forceFallback={forceFallback}>کالای جدید</GlassButton>}
             </div>
+
+            {creating && <ProductCreateForm units={units} onCancel={() => setCreating(false)} onCreate={onCreateProduct} />}
 
             {products.length === 0 ? (
                 <EmptyState filtered={false} />
@@ -163,26 +220,45 @@ function ProductRegister({
 function ProductDetail({
     product,
     canEdit,
-    onUpdateName,
+    onUpdateProduct,
 }: {
     product: Product;
     canEdit: boolean;
-    onUpdateName: (productId: number, name: string) => Promise<void>;
+    onUpdateProduct: (productId: number, values: { code?: string; name?: string; base_unit_id?: number | null }) => Promise<ProductDetailRecord>;
 }) {
+    const [detail, setDetail] = useState<ProductDetailRecord | null>(null);
+    const [units, setUnits] = useState<UnitRecord[]>([]);
+    const [code, setCode] = useState(product.code);
     const [name, setName] = useState(product.name);
+    const [baseUnitId, setBaseUnitId] = useState('');
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
 
-    useEffect(() => setName(product.name), [product.id, product.name]);
+    useEffect(() => {
+        const controller = new AbortController();
+        fetchProductDetail(product.id, controller.signal).then((saved) => {
+            setDetail(saved);
+            setCode(saved.code);
+            setName(saved.name);
+            setBaseUnitId(saved.base_unit ? String(saved.base_unit.id) : '');
+        }).catch(() => setMessage('جزئیات پایهٔ کالا بارگیری نشد.'));
+        if (canEdit) fetchUnits(controller.signal).then(setUnits).catch(() => setUnits([]));
+        return () => controller.abort();
+    }, [canEdit, product.id]);
 
-    async function submitName(event: FormEvent<HTMLFormElement>) {
+    async function submitProduct(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setSaving(true);
         setMessage('');
 
         try {
-            await onUpdateName(product.id, name.trim());
-            setMessage('نام کالا ذخیره شد.');
+            const updated = await onUpdateProduct(product.id, {
+                code: code.trim(),
+                name: name.trim(),
+                base_unit_id: baseUnitId ? Number(baseUnitId) : null,
+            });
+            setDetail(updated);
+            setMessage('مشخصات کالا ذخیره شد.');
         } catch {
             setMessage('ذخیرهٔ تغییر انجام نشد؛ دوباره تلاش کنید.');
         } finally {
@@ -209,18 +285,17 @@ function ProductDetail({
                     <p className="eyebrow">مشخصات ثبت‌شده</p>
                     <h2 id="detail-title">{product.name}</h2>
                     {canEdit && (
-                        <form className="product-edit-form" onSubmit={submitName}>
-                            <label htmlFor="product-display-name">نام نمایشی کالا</label>
-                            <input
-                                id="product-display-name"
-                                name="name"
-                                value={name}
-                                maxLength={255}
-                                required
-                                onChange={(event) => setName(event.currentTarget.value)}
-                            />
-                            <GlassButton type="submit" variant="tinted" disabled={saving || name.trim() === product.name}>
-                                {saving ? 'در حال ذخیره' : 'ذخیرهٔ نام'}
+                        <form className="product-edit-form" onSubmit={submitProduct}>
+                            <LabeledInput id="product-code" label="کد کالا" value={code} direction="ltr" maxLength={64} required onChange={setCode} />
+                            <LabeledInput id="product-display-name" label="نام نمایشی کالا" value={name} maxLength={255} required onChange={setName} />
+                            <label className="master-field" htmlFor="product-base-unit"><span>واحد پایه</span>
+                                <select id="product-base-unit" value={baseUnitId} onChange={(event) => setBaseUnitId(event.currentTarget.value)}>
+                                    <option value="">نامشخص · نیازمند تعیین آگاهانه</option>
+                                    {units.filter((unit) => unit.is_active).map((unit) => <option key={unit.id} value={unit.id}>{unit.name} · {unit.symbol}</option>)}
+                                </select>
+                            </label>
+                            <GlassButton type="submit" variant="tinted" disabled={saving || !detail || (code.trim() === detail.code && name.trim() === detail.name && baseUnitId === (detail.base_unit ? String(detail.base_unit.id) : ''))}>
+                                {saving ? 'در حال ذخیره' : 'ذخیرهٔ مشخصات'}
                             </GlassButton>
                             <span className="edit-result" role="status" aria-live="polite">{message}</span>
                         </form>
@@ -237,6 +312,10 @@ function ProductDetail({
                         <div className="detail-field">
                             <dt>شناسه</dt>
                             <dd><bdi dir="ltr">{product.id}</bdi></dd>
+                        </div>
+                        <div className="detail-field">
+                            <dt>واحد پایه</dt>
+                            <dd>{detail?.base_unit ? `${detail.base_unit.name} · ${detail.base_unit.symbol}` : 'مشخص نشده است'}</dd>
                         </div>
                     </dl>
                     <a className="detail-register-link" href={workspaceHref('/products')}>
@@ -264,6 +343,7 @@ function UnknownProduct({ productId }: { productId: number }) {
 export function ProductsScreen() {
     const route = currentRoute();
     const [products, setProducts] = useState<Product[]>([]);
+    const [units, setUnits] = useState<UnitRecord[]>([]);
     const [context, setContext] = useState<WorkspaceContext | null>(null);
     const [state, setState] = useState<LoadState>('loading');
     const [attempt, setAttempt] = useState(0);
@@ -293,11 +373,18 @@ export function ProductsScreen() {
         setState('loading');
 
         fetchWorkspaceContext(controller.signal)
-            .then(async (workspace) => ({ workspace, products: await fetchProducts(controller.signal) }))
-            .then(({ workspace, products: result }) => {
+            .then(async (workspace) => {
+                const [result, unitRows] = await Promise.all([
+                    fetchProducts(controller.signal),
+                    workspace.capabilities.master_data.manage ? fetchUnits(controller.signal) : Promise.resolve([]),
+                ]);
+                return { workspace, products: result, units: unitRows };
+            })
+            .then(({ workspace, products: result, units: unitRows }) => {
                 if (!mounted) return;
                 setContext(workspace);
                 setProducts(result);
+                setUnits(unitRows);
                 setState('success');
             })
             .catch((error: unknown) => {
@@ -319,9 +406,13 @@ export function ProductsScreen() {
         try {
             await selectOrganization(organizationId);
             const workspace = await fetchWorkspaceContext();
-            const nextProducts = await fetchProducts();
+            const [nextProducts, nextUnits] = await Promise.all([
+                fetchProducts(),
+                workspace.capabilities.master_data.manage ? fetchUnits() : Promise.resolve([]),
+            ]);
             setContext(workspace);
             setProducts(nextProducts);
+            setUnits(nextUnits);
             setState('success');
         } catch {
             setState('error');
@@ -330,9 +421,16 @@ export function ProductsScreen() {
         }
     }
 
-    async function saveProductName(productId: number, name: string) {
-        const savedProduct = await updateProductName(productId, name);
-        setProducts((current) => current.map((item) => item.id === savedProduct.id ? savedProduct : item));
+    async function saveProductDetails(productId: number, values: { code?: string; name?: string; base_unit_id?: number | null }): Promise<ProductDetailRecord> {
+        await updateProduct(productId, values);
+        const [updatedProducts, updatedDetail] = await Promise.all([fetchProducts(), fetchProductDetail(productId)]);
+        setProducts(updatedProducts);
+        return updatedDetail;
+    }
+
+    async function createProductRecord(values: { code: string; name: string; base_unit_id: number | null }): Promise<void> {
+        const created = await createProduct(values);
+        window.location.assign(workspaceHref(`/products/${created.id}`));
     }
 
     async function exitSession() {
@@ -392,6 +490,7 @@ export function ProductsScreen() {
             eyebrow={route.page === 'list' ? 'مدیریت اطلاعات پایه' : 'فهرست کالاها / جزئیات'}
             subtitle={route.page === 'list' ? 'جست‌وجو و مرور اطلاعات ثبت‌شده' : 'مشاهدهٔ مشخصات دریافت‌شده از سرویس کالاها'}
             activePage={route.page}
+            phaseLabel="P04"
             connectionState={state === 'success' ? 'ready' : state}
             connectionLabel={connectionLabel}
             detailHref={detailHref}
@@ -417,7 +516,7 @@ export function ProductsScreen() {
                     <ProductDetail
                         product={product}
                         canEdit={context.capabilities.products.update}
-                        onUpdateName={saveProductName}
+                        onUpdateProduct={saveProductDetails}
                     />
                 ) : <UnknownProduct productId={route.productId} />
             ) : (
@@ -430,6 +529,9 @@ export function ProductsScreen() {
                         setQuickViewProduct(selected);
                     }}
                     forceFallback={forceFallback}
+                    canManage={context.capabilities.master_data.manage}
+                    units={units}
+                    onCreateProduct={createProductRecord}
                 />
             )}
 

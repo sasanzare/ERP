@@ -27,6 +27,9 @@ class WorkspaceController extends Controller
                 'role' => $membership->pivot->role,
             ])->values(),
             'capabilities' => [
+                'master_data' => [
+                    'manage' => $role === OrganizationRole::Editor->value,
+                ],
                 'products' => [
                     'update' => $role === OrganizationRole::Editor->value,
                 ],
@@ -59,6 +62,9 @@ class WorkspaceController extends Controller
                 'role' => $organization->pivot->role,
             ],
             'capabilities' => [
+                'master_data' => [
+                    'manage' => $organization->pivot->role === OrganizationRole::Editor->value,
+                ],
                 'products' => [
                     'update' => $organization->pivot->role === OrganizationRole::Editor->value,
                 ],

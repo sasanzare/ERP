@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
 use App\Models\Product;
+use App\Policies\OrganizationPolicy;
 use App\Policies\ProductPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Product::class, ProductPolicy::class);
+        Gate::policy(Organization::class, OrganizationPolicy::class);
 
         RateLimiter::for('login', function (Request $request): Limit {
             $email = mb_strtolower(trim((string) $request->input('email')));

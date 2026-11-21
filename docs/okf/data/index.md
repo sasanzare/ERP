@@ -1,0 +1,7 @@
+# Data Models
+
+This section documents organization-owned records and their persisted relationships.
+
+- [Shared master data](master-data.md) — parties, units, products, warehouses, locations, price lists, ownership constraints, and rial price representation.
+
+Read the [P04 architecture](../architecture/p04-master-data.md) for routes and request behavior, and the [P04 decision](../decisions/adr-003-p04-master-data-ownership-and-pricing.md) for the ownership and pricing rationale.

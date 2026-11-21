@@ -5,3 +5,4 @@ This section tracks the implemented runtime architecture, the local database top
 - [Current architecture](current-architecture.md) — actual runtime and database topology.
 - [P02 reusable product workspace](ui-workspace.md) — routes, React components, API reuse, and P03 shell integration.
 - [Authentication and organization context](authentication-and-organization-access.md) — session routes, active organization resolution, and product write flow.
+- [P04 master-data API and workspace](p04-master-data.md) — organization-scoped parties, products/units, locations, price lists, and Persian registers/forms.

@@ -21,6 +21,28 @@ interface WorkspaceShellProps {
     onOrganizationChange: (organizationId: number) => void;
     onSignOut: () => void;
     organizationSwitching: boolean;
+    activeResource?: string;
+    phaseLabel?: string;
+}
+
+const resourceLinks = [
+    { id: 'products', href: '/products', label: 'کالاها' },
+    { id: 'parties', href: '/parties', label: 'طرف‌های تجاری' },
+    { id: 'units', href: '/units', label: 'واحدها' },
+    { id: 'warehouses', href: '/warehouses', label: 'انبارها' },
+    { id: 'locations', href: '/locations', label: 'مکان‌ها' },
+    { id: 'price-lists', href: '/price-lists', label: 'فهرست قیمت' },
+];
+
+function shellHref(path: string): string {
+    const currentParams = new URLSearchParams(window.location.search);
+    const preserved = new URLSearchParams();
+    for (const key of ['glass', 'scene']) {
+        const value = currentParams.get(key);
+        if (value) preserved.set(key, value);
+    }
+    const query = preserved.toString();
+    return query ? `${path}?${query}` : path;
 }
 
 function BrandMark() {
@@ -60,6 +82,8 @@ export function WorkspaceShell({
     onOrganizationChange,
     onSignOut,
     organizationSwitching,
+    activeResource = 'products',
+    phaseLabel = 'P03',
 }: WorkspaceShellProps) {
     return (
         <main className="app-shell" data-lg-role="stage">
@@ -112,9 +136,9 @@ export function WorkspaceShell({
                             </div>
                             <nav className="workspace-nav" aria-label="صفحه‌ها">
                                 <a
-                                    className={`nav-link ${activePage === 'list' ? 'is-current' : ''}`}
-                                    href="/products"
-                                    aria-current={activePage === 'list' ? 'page' : undefined}
+                                    className={`nav-link ${activeResource === 'products' && activePage === 'list' ? 'is-current' : ''}`}
+                                    href={shellHref('/products')}
+                                    aria-current={activeResource === 'products' && activePage === 'list' ? 'page' : undefined}
                                 >
                                     <NavGlyph kind="list" />
                                     <span>فهرست کالاها</span>
@@ -122,15 +146,28 @@ export function WorkspaceShell({
                                 </a>
                                 {detailHref && (
                                     <a
-                                        className={`nav-link nav-link-detail ${activePage === 'detail' ? 'is-current' : ''}`}
+                                        className={`nav-link nav-link-detail ${activeResource === 'products' && activePage === 'detail' ? 'is-current' : ''}`}
                                         href={detailHref}
-                                        aria-current={activePage === 'detail' ? 'page' : undefined}
+                                        aria-current={activeResource === 'products' && activePage === 'detail' ? 'page' : undefined}
                                     >
                                         <NavGlyph kind="detail" />
                                         <span className="nav-link-text">{detailLabel ?? 'جزئیات کالا'}</span>
                                         <span className="nav-link-mark" aria-hidden="true" />
                                     </a>
                                 )}
+                                <div className="nav-group-label">اطلاعات پایه · P04</div>
+                                {resourceLinks.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`}
+                                        href={shellHref(item.href)}
+                                        aria-current={activeResource === item.id ? 'page' : undefined}
+                                    >
+                                        <NavGlyph kind="list" />
+                                        <span className="nav-link-text">{item.label}</span>
+                                        <span className="nav-link-mark" aria-hidden="true" />
+                                    </a>
+                                ))}
                             </nav>
                             <div className="sidebar-spacer" />
                             <div className="sidebar-status">
@@ -170,15 +207,25 @@ export function WorkspaceShell({
                         <header className="page-heading">
                             <div>
                                 <p className="eyebrow">{eyebrow}</p>
-                                <h1 id="page-title">{title}</h1>
+                                <h1 id="page-title" tabIndex={-1}>{title}</h1>
                                 <p className="page-subtitle">{subtitle}</p>
                             </div>
-                            <span className="page-index"><bdi dir="ltr">P03</bdi></span>
+                            <span className="page-index"><bdi dir="ltr">{phaseLabel}</bdi></span>
                         </header>
 
-                        <div className="workspace-toolbar" role="toolbar" aria-label="فرمان‌های فهرست کالاها" data-lg-role="dock">
+                        <div className="workspace-toolbar" role="toolbar" aria-label="فرمان‌های صفحه" data-lg-role="dock">
                             {toolbar}
                         </div>
+
+                        {activeResource !== 'products' && (
+                            <nav className="master-data-tabs" aria-label="بخش‌های اطلاعات پایه">
+                                {resourceLinks.map((item) => (
+                                    <a key={item.id} href={shellHref(item.href)} className={activeResource === item.id ? 'is-current' : ''} aria-current={activeResource === item.id ? 'page' : undefined}>
+                                        {item.label}
+                                    </a>
+                                ))}
+                            </nav>
+                        )}
 
                         {children}
                     </section>
@@ -198,21 +245,27 @@ export function WorkspaceShell({
                     aria-label="ناوبری موبایل"
                     data-lg-role="dock"
                 >
-                    <a className={activePage === 'list' ? 'is-current' : ''} href="/products" aria-current={activePage === 'list' ? 'page' : undefined}>
+                    <a className={activeResource === 'products' && activePage === 'list' ? 'is-current' : ''} href={shellHref('/products')} aria-current={activeResource === 'products' && activePage === 'list' ? 'page' : undefined}>
                         <NavGlyph kind="list" />
                         <span>فهرست</span>
                     </a>
                     {detailHref && (
-                        <a className={activePage === 'detail' ? 'is-current' : ''} href={detailHref} aria-current={activePage === 'detail' ? 'page' : undefined}>
+                        <a className={activeResource === 'products' && activePage === 'detail' ? 'is-current' : ''} href={detailHref} aria-current={activeResource === 'products' && activePage === 'detail' ? 'page' : undefined}>
                             <NavGlyph kind="detail" />
                             <span>جزئیات</span>
+                        </a>
+                    )}
+                    {activeResource !== 'products' && (
+                        <a className={activeResource !== 'products' ? 'is-current' : ''} href={shellHref('/parties')} aria-label="فهرست طرف‌های تجاری" aria-current={activeResource !== 'products' ? 'page' : undefined}>
+                            <NavGlyph kind="list" />
+                            <span>اطلاعات پایه</span>
                         </a>
                     )}
                 </LiquidGlass>
 
                 <footer className="workspace-footer">
                     <span>محیط توسعهٔ محلی</span>
-                    <span><bdi dir="ltr">GET /api/v1/products</bdi></span>
+                    <span><bdi dir="ltr">{activeResource === 'products' ? 'GET /api/v1/products' : `GET /api/v1/${activeResource}`}</bdi></span>
                 </footer>
             </div>
         </main>

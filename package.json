@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite",
+        "dev": "node scripts/Run-LocalDev.mjs",
+        "dev:vite": "vite --host 127.0.0.1 --strictPort",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {

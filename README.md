@@ -1,6 +1,6 @@
 # ERP
 
-Local-development ERP prototype. P01 established the Persian product API, P02 added the reusable RTL workspace, and P03 adds session sign-in and organization-scoped product access. Product data is read from MariaDB in Docker Compose. The application root is this directory.
+Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, and P04 adds shared organization-owned master data. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
 
 ## Local requirements
 
@@ -24,7 +24,7 @@ $env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
 npm ci
 ```
 
-Then open **PowerShell as Administrator** and run the initializer from the repository root. It creates ignored local `.env` and `.env.testing` files with random database credentials, starts MariaDB, applies migrations, seeds the synthetic product, and provisions repeatable P03 demo memberships with passwords in an ignored local file.
+Then open **PowerShell as Administrator** and run the initializer from the repository root. It creates ignored local `.env` and `.env.testing` files with random database credentials, starts MariaDB, applies migrations, seeds the synthetic product, and provisions repeatable P03 memberships plus P04 master-data fixtures. Demo passwords stay in an ignored local file.
 
 ```powershell
 Set-Location 'D:\All projects\ERP'
@@ -44,26 +44,21 @@ $env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
 docker compose up -d --wait db
 ```
 
-In a regular PowerShell, run Laravel:
+In one regular PowerShell, run both web servers:
 
 ```powershell
 Set-Location 'D:\All projects\ERP'
 $env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
-& $env:ERP_PHP_BINARY artisan serve --host=127.0.0.1 --port=8000
-```
-
-In a second regular PowerShell, run Vite:
-
-```powershell
-Set-Location 'D:\All projects\ERP'
 npm run dev
 ```
+
+`npm run dev` starts Laravel at `127.0.0.1:8000` and Vite at `127.0.0.1:5173` in the same terminal; press `Ctrl+C` there to stop both. It does not start or stop Docker. If `ERP_PHP_BINARY` is unset, the launcher uses `C:\php8.5\php.exe`.
 
 Open [http://127.0.0.1:8000/products](http://127.0.0.1:8000/products). The root `/` also opens the product register, `/products/{id}` opens a product detail, and the React page fetches `/api/v1/products` from the same origin.
 
 ## P03 local sign-in and organization provisioning
 
-The local initializer runs the forward migrations, seeds the existing product, then invokes `php artisan p03:provision-demo`. For an already initialized development database, run these commands from the repository root in Administrator PowerShell after starting the existing MariaDB service:
+The local initializer runs the forward migrations, seeds the existing product, then invokes `php artisan p03:provision-demo`. That existing command now also runs the repeatable P04 master-data seeder. For an already initialized development database, run these commands from the repository root in Administrator PowerShell after starting the existing MariaDB service:
 
 ```powershell
 $env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
@@ -99,7 +94,7 @@ An optional `--actor=<email>` records an existing user as the actor; without it,
 
 ## Safe shutdown and checks
 
-Stop Laravel and Vite with `Ctrl+C` in their terminals. In **Administrator PowerShell**, stop MariaDB without deleting its persistent volume:
+Stop both Laravel and Vite with `Ctrl+C` in the terminal running `npm run dev`. In **Administrator PowerShell**, stop MariaDB without deleting its persistent volume:
 
 ```powershell
 docker compose stop db
@@ -131,6 +126,24 @@ To change the host database port, update `DB_FORWARD_PORT` in the ignored `.env`
 
 **Status: ACCEPTED (2026-11-20).** Three forward migrations ran on the existing `erp_dev` schema. The existing product stayed ID 1, `DEMO-001`, «کالای نمونه» and was backfilled to «سازمان پیش‌فرض»; a second organization has its own `DEMO-001`. Provisioning twice kept 2 organizations, 3 memberships, 3 initial role-audit rows, and 2 products. The guarded MariaDB suite passed 27 tests / 94 assertions; TypeScript, Vite build, and changed PHP style checks passed. Google Chrome verified generic failed login, successful session-cookie login, CSRF rejection, editor rename/refresh, reader denial without row changes, organization switching, foreign-ID hiding, logout, product filtering and quick view. Desktop 1280×900 and mobile 390×844 screenshots are linked from the [UI design reference](docs/UI_DESIGN.md#p03-verification-evidence); mobile detail had 0 horizontal overflow and 51.31 px clearance above the dock. See [HANDOFF.md](HANDOFF.md) for full validation and remaining environment limits.
 
+## P04 shared master data
+
+`p03:provision-demo` now also provisions repeatable P04 examples: one party that is both customer and supplier, units, a priceable product, two warehouses and locations, and two price lists. It uses `firstOrCreate` so reruns do not duplicate these records. Existing products ID 1 and 2 were preserved by migration 000005; their unit is intentionally unknown (`NULL`) until assigned.
+
+The shared registers and forms are available at:
+
+- `/parties` — filter by customer or supplier role; one party can hold both roles under the same ID.
+- `/units`, `/products`, `/warehouses`, `/locations`, and `/price-lists` — editor-only create/update actions; readers retain scoped read access.
+- `/products/{id}` — preserves product detail/name editing and adds code/base-unit editing. `GET /api/v1/products` retains `{ data: [{ id, code, name }] }`, and name-only PATCH remains supported.
+
+Price-list detail resolves prices for the explicitly selected list and product. Amounts are stored as exact unsigned integer rials, serialized as strings, and labeled «ریال» in Persian. A missing entry is shown as unpriced. Unit conversions, discounts, and order/quote price snapshots are outside P04.
+
+Location choices are filtered by their warehouse. `POST /api/v1/locations/validate-selection` checks the warehouse/location pair on the server and rejects a location from another warehouse.
+
+**Status: ACCEPTED (2026-11-21).** The final guarded Laravel suite passed 36 tests / 213 assertions on `erp_test`; TypeScript, Vite build, PHP syntax, and Pint checks passed. The additive migration preserved development product IDs, owners, codes, and names. The P04-only rollback/reapply rehearsal ran on `erp_test`. Repeat provisioning kept 2 organizations, 3 memberships, 3 role-audit rows, 3 products, 1 party with 2 roles, 3 units, 2 warehouses, 2 locations, 2 price lists, and 2 price entries. Google Chrome acceptance passed at 1280×900 and 390×844 plus forced glass fallback, with zero uncaught browser errors and no root mobile horizontal overflow. See [P04 UI evidence](docs/UI_DESIGN.md#p04-verification-evidence) and [HANDOFF.md](HANDOFF.md) for details.
+
+For a repeat browser run, start the local Laravel, Vite, and MariaDB services and run `node scripts/Verify-P04Browser.mjs`. It uses the ignored demo credentials locally and saves synthetic screenshots under `docs/screenshots/`.
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01, P02, and P03 are accepted. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01, P02, P03, and P04 are accepted. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

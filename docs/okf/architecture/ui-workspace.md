@@ -15,7 +15,7 @@ status: active
 
 - Laravel serves the React entry view for `/`, `/products`, and numeric `/products/{id}` paths. The root entry displays the product register. Non-numeric product paths do not match the workspace detail route.
 - React components live under `resources/js/components/`; `WorkspaceShell` provides the desktop sidebar, compact toolbar, active navigation state, and mobile bottom navigation.
-- The list at `/products` and detail at `/products/{id}` use the existing same-origin `GET /api/v1/products` response. The API contract remains `{ data: [{ id, code, name }] }`. Detail selects an item by numeric `id`; no detail API endpoint or database field was added.
+- The `/products` list preserves the same-origin `GET /api/v1/products` contract `{ data: [{ id, code, name }] }`. P02 selected detail client-side; P04 adds `GET /api/v1/products/{id}` with an optional base-unit summary while retaining the existing product fields.
 - `GlassSearchField` filters the client-loaded collection by product name or code. `GlassButton` provides a shared Liquid Glass action surface. `ProductQuickViewDialog` uses a native modal dialog and restores keyboard focus to the invoking row action.
 - Loading, API error/retry, empty API, no filter matches, and unknown numeric ID each have a separate UI state.
 - The product code is explicitly LTR inside the RTL interface. Desktop and mobile use different register layouts while keeping the same response fields.
@@ -31,3 +31,9 @@ P02 is accepted. TypeScript, Vite asset build, and the guarded Laravel suite pas
 ## P03 access integration
 
 The shared shell displays the active organization, membership role, an allowed-organization selector when there is more than one membership, and sign-out. The product detail form is rendered only when the server context reports the product update capability; Laravel policy enforcement remains authoritative. Sign-in and no-membership denied states reuse the shared design tokens and glass fallback. P03 is accepted; Google Chrome exercised the session, CSRF, role, organization switch, logout, filter, and quick-view paths at desktop and mobile sizes. See [authentication and organization access](authentication-and-organization-access.md) and [P03 screenshot and geometry evidence](../../UI_DESIGN.md#p03-verification-evidence).
+
+## P04 shared registers and forms
+
+The shared shell navigation now reaches products, parties, units, warehouses, locations, and price lists. New master-data registers reuse the shared search field, field component, form layout, result/empty states, session context, organization selector, and responsive shell. The mobile table becomes stacked rows; warehouse/location choices are linked and location options are filtered by the selected warehouse.
+
+Product detail retains the existing route and name editing while adding code and base-unit editing. Price-list detail identifies the selected list and product, displays exact integer rials with a Persian «ریال» label, and shows an explicit unpriced state. The [P04 architecture](p04-master-data.md) and [P04 screenshot/geometry evidence](../../UI_DESIGN.md#p04-verification-evidence) record the working routes and actual Chrome checks.

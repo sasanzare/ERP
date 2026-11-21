@@ -26,7 +26,7 @@ class ProvisionP03Demo extends Command
 
         app(P03DemoSeeder::class)->run($credentials);
 
-        $this->info('P03 demo organizations, memberships, products, and role audit entries are provisioned.');
+        $this->info('P03 organizations, memberships, products, and role audit entries plus repeatable P04 master data are provisioned.');
         $this->line('Local sign-in credentials are stored in the ignored private storage directory.');
 
         return self::SUCCESS;

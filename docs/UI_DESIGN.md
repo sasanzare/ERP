@@ -59,3 +59,21 @@ Google Chrome exercised the local session-authenticated application with synthet
 | Organization switch | [Organization B register](screenshots/p03-organization-b-register-desktop-2026-11-20T19-29-07-621Z.png) | — |
 
 At 390×844, reader register/detail had zero horizontal overflow. Detail content ended at y=718.69 CSS px, and the dock began at y=770 px, leaving 51.31 CSS px of clearance. The reader view omits the edit form; the editor desktop detail displays it. Browser evidence was captured by `scripts/Verify-P03Browser.mjs` using an isolated Chrome profile and the actual same-origin session cookie.
+
+## P04 verification evidence
+
+The P04 data workspace reuses the Lens Inspector hierarchy on desktop and a Mobile Focus Sheet on mobile: the register/form is the focal surface, the shared toolbar and resource tabs are command surfaces, and organization/role context remains grouped in the shell. Existing glass tokens and the forced fallback are reused.
+
+Google Chrome exercised local synthetic editor and reader sessions, editor-created/edited dual-role party data, product/base-unit details, exact selected-list prices, duplicate product-code validation, foreign-unit rejection without a saved change, warehouse-filtered location options, server-side mismatched-pair rejection, organization switching, reader read-only behavior, and the P02 quick-view dialog. The forced bright fallback remained usable. The browser run had zero uncaught runtime errors.
+
+| View | Desktop 1280×900 | Mobile 390×844 |
+|---|---|---|
+| Party register | [P04 party register](screenshots/p04-party-register-desktop-2026-11-21T06-56-53-692Z.png) | [Forced bright glass fallback](screenshots/p04-party-register-fallback-mobile-2026-11-21T06-56-53-692Z.png) |
+| Party editor form | — | [P04 party detail](screenshots/p04-party-detail-mobile-2026-11-21T06-56-53-692Z.png) |
+| Product base unit | [P04 product detail](screenshots/p04-product-base-unit-desktop-2026-11-21T06-56-53-692Z.png) | — |
+| Selected price | [P04 list A](screenshots/p04-price-list-a-desktop-2026-11-21T06-56-53-692Z.png), [P04 list B](screenshots/p04-price-list-b-desktop-2026-11-21T06-56-53-692Z.png) | — |
+| Warehouse/location selector | — | [P04 location selector](screenshots/p04-location-register-mobile-2026-11-21T06-56-53-692Z.png) |
+
+The list A and B views show 120,000 and 135,000 rial respectively. Product DEMO-001 shows the unpriced state. At mobile scroll-to-end measurements, document width and layout client width both measured 375 CSS px in a 390×844 window; the last party-form action ended at y=609.53 with the dock starting at y=770, and the location-selector action ended at y=622.31 with the dock starting at y=770. The mobile register uses stacked rows and has no root horizontal overflow.
+
+The harness is [scripts/Verify-P04Browser.mjs](../scripts/Verify-P04Browser.mjs). The guarded Laravel suite separately verifies the database code index and foreign-key constraints.

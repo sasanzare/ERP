@@ -17,9 +17,9 @@ Laravel's session guard authenticates the existing user model. Login rotates the
 
 ## Organization authorization
 
-The server resolves active organization access from persisted memberships on every protected request. A client-supplied ID can request a switch only after the server confirms that membership. A user with no memberships and a stale selected membership receive an explicit denial. Product queries add `organization_id` before materializing records or authorizing a write.
+The server resolves active organization access from persisted memberships on every protected request. A client-supplied ID can request a switch only after the server confirms that membership. A user with no memberships and a stale selected membership receive an explicit denial. Product and master-data queries add `organization_id` before materializing records or authorizing a write.
 
-The `reader` role can view products. The `editor` role can rename a product. The UI receives an update capability for display, but the Laravel product policy independently enforces it. Product writes accept only `name`; ownership and role fields are rejected.
+The `reader` role can view products and P04 registers/details. The `editor` role can update products and manage P04 master data. The UI receives capabilities for display, but Laravel policies independently enforce them. P03 name-only product PATCH remains valid; P04 adds optional code/base-unit fields. Ownership overrides are rejected.
 
 ## Audit and migration limits
 
@@ -28,3 +28,7 @@ Role assignment uses `MembershipRoleService`, which writes the membership and `o
 Existing products are backfilled to `legacy-local` before `organization_id` becomes required. Codes may repeat between organizations but not within one. The index rollback stops before altering the schema if cross-organization duplicate codes exist.
 
 Implementation and validation evidence is tracked in the [P03 architecture](../architecture/authentication-and-organization-access.md), [P03 browser evidence](../../UI_DESIGN.md#p03-verification-evidence), and [handoff](../../../HANDOFF.md).
+
+## P04 relationship boundary
+
+P04 scopes parties, units, warehouses, locations, and price lists by active organization. Product units and location warehouses must share the same organization. Price entries are scoped to one organization/list/product. Location selectors filter by warehouse, and a server endpoint rejects a mismatched pair even when both records belong to the same organization. See [P04 isolation details](p04-master-data-isolation.md) and the [P04 data model](../data/master-data.md).

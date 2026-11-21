@@ -21,7 +21,7 @@ status: active
 
 Memberships are rows in `organization_memberships`, uniquely keyed by organization and user. Role belongs to this membership, not to the user.
 
-| Membership role | Read organization products | Rename product display name |
+| Membership role | Read organization data | Manage organization data |
 | --- | --- | --- |
 | `reader` | Yes | No |
 | `editor` | Yes | Yes |
@@ -31,11 +31,20 @@ The active organization ID is stored in the server session. `ResolveActiveOrgani
 ## Product and audit boundary
 
 - `GET /api/v1/products` filters by the active organization before selecting `id`, `code`, and `name`.
-- `PATCH /api/v1/products/{id}` accepts only `name`. It scopes by active organization before lookup, then authorizes with `ProductPolicy`. A foreign product ID and an unknown ID both return 404.
+- `PATCH /api/v1/products/{id}` continues to accept the P03 name-only request. P04 also allows scoped `code` and optional `base_unit_id` updates. It scopes by active organization before lookup, then authorizes with `ProductPolicy`. A foreign product ID and an unknown ID both return 404.
+- P04 product detail uses `GET /api/v1/products/{id}` to return an optional base-unit summary while `GET /api/v1/products` preserves `{ data: [{ id, code, name }] }`.
 - `organization_role_audits` records organization, membership, actor or `system` source, previous role, new role, and creation time. `MembershipRoleService` commits the membership update and audit row in one transaction and skips audit insertion when the role is unchanged.
 - The `legacy-local` organization is the documented starting owner for all products present before the P03 ownership migration. Organization code uniqueness is backed by a composite database index. Rolling back that index is refused while product codes repeat across organizations.
 
 Demo account provisioning and credential storage are described in the [local README](../../../README.md); operational validation remains in the [handoff](../../../HANDOFF.md).
+
+## P04 master-data extension
+
+The same active-organization/session/CSRF boundary applies to parties, units, warehouses, locations, and price lists. `OrganizationPolicy` allows members to read and editor memberships to create/update. Each controller scopes records before detail/update lookup; relationship IDs use organization-scoped validation and composite foreign keys. The existing product policy continues to guard product updates.
+
+P04 reports master-data management separately from the product-update capability. Readers can view P04 lists and details but cannot make direct API writes.
+
+See [P04 master-data isolation](../security/p04-master-data-isolation.md), [P04 routes and workspace](p04-master-data.md), and [the P04 data model](../data/master-data.md).
 
 ## Verification state
 

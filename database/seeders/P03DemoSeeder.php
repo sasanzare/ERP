@@ -30,6 +30,8 @@ class P03DemoSeeder extends Seeder
             ['name' => 'کالای نمونه سازمان ب'],
         );
 
+        app(P04DemoSeeder::class)->run($organizationA);
+
         $editor = User::query()->firstOrCreate(
             ['email' => $credentials['editor']['email']],
             ['name' => 'ویرایشگر آزمایشی', 'password' => $credentials['editor']['password']],

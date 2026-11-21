@@ -32,4 +32,24 @@ class Organization extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function parties(): HasMany
+    {
+        return $this->hasMany(Party::class);
+    }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
+    }
+
+    public function warehouses(): HasMany
+    {
+        return $this->hasMany(Warehouse::class);
+    }
+
+    public function priceLists(): HasMany
+    {
+        return $this->hasMany(PriceList::class);
+    }
 }

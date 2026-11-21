@@ -12,12 +12,13 @@ status: active
 
 ## Implementation state
 
-The Laravel 13 application and P01 source/configuration are at the repository root. Composer and npm dependencies are locked and installed. P01, P02, and P03 were accepted after verifying MariaDB, migrations, repeatable seeding, the browser/API path, and the reusable RTL workspace described in [P02 workspace architecture](ui-workspace.md). P03 session, organization, membership, policy, audit, and workspace UI are implemented and validated.
+The Laravel 13 application and P01 source/configuration are at the repository root. Composer and npm dependencies are locked and installed. P01, P02, P03, and P04 are accepted after validating MariaDB migrations, repeatable provisioning, the browser/API path, and the Persian RTL workspace. P03 session, organization, membership, policy, and audit behavior remain the authorization base. P04 adds organization-owned master data and reusable registers/forms.
 
 ## Implemented P01 topology
 
 - Laravel Framework 13.43.0 serves the Blade browser entry and `/api/v1/products` from host-side PHP 8.5.13.
 - React 19.3.1, TypeScript 5.9.3, and Vite 8.3.8 sources live under `resources/js/`; Vite serves development assets and hot reload.
+- `npm run dev` runs `scripts/Run-LocalDev.mjs`, which starts Laravel's loopback server on port 8000 and Vite on port 5173, forwards Ctrl+C to both, and leaves Docker/MariaDB lifecycle to the developer. `ERP_PHP_BINARY` can select the host PHP executable; the default is `C:\php8.5\php.exe`.
 - The product API serializes `id`, `code`, and Persian `name` from the Eloquent Product model backed by MariaDB.
 - MariaDB is configured as Compose service `db` with image `mariadb:11.8.9-noble`, a health check, and persistent volume `erp_mariadb_data`.
 - Host PHP uses loopback and configurable `DB_FORWARD_PORT` defaulting to 3307; container port is 3306.
@@ -28,6 +29,10 @@ The Laravel 13 application and P01 source/configuration are at the repository ro
 - P03 protects browser workspace routes with Laravel session authentication and redirects guests to `/sign-in`. API workspace routes add the `web` middleware group for sessions and apply an explicit token check to state-changing requests.
 - The organization and product migrations backfill existing products to `legacy-local` (`سازمان پیش‌فرض`) before making `organization_id` required; product code uniqueness is scoped to organization. The forward migrations were applied to the existing local database, and product ID 1 was preserved.
 - P03 organization context is resolved from current user memberships on each protected request. Product listing and numeric-ID update queries are organization-scoped, and the product policy permits updates only for the `editor` membership role.
+- P04 migration `2026_11_20_000005_create_p04_master_data_tables` adds parties/roles, units, warehouses, locations, price lists/entries, and an optional product base unit. Existing product IDs, owners, codes, and names were read before and after the `erp_dev` migration and remained unchanged. Unknown legacy units stay `NULL`.
+- P04 API controllers scope reads, writes, filters, and relationships to the active organization. Composite foreign keys protect product units, location warehouses, party roles, and list entries. `OrganizationPolicy` permits readers to view and editors to manage master data.
+- P04 React routes use one shared register/form pattern for `/parties`, `/units`, `/warehouses`, `/locations`, and `/price-lists`; the existing `/products` route keeps its collection response and adds product create/base-unit editing. Selected-list price resolution is a dedicated endpoint and exact rial amounts are returned as strings.
+- The existing `p03:provision-demo` command also provisions repeatable P04 fixtures. On `erp_dev`, two consecutive runs retained 2 organizations, 3 memberships, 3 role-audit rows, 3 products, 1 party with 2 roles, 3 units across two organizations, 2 warehouses, 2 locations, 2 price lists, and 2 price entries.
 
 The framework version follows the user's direction to use the latest Laravel release. PHP 8.5.13 is installed at `C:\php8.5`; the user removed the old `C:\php-8.2` directory. MariaDB 11.8.9 is healthy, and product ID 1 persisted across a container restart without reseeding. The API returned HTTP 200 and the guarded feature tests passed. On this Windows host, Docker commands require an elevated PowerShell because normal Docker Desktop pipe access is denied. See [Laravel 13 support requirements](https://laravel.com/framework/docs/13.x/releases) and the [project handoff](../../../HANDOFF.md).
 

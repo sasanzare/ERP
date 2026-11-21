@@ -2,30 +2,30 @@
 
 ## Last Updated
 
-2026-11-20
+2026-11-21
 
 ## Project Summary
 
-Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace, and P03 session-authenticated organization access are accepted. Runtime data is synthetic and stored in local MariaDB.
+Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace, P03 session-authenticated organization access, and P04 shared master data are accepted. Runtime data is synthetic and stored in local MariaDB.
 
 ## Current Objective
 
-P03 is complete. Continue only when the user requests the next project phase; P04 is the next phase in `docs/MASTER_PLAN.md`.
+The one-command local web-server launcher is complete: `npm run dev` starts Laravel and Vite; MariaDB/Docker remains manual.
 
 ## Current Phase or Milestone
 
-P03 ACCEPTED. Sign-in/out, explicit CSRF enforcement, organization memberships, per-membership reader/editor permissions, scoped product reads/writes, role audit, repeatable local provisioning, responsive UI, and browser acceptance all passed.
+P01–P04 ACCEPTED. The requested `npm run dev` launcher is implemented and validated. It starts Laravel and Vite together, stops both on Ctrl+C, and does not invoke Docker.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `e961d1837fbe0125a2d3878c4bc0fca6faf9faaf`
-- Current HEAD: `e961d1837fbe0125a2d3878c4bc0fca6faf9faaf`
-- Working tree status: `README.md` is modified; the existing P01/P02 scaffold and implementation, user-provided plan, and P03 files are untracked relative to the starting commit. See `git -c core.fsmonitor=false status --short --untracked-files=all` for the full inventory. The `README.md` modification and widespread untracked state predate P03 and were preserved.
+- Base or starting commit: `68bcd283c9f52096dc63b4be314cb9b42c8b2746`
+- Current HEAD: `68bcd283c9f52096dc63b4be314cb9b42c8b2746`
+- Working tree status: 29 tracked files are modified and 34 new P04/launcher source, documentation, test, script, and evidence files are untracked. The worktree was clean before P04.
 - Staged changes: none
-- Unstaged changes: modified `README.md`; untracked repository content including P01/P02, P03, and user-provided files
-- Untracked files: see the status command above; ignored dependencies/build output and local `.env*`/P03 credentials are not listed
+- Unstaged changes: tracked modifications to instructions, README/package scripts, handoff, P03/P04 integration, UI/CSS, routes, and affected OKF/UI documentation.
+- Untracked files: six P04 API controllers, seven P04 models, `OrganizationPolicy.php`, migration/seeder, three React/TypeScript files, P04 tests/browser harness, seven OKF/evidence concepts and screenshots, and `scripts/Run-LocalDev.mjs`.
 
 ## Completed Work
 
@@ -40,18 +40,30 @@ P03 ACCEPTED. Sign-in/out, explicit CSRF enforcement, organization memberships, 
 - Generated demo credentials are in ignored `storage/app/private/p03-demo-credentials.json`; the command and browser evidence output do not print them.
 - Added Persian sign-in/denied states, active organization and role display, allowed organization selector, sign-out, and capability-gated edit form. Adjusted mobile detail spacing after measuring overlap; final mobile detail-to-dock clearance is 51.31 CSS px with no horizontal overflow.
 - Updated README, OKF concepts/indexes/log, screenshots, and this handoff for the accepted P03 state.
+- Added forward migration `2026_11_20_000005_create_p04_master_data_tables.php`; existing products ID 1 and 2 retained their IDs, owners, codes, and names. Their unknown base units remain `NULL`.
+- Added party and role, unit, warehouse, location, price-list and entry models/controllers, an organization policy, scoped API routes, location pair validation, explicit price resolution, product base-unit endpoints, and editor capability reporting.
+- Added repeatable P04 synthetic records to the existing P03 provisioning flow. Two runs kept 2 organizations, 3 memberships, 3 role-audit rows, 3 products, 1 seeded dual-role party, 2 roles, 3 units across two organizations, 2 warehouses, 2 locations, 2 price lists, and 2 price entries.
+- Added one shared Persian RTL register/form pattern for parties, units, warehouses, locations, and price lists; added product code/base-unit editing and creation while retaining the P02 product collection contract, name-only PATCH, filter, detail route, and quick view.
+- Added eight P04 feature tests covering shared party roles, exact selected-list rial values and unpriced state, scoped codes, foreign IDs/units, warehouse-location matching, reader writes, organization switching, repeat provisioning, and schema constraints.
+- Completed Chrome acceptance at 1280×900, 390×844, and forced bright glass fallback. Seven final screenshots are linked from `docs/UI_DESIGN.md`; no browser runtime errors occurred. Mobile party-form action ended at y=609.53 and location-selector action at y=622.31; both were above the dock at y=770. `document.scrollWidth` and `clientWidth` were both 375 px in the 390 px emulated window.
+- Rehearsed P04-only rollback/reapply on `erp_test`. The rollback removed P04 tables and `products.base_unit_id` while retaining P03 `products` and `organization_id`; reapply succeeded and the final guarded suite passed again.
+- Updated `AGENTS.md`, README, P04 OKF architecture/data/security/decision concepts and indexes, the OKF maintenance log, and the UI evidence. OKF validation passed for 17 Markdown files, the root OKF 0.2 declaration, concept types, and 63 internal targets.
+- Created the verified ERP-specific mistakes log with one reusable note about serial use of the shared `erp_test` schema. Appended one P04 completion event to the local Notion queue; no Notion API was called and the event remains `PENDING`.
+- Added a dependency-free Node launcher: `npm run dev` starts `php artisan serve` on 8000 and Vite on 5173, handles their exit/shutdown together, honors `ERP_PHP_BINARY`, and never invokes Docker. `npm run dev:vite` remains available for a Vite-only session.
+- Updated README, AGENTS, current runtime/P04 architecture OKF documents, and the OKF log to document the one-command startup while keeping the user-managed DB lifecycle manual.
+- No migrations, provisioning, or database tests were run for the launcher change; no database or Docker state was modified. The existing P04 suite still has 36 passing tests / 213 assertions.
 
 ## Work in Progress
 
-None.
+None. The launcher request is implemented and verified. The existing P04 work remains uncommitted.
 
 ## Remaining Work
 
-No P03 acceptance work remains. P04 is planned in `docs/MASTER_PLAN.md` and was not started or authorized by this request.
+No implementation work remains for the launcher. P05 is unstarted and requires a separate user request.
 
 ## Exact Next Steps
 
-Wait for the user's P04 request. Do not stage, commit, push, or change branches. Before P04, reread this handoff, current Git status, project instructions, and the P04-relevant OKF docs.
+When ready to develop, start Docker/MariaDB manually, then run `npm run dev` from the repository root and open `http://127.0.0.1:8000`. Preserve the current P04 work. Do not stage, commit, push, or change branches.
 
 ## Files Created
 
@@ -65,14 +77,18 @@ Wait for the user's P04 request. Do not stage, commit, push, or change branches.
 - `database/seeders/P03DemoSeeder.php`
 - `resources/js/screens/SignInScreen.tsx`, `AccessDeniedScreen.tsx`
 - `tests/Feature/P03OrganizationAccessTest.php`, `SessionAuthenticationTest.php`
+- P04 API/controllers/models/policy, additive migration, repeatable `P04DemoSeeder`, `resources/js/api/masterData.ts`, `resources/js/components/LabeledInput.tsx`, `resources/js/screens/MasterDataScreen.tsx`, `tests/Feature/P04MasterDataTest.php`, and `scripts/Verify-P04Browser.mjs`
+- P04 OKF architecture/data/security/ADR documents and seven final screenshots listed in `docs/UI_DESIGN.md#p04-verification-evidence`
+- `scripts/Run-LocalDev.mjs` — dependency-free local Laravel/Vite process launcher
 - `scripts/Verify-P03Browser.mjs`
 - `docs/okf/architecture/authentication-and-organization-access.md`, `docs/okf/decisions/adr-002-p03-session-and-organization-boundary.md`, `docs/okf/security/index.md`, `docs/okf/security/organization-access.md`
 - Seven Google Chrome screenshots listed in `docs/UI_DESIGN.md#p03-verification-evidence`
 
 ## Files Modified
 
-- P03 integration: `app/Http/Controllers/Api/V1/ProductController.php`, `app/Models/Product.php`, `app/Models/User.php`, `app/Providers/AppServiceProvider.php`, `bootstrap/app.php`, `database/seeders/ProductSeeder.php`, `routes/api.php`, `routes/web.php`, `scripts/Initialize-Local.ps1`, `tests/TestCase.php`, existing feature tests
-- P03 UI: `resources/js/api/products.ts`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/js/screens/ProductsScreen.tsx`, `resources/css/products.css`, `resources/views/products.blade.php`
+- P03/P04 integration: `app/Console/Commands/ProvisionP03Demo.php`, P03/P04 product, workspace, master-data controllers/models/policies, provider, P03/P04 seeders, `routes/api.php`, and `routes/web.php`
+- P02/P03/P04 UI: product API client, `resources/js/app.tsx`, `WorkspaceShell.tsx`, `ProductsScreen.tsx`, new `MasterDataScreen.tsx`, shared labeled field, master-data API, and `resources/css/products.css`
+- Local developer commands: `package.json`, `README.md`, `AGENTS.md`, current architecture/P04 architecture OKF documents, and `docs/okf/log.md` describe the `npm run dev` orchestrator.
 - Instructions/docs: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, and P03-related OKF overview, indexes, architecture, decision, security, and log documents
 - P01/P02 source files in the integration list were already untracked at task start. P03-specific entries above were created this phase and are also untracked. `README.md` was already modified at task start and received further P03 documentation. Git's tracking status cannot separate changes within existing untracked files, so the lists above identify the files touched in this phase without implying staged/tracked state.
 
@@ -83,6 +99,10 @@ Wait for the user's P04 request. Do not stage, commit, push, or change branches.
 - The active organization is re-resolved from persisted memberships on protected requests. A user may hold different roles in separate organizations; roles are never user-global.
 - Product data is queried by active `organization_id` before serialization or ID lookup. `ProductPolicy` authorizes editors after the scope-first lookup.
 - The product API response contract remains `{ data: [{ id, code, name }] }`. PATCH accepts only `name`.
+- P04 keeps that collection envelope and still accepts a name-only PATCH; product detail uses a separate API route for base-unit data, and editor PATCH may also change code/base unit.
+- A party row is shared by its customer/supplier role rows. P04 relationships are organization-scoped; legacy products with unknown units remain nullable until assigned.
+- Price entries store unsigned integer rials, serialize amounts as strings, and resolve from explicit list/product IDs. Missing entries remain unpriced; conversions/discounts/snapshots are not part of P04.
+- The `npm run dev` Node launcher spawns PHP and the repository Vite CLI without an added dependency. It uses `ERP_PHP_BINARY` or `C:\php8.5\php.exe`, binds loopback ports 8000/5173, stops both children on Ctrl+C or unexpected exit, and leaves Docker alone.
 - The organization/code unique index may only be removed when no code repeats between organizations. The down migration checks and refuses unsafe restoration of global uniqueness.
 - P03 uses synthetic local accounts. No registration, invitation, password reset, role-management UI, cloud, or deployment behavior was added.
 
@@ -94,11 +114,32 @@ Wait for the user's P04 request. Do not stage, commit, push, or change branches.
 - `C:\php8.5\php.exe artisan migrate --force` — applied only P03 migrations 000002–000004 on `erp_dev`; no database reset or destructive migration was run.
 - Read back migration state, original product hash/identity, starting organization, foreign key, and composite unique index.
 - `C:\php8.5\php.exe artisan p03:provision-demo` twice; read row/audit counts after each run.
+- P04 read-only `artisan migrate:status` confirmed migrations 000002–000004 ran and 000005 was pending. Read the development product baseline: IDs 1 and 2, separate organization IDs, both `DEMO-001`.
+- `C:\php8.5\php.exe artisan migrate --force` applied only `2026_11_20_000005_create_p04_master_data_tables` on `erp_dev`.
+- Read back both original products with unchanged IDs, organizations, codes, and names; each `base_unit_id` is `NULL`. Read the product code unique index, new organization/id index, and base-unit foreign key.
+- `C:\php8.5\php.exe artisan p03:provision-demo` twice; the second run preserved all P03/P04 row and audit counts.
+- `C:\php8.5\php.exe artisan test` serial final run — 36 tests / 199 assertions passed on guarded `erp_test`. An earlier accidental overlapping invocation caused test-schema table races; no PHP test process remained before the successful serial run.
+- `npm run typecheck` and `npm run build` — passed after the P04 UI integration.
+- PHP `-l` on changed P04 controllers/models/policies/migration/seeders/routes/test — passed. `vendor\bin\pint --test` on changed PHP files — passed.
+- `C:\php8.5\php.exe artisan route:list --path=api/v1 --except-vendor` — 30 API routes registered.
+- `C:\php8.5\php.exe artisan migrate:rollback --path=database/migrations/2026_11_20_000005_create_p04_master_data_tables.php --step=1 --env=testing --force --pretend` — preview showed only P04 table/column drops. The same command without `--pretend` rolled back P04 only on `erp_test`; readback confirmed P03 products and `organization_id` remained. Reapplied with `artisan migrate --path=database/migrations/2026_11_20_000005_create_p04_master_data_tables.php --env=testing --force`.
+- Final `C:\php8.5\php.exe artisan test` after rollback/reapply — 36 tests / 199 assertions passed on guarded `erp_test`.
+- Final guarded `artisan test` after adding direct MariaDB composite-FK assertions — 36 tests / 213 assertions passed on `erp_test`.
+- Final `npm run typecheck`, `npm run build`, changed-file PHP Pint, PHP `-l`, and `node --check scripts/Verify-P04Browser.mjs` — passed.
+- Final `node scripts/Verify-P04Browser.mjs` — Google Chrome headless passed at 1280×900, 390×844, and forced fallback; saved seven final screenshots. The run recorded zero browser errors, exact 120000/135000 rial values, no unpriced leakage, 403 reader write denial, foreign unit/wrong warehouse rejection, and responsive geometry.
+- OKF validation parsed 17 Markdown files, confirmed only the bundle root carries `okf_version: "0.2"`, verified concept `type` fields, and resolved 63 internal targets.
+- Created `D:\All projects\Mistakes\ERP\mistakes.md` after verifying the project-root fingerprint; recorded the reusable shared-`erp_test` concurrency lesson.
+- Appended local Notion queue event `erp-p04-acceptance-20261121071210Z-dd69a580` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
+- Appended local Notion queue event `erp-dev-launcher-20261121075622Z-babcc74e` under the exclusive queue lock. It remains `PENDING`; no Notion API was called.
 - `C:\php8.5\php.exe artisan test` — final result: 27 tests / 94 assertions passed on guarded `erp_test`.
 - `npm run typecheck` — passed. `npm run build` — passed. `vendor\bin\pint --test` on changed PHP files — passed. `node --check scripts/Verify-P03Browser.mjs` — passed.
 - `node scripts/Verify-P03Browser.mjs` using installed Google Chrome headless — passed. Seven desktop/mobile PNGs saved in `docs/screenshots/`; P03 checks produced zero uncaught browser exceptions.
 - OKF validation with Symfony YAML parsed 12 Markdown files, confirmed only the bundle root carries `okf_version: "0.2"`, and confirmed every concept document has a `type`; 36 local Markdown link targets exist.
 - `git -c core.fsmonitor=false check-ignore storage/app/private/p03-demo-credentials.json` — confirmed the private credential file is ignored.
+- `node --check scripts/Run-LocalDev.mjs`, `npm run typecheck`, and `npm run build` — passed after adding the launcher.
+- `npm run dev` — started Laravel at `127.0.0.1:8000` and Vite at `127.0.0.1:5173`. Read-only HTTP checks returned 200 for `/sign-in`, Vite `/@vite/client`, and Vite `/resources/js/app.tsx`; the Laravel HTML referenced the Vite client.
+- Sent Ctrl+C to the launcher and confirmed there were no listeners left on ports 8000/5173. Docker was not invoked. Vite's bare `/` returned 404 as expected because the Laravel app is the page host; the actual Vite client and entry module returned 200.
+- Read the verified ERP mistakes log at task start; its serial-`erp_test` lesson did not apply to the launcher, so no new mistake entry was needed.
 
 ## Validation and Test Results
 
@@ -111,39 +152,51 @@ Wait for the user's P04 request. Do not stage, commit, push, or change branches.
 - PASS: Google Chrome at 1280×900 and 390×844. Guest navigation/API denial, bad credentials, session-cookie login, explicit CSRF rejection, editor UI rename plus refreshed value, read-only UI/API denial with unchanged data, organization-specific roles and lists, direct foreign product detail denial without data exposure, API foreign/unknown 404 parity, unowned switch denial, logout, product filter, and keyboard quick-view behavior.
 - PASS: At 390×844, both reader register and detail had zero horizontal overflow. Detail ended at y=718.69 and dock began at y=770, for a 51.31 CSS px gap. Seven synthetic-data screenshots were visually inspected and are linked from `docs/UI_DESIGN.md`.
 - PASS: Starting product ID 1 was restored after the Chrome scenario; final readback: ID 1, `DEMO-001`, «کالای نمونه», organization ID 1.
+- PASS: Final P04 guarded Laravel suite: 36/36 tests, 213 assertions, including dual-role parties, exact price-list selection/unpriced behavior, scoped uniqueness/FKs, foreign IDs, reader/editor permissions, warehouse/location matching, organization switching, repeat provisioning, and direct database FK assertions.
+- PASS: TypeScript, production build, changed-file Pint, PHP syntax, route registration, and OKF YAML/frontmatter/internal-link checks.
+- PASS: `erp_dev` migration 000005 preserved both original product IDs (1 and 2), organization owners, `DEMO-001` codes, and names. Both existing products remain `base_unit_id = NULL`. Product indexes and composite foreign key were read back.
+- PASS: Repeat provisioning preserved P03 audit rows and did not duplicate master data. P04 seed counts after two runs: 2 organizations, 3 memberships, 3 role audits, 3 products, 1 seeded party/2 roles, 3 units across two organizations, 2 warehouses, 2 locations, 2 lists, 2 entries. The browser run added one synthetic editor-created party; final dev count is 2 parties/4 roles.
+- PASS: Chrome exercised the editor UI create/edit of a dual-role party; customer and supplier filters showed the same ID and saved name. Product DEMO-002 used base unit EA. The UI showed 120,000 and 135,000 rial from two explicitly switched lists and displayed product DEMO-001 as unpriced.
+- PASS: Duplicate product code showed validation; a foreign unit PATCH returned 422 with the saved unit unchanged. A same-organization location from another warehouse failed server validation; UI options were filtered by warehouse. Organization switching changed register results. Reader detail was read-only and its direct party write returned 403 without changing list count.
+- PASS: Chrome at 1280×900 and 390×844 plus `?glass=fallback&scene=bright`; seven final screenshots were inspected. No uncaught runtime errors. At mobile scroll end, document scrollWidth and clientWidth both measured 375 CSS px in the 390 px window. Party-form action bottom was y=609.53 vs dock y=770; location selector action bottom was y=622.31 vs dock y=770.
+- PASS: P04-only rollback/reapply on `erp_test` removed the P04 structures while retaining P03 products and organization ownership; reapply succeeded. The final guarded suite then passed.
+- PASS: `npm run dev` starts both local web processes in one terminal; sign-in page and Vite client/React entry return HTTP 200. Ctrl+C stops both. The launcher does not issue Docker commands.
 
 ## Known Issues and Blockers
 
-- `D:\All projects\Mistakes\ERP\mistakes.md` was absent and lies outside the only writable root; it could not be read or created. No substitute log was used.
-- `D:\All projects\notion\notion.md` exists outside the writable root but could not be appended safely. No Notion APIs or alternate queue were used. `LOCAL_NOTION_QUEUE: BLOCKED`, zero events appended, cause: workspace-write sandbox allows writes only under `D:\All projects\ERP`.
-- The user-provided `docs/MASTER_PLAN.md` has links to absent `docs/reverse-engineering/` files. It was preserved unchanged; this does not block P03.
+- The project-specific mistakes log is available at `D:\All projects\Mistakes\ERP\mistakes.md`; its fingerprint was verified and one reusable concurrency note was added.
+- Two ERP report-only events were appended to `D:\All projects\notion\notion.md`; both are `PENDING` with zero entity changes (43 queue events total). Existing records were preserved. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
+- The user-provided `docs/MASTER_PLAN.md` has pre-existing links to absent `docs/reverse-engineering/` files. It was preserved unchanged; this does not block P04.
 - Requested model/effort was GPT-6 Luna at maximum reasoning when available; the current session did not expose an execution-profile value, so Luna/max cannot be confirmed.
+- An early overlapping double invocation of `artisan test` produced `erp_test` table races; the final serial suite passed 36/36 tests and 213 assertions. The correction is recorded in `AGENTS.md` and the ERP-specific mistakes log.
+- The Vite watcher reported `EBUSY` while observing temporary Chrome profile files, but Chrome acceptance finished with zero application runtime errors. Laravel and Vite servers were stopped afterward. The pre-existing `public/hot` file still points to the documented Vite dev URL; start `npm run dev` before opening the local app.
+- The local web servers are stopped after launcher verification; MariaDB/Docker remains a manual user-managed prerequisite. `npm run dev` itself must not be run as Administrator unless the user's environment specifically requires it.
 
 ## Risks and Assumptions
 
-- Only synthetic local data is used. Demo passwords live solely in the ignored private local file and were never printed or placed in tracked files/screenshots/handoff/Notion.
+- Only synthetic local data is used. Demo passwords remain in the ignored private local file; the editor credential was shared in chat only after the user explicitly requested it and was not copied into tracked files or the Notion queue.
 - Local migration, browser, and test evidence applies to the inspected `erp_dev`, isolated `erp_test`, Windows host PHP, Vite, and installed Google Chrome; no production environment was configured or qualified.
 - The development database intentionally now has two organizations and two rows sharing `DEMO-001`. Removing the organization-scoped uniqueness migration will be refused until those codes no longer conflict globally.
 
 ## Database or Migration State
 
 - MariaDB 11.8.9 Compose service is healthy. The existing `erp_mariadb_data` volume was retained.
-- All seven migrations are applied; P03 migration batch is 2. The development schema was not reset.
-- `organizations`: 2 rows. `organization_memberships`: 3. `organization_role_audits`: 3. `products`: 2.
-- Product ID 1 remains `DEMO-001`, «کالای نمونه», `organization_id=1` (`legacy-local`). Both organizations have one `DEMO-001`.
+- All eight migrations are applied; P03 migration batch is 2 and P04 migration batch is 3. The development schema and `erp_mariadb_data` volume were not reset.
+- After Chrome acceptance: `organizations` 2; `organization_memberships` 3; `organization_role_audits` 3; `products` 3; `parties` 2; `party_roles` 4; `units` 3; `warehouses` 2; `locations` 2; `price_lists` 2; `price_list_entries` 2.
+- Product ID 1 remains `DEMO-001`, «کالای نمونه», `organization_id=1`; product ID 2 remains the organization B `DEMO-001`. Both still have unknown base unit (`NULL`). P04 added `DEMO-002` with unit `EA` and exact 120000/135000 rial entries for the two sample lists.
 - `erp_test` remains separate and was the only target for Laravel database-refresh tests.
 
 ## Configuration and Environment Notes
 
 - PHP executable: `C:\php8.5\php.exe` (8.5.13); Composer PHAR: `C:\Users\moxfo\composer.phar` (2.11.2).
 - Node/npm: 26.13.1 / 11.17.0. Google Chrome is installed and used headless through a fresh isolated CDP profile for the final browser pass.
-- App URL: `http://127.0.0.1:8000`; register `/products`; detail `/products/{id}`; API `/api/v1/products`; sign-in `/sign-in`.
+- App URL: `http://127.0.0.1:8000`; run `npm run dev` from the repository root to start Laravel and Vite together. There are no active listeners after verification. Start MariaDB separately with Docker before using database-backed pages.
 - MariaDB loopback port defaults to 3307. Docker operations on this host require Administrator PowerShell; no Windows security/group settings were changed.
-- `.env`, `.env.testing`, database credentials, `APP_KEY`, and P03 demo credentials remain ignored local data. The local PHP/Vite server was already listening before the task and was left running.
+- `.env`, `.env.testing`, database credentials, `APP_KEY`, and P03 demo credentials remain ignored local data. Laravel/Vite servers were stopped after Chrome verification; the pre-existing `public/hot` file still points to Vite at 5173, so start `npm run dev` when reopening the UI.
 
 ## Uncommitted or Partially Applied Changes
 
-All task changes remain unstaged and uncommitted on `main`. The repository scaffold and most P01/P02 application/docs content were already untracked in the starting state; `README.md` was already modified. P03 additions are new untracked files and P03 edits to existing untracked files remain untracked; no changes were staged, committed, discarded, or reset. The only development DB changes were the requested additive migrations and repeatable synthetic demo provisioning.
+All P04 and launcher changes remain unstaged and uncommitted on `main`; final inventory is 29 tracked modifications and 34 untracked implementation/document/evidence files. No changes were staged, committed, discarded, or reset. Development DB changes are the additive P04 migration and repeatable synthetic provisioning plus one synthetic party created through the editor UI.
 
 ## Recovery or Rollback Notes
 
@@ -152,12 +205,12 @@ Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored P03 credential file
 ## Related Documentation
 
 - `AGENTS.md` — repository-specific rules and runbook pointers.
-- `README.md` — setup, ignored local P03 credentials, role matrix, provisioning, and accepted-phase verification.
+- `README.md` — setup, ignored local P03 credentials, role matrix, P03/P04 provisioning, routes, and phase verification.
 - `docs/MASTER_PLAN.md` — preserved phase roadmap.
-- `docs/UI_DESIGN.md` — P02/P03 UI behavior, Chrome screenshots, and mobile geometry evidence.
-- `docs/okf/index.md`, `docs/okf/architecture/authentication-and-organization-access.md`, and `docs/okf/security/organization-access.md` — current project knowledge and access boundary.
+- `docs/UI_DESIGN.md` — P02/P03/P04 UI behavior, Chrome screenshots, and mobile geometry evidence.
+- `docs/okf/index.md`, P04 architecture/data/security/decision concepts, and P03 access documents — current project knowledge and security boundary.
 - `docs/okf/decisions/adr-002-p03-session-and-organization-boundary.md` — accepted P03 decision.
 
 ## Notes for the Next Agent
 
-P03 is accepted and complete. P04 remains planned and outside the current work. Before starting it, check the actual Git state and read the current handoff plus P04-relevant OKF material. Do not stage or commit for the user.
+P01–P04 are accepted. `npm run dev` starts Laravel and Vite together; the user starts Docker/MariaDB manually. The P04 and launcher reports are local queue events in `PENDING`; no Notion API was called. P05 is unstarted; wait for a separate user request. Do not stage, commit, push, or change branches.
