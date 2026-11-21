@@ -2,7 +2,7 @@
 
 ## Project scope
 
-Local-development-only ERP prototype. P01–P05 are accepted. P03 owns sign-in, organizations, roles, and access enforcement; P04 owns shared organization-scoped parties, units, products, warehouses, locations, and Rial price lists; P05 owns leads, dated follow-ups, Toman quotes, and confirmed sales orders. Implement only the currently requested phase. Use synthetic data; stock, fulfillment, finance, deployment, cloud, and external services remain out of scope.
+Local-development-only ERP prototype. P01–P06 are accepted. P03 owns sign-in, organizations, roles, and access enforcement; P04 owns shared organization-scoped parties, units, products, warehouses, locations, and Rial price lists; P05 owns leads, dated follow-ups, Toman quotes, and confirmed sales orders; P06 owns standalone stock operations, location balances, and reservations; P07 owns sales-order fulfillment. Implement only the currently requested phase. Use synthetic data; finance, deployment, cloud, and external services remain out of scope.
 
 ## Architecture and safety
 
@@ -15,11 +15,12 @@ Local-development-only ERP prototype. P01–P05 are accepted. P03 owns sign-in, 
 - On this host the normal Codex shell cannot access Docker Desktop's named pipe; use Administrator PowerShell for Docker commands. Do not change Windows group membership or security settings without the user's instruction.
 - Preserve `.git`, the current branch, user files, lockfiles, and user-provided `docs/MASTER_PLAN.md`. Do not commit or push.
 - Keep the Persian UI RTL, accessible, and aligned with the Liquid Glass Design skill, including solid/reduced-transparency and reduced-motion fallbacks.
+- Resolve record IDs inside the active organization before validating secondary relationship inputs; preserve the existing 404 parity for foreign and unknown records.
 
 ## Commands and documentation
 
 - Read [HANDOFF.md](HANDOFF.md) before development. The local runbook is [README.md](README.md); the phase roadmap is [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md); project knowledge lives in [docs/okf/index.md](docs/okf/index.md).
 - Setup: `C:\php8.5\php.exe C:\Users\moxfo\composer.phar install`, `npm ci`, then `scripts/Initialize-Local.ps1` as documented in README.
 - Daily run: start DB with `docker compose up -d --wait db` (manual Docker step); `npm run dev` starts Laravel and Vite together, and Ctrl+C stops both.
-- Checks: `php artisan test`, `npm run typecheck`, `npm run build`, `node scripts/Verify-P04Browser.mjs`, and `node scripts/Verify-P05Browser.mjs` when the relevant phase is requested. The P05 browser harness also starts a second local PHP worker and a temporary MariaDB quote-row lock to verify contention.
+- Checks: `php artisan test`, `npm run typecheck`, `npm run build`, and the phase-specific browser harnesses `node scripts/Verify-P04Browser.mjs`, `node scripts/Verify-P05Browser.mjs`, and `node scripts/Verify-P06Browser.mjs`. P05 and P06 contention checks use independent PHP servers/connections coordinated by one harness; run one Laravel test-suite process at a time.
 - Laravel Boost is a development dependency; its generated agent/configuration files are local and ignored. Do not add cloud/deployment configuration in this local-only project.

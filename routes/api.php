@@ -1,14 +1,15 @@
 <?php
 
+use App\Http\Controllers\Api\V1\LeadActivityController;
+use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\PartyController;
 use App\Http\Controllers\Api\V1\PriceListController;
 use App\Http\Controllers\Api\V1\ProductController;
-use App\Http\Controllers\Api\V1\LeadActivityController;
-use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\SalesOrderController;
 use App\Http\Controllers\Api\V1\SalesQuoteController;
 use App\Http\Controllers\Api\V1\SalesWorkspaceController;
+use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\UnitController;
 use App\Http\Controllers\Api\V1\WarehouseController;
 use App\Http\Controllers\Api\V1\WorkspaceController;
@@ -42,6 +43,10 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/quotes/{quote}', [SalesQuoteController::class, 'show'])->whereNumber('quote');
         Route::get('/sales-orders', [SalesOrderController::class, 'index']);
         Route::get('/sales-orders/{order}', [SalesOrderController::class, 'show'])->whereNumber('order');
+        Route::get('/stock/options', [StockController::class, 'options']);
+        Route::get('/stock/balances', [StockController::class, 'balances']);
+        Route::get('/stock/movements', [StockController::class, 'movements']);
+        Route::get('/stock/reservations', [StockController::class, 'reservations']);
 
         Route::middleware(RequireExplicitCsrfToken::class)->group(function (): void {
             Route::post('/products', [ProductController::class, 'store']);
@@ -71,6 +76,9 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::delete('/quotes/{quote}/lines/{line}', [SalesQuoteController::class, 'removeLine'])->whereNumber('quote')->whereNumber('line');
             Route::post('/quotes/{quote}/confirm', [SalesQuoteController::class, 'confirm'])->whereNumber('quote');
             Route::post('/quotes/{quote}/convert', [SalesQuoteController::class, 'convert'])->whereNumber('quote');
+            Route::post('/stock/operations', [StockController::class, 'postOperation']);
+            Route::post('/stock/reservations', [StockController::class, 'reserve']);
+            Route::post('/stock/reservations/{reservation}/release', [StockController::class, 'release'])->whereNumber('reservation');
         });
     });
 });

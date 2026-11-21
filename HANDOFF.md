@@ -6,26 +6,26 @@
 
 ## Project Summary
 
-Local-development-only ERP prototype. P01 product API, P02 Persian RTL workspace, P03 session-authenticated organization access, P04 shared master data, and P05 lead-to-confirmed-sales-order are accepted. Runtime data is synthetic and stored in local MariaDB.
+Local-development-only ERP prototype. P01–P06 are accepted at their local-development boundaries. Runtime data is synthetic and stored in local MariaDB.
 
 ## Current Objective
 
-P05 is accepted at its requested boundary. Preserve P01–P05 and wait for a new phase request.
+P06 — Trustworthy Stock Balances — is accepted. Stop at P06 as requested; preserve accepted P01–P05 and do not begin P07 without a new request.
 
 ## Current Phase or Milestone
 
-P01–P05 are accepted. P05 API, scoped data model, exact calculator, quote/order transitions, workspace UI, fixture seeder, tests, browser workflow, snapshots, and migration rollback/reapply are verified locally. Full suite and build checks pass. No production, deployment, stock, fulfillment, or accounting work is included.
+P01–P06 are accepted. P06 tables, scoped APIs, exact quantity arithmetic, stock-key locking, operations/reservations, Persian views, OKF/README/UI evidence, live Chrome acceptance, development migration, and guarded P06-only rollback/reapply are verified. Final serial suite passed 50 tests / 464 assertions after reapply.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `95fe2735616be131f41acfa5a383cedadf5c4a7d`
-- Current HEAD: `95fe2735616be131f41acfa5a383cedadf5c4a7d`
-- Working tree status: P05 changes are uncommitted on the original `main` branch; Git fsmonitor reported an unavailable IPC endpoint, so status was rechecked with `core.fsmonitor=false`.
+- Base or starting commit: `e86ebbb5193f3bda5e9ec77a6773de8864d578f5`
+- Current HEAD: `e86ebbb5193f3bda5e9ec77a6773de8864d578f5`
+- Working tree status: P06 source/docs/screenshots are unstaged on the original `main` branch at HEAD `e86ebbb5193f3bda5e9ec77a6773de8864d578f5`. Git fsmonitor reported an unavailable IPC endpoint; status was inspected with `core.fsmonitor=false`.
 - Staged changes: none
-- Unstaged changes: P05 implementation and documentation, plus this handoff.
-- Untracked files: P05 API/controllers/models/service/migration/seeder/UI/OKF documents/tests; no unrelated files observed.
+- Unstaged changes: HANDOFF, AGENTS, README, UI_DESIGN, ProductController, LocationController, Organization, OrganizationPolicy, products.css, app.tsx, WorkspaceShell, routes/api.php, routes/web.php, and P06 OKF documents/indexes/log.
+- Untracked files: P06 stock controller/models/service/migration, React API/screen, concurrency and browser helpers, P06 feature tests, P06 OKF concepts/ADR, and four P06 screenshots.
 
 ## Completed Work
 
@@ -64,18 +64,23 @@ P01–P05 are accepted. P05 API, scoped data model, exact calculator, quote/orde
 - Chrome acceptance passed at 1280×900 and 390×844, with Tab/Enter form submission, overdue completion and queue reload, zero/missing price and unit validation coverage, reader 403s, forced bright fallback with SVG refraction disabled, and zero browser runtime errors. Two conversion requests waited on a held MariaDB quote-row lock and returned 201/200 with the same order; only one source order and two copied lines existed.
 - An authorized P04 price-list update was read back while the confirmed quote and order retained their Toman price, line, label, and total snapshots. The seeded P05 price was restored to 1,200,000 rials afterward.
 - Added P05 UI screenshots, README/runbook details, project AGENTS scope, P05 OKF architecture/data/security/ADR documents and indexes/log, and this handoff. The OKF validation parsed 21 Markdown files, 15 concepts, and 91 internal file links without errors.
+- Added P06 migration `2026_11_21_000007_create_p06_inventory_tables.php`, organization/product/location lock rows, exact integer-thousandth operation/reservation records, composite ownership constraints, stock APIs/policies/services/models, and P04 guards against changing a base unit or location warehouse after a stock key exists.
+- Added P06 API routes and Persian workspace views for balances, immutable movement history, reservations/releases, opening/receipt/issue/transfer forms, reader/editor visibility, accessible validation feedback, and forced Liquid Glass fallback. P06 remains independent of sales-order lines for P07 extension.
+- Added `tests/Feature/P06StockWorkflowTest.php` for exact balances, idempotent create/release, paired transfer legs and injected second-leg rollback, issue/reservation availability, precision/missing-unit validation, reader denial, CSRF, foreign IDs, warehouse/location mismatch, opening rule, and P06 master-data locks.
+- Added `scripts/Verify-P06Browser.mjs`, `Lock-P06StockForConcurrency.php`, and `Verify-P06StockRows.php`. Chrome used existing fixtures: P05-DEMO-001 ID 4 and P05-DEMO-002 ID 5 (`EA`), DEMO-002 ID 3 (`EA`), unitless DEMO-001 ID 1, and LOC-A-01/LOC-B-01 IDs 1/2. Four synthetic screenshots are linked from `docs/UI_DESIGN.md#p06-verification-evidence`.
+- Updated P06 OKF workflow/data/security/ADR documents and indexes/log, AGENTS, README, UI_DESIGN, and this handoff; adopted OKF version remains 0.2.
 
 ## Work in Progress
 
-None. P05 has passed its acceptance boundary. The repository remains uncommitted and unstaged; the P05 local Notion queue event is appended and remains pending explicit sync.
+None. P06 is accepted and this request is complete. The requested GPT-6 Luna/max execution profile was not exposed for verification. Local P06 Notion queue events remain pending explicit sync; no Notion API was called.
 
 ## Remaining Work
 
-No P05 implementation remains. If the user requests the next phase, begin with the current `main` HEAD and this handoff. P06 owns stock balances/reservations; P07 owns fulfillment from confirmed sales-order lines. Do not stage, commit, push, or change branches without a new request.
+No P06 acceptance work remains. The first auto-review attempt for rollback was rejected; after the user's explicit authorization, the exact P06-only rollback/reapply was run and verified. All requested implementation, browser, suite, build, style, docs, and local-queue work is complete. Stop at P06; do not begin P07.
 
 ## Exact Next Steps
 
-Next agent: read current Git status and continue only the newly requested phase. Keep P04 price lists in rials; P05 quote/order snapshots are in toman using exact tenths-of-toman source values. Preserve the development volume and accepted master data. No staging, commit, push, reset, or branch change was performed.
+P06 is complete; stop here. If the user later requests another phase, reread current Git/HANDOFF/OKF state and start that phase only. Preserve `erp_mariadb_data`, existing product IDs/units, and all P04–P06 contracts. Do not stage, commit, push, reset, or change branches.
 
 ## Files Created
 
@@ -99,6 +104,9 @@ Next agent: read current Git status and continue only the newly requested phase.
 - P05 files: `app/Http/Controllers/Api/V1/{LeadController,LeadActivityController,SalesWorkspaceController,SalesQuoteController,SalesOrderController,SalesController}.php`; `app/Models/{Lead,LeadActivity,SalesQuote,SalesQuoteLine,SalesOrder,SalesOrderLine}.php`; `app/Services/Sales/SalesDocumentCalculator.php`; migration `2026_11_21_000006_create_p05_sales_tables.php`; `database/seeders/P05DemoSeeder.php`; `resources/js/api/sales.ts`; `resources/js/screens/SalesScreen.tsx`; `tests/Feature/P05SalesWorkflowTest.php`; `tests/Unit/SalesDocumentCalculatorTest.php`; `scripts/Verify-P05Browser.mjs`; and `scripts/Lock-P05QuoteForConcurrency.php`.
 - P05 OKF concepts: `docs/okf/architecture/p05-sales-workflow.md`, `docs/okf/data/p05-sales-documents.md`, `docs/okf/security/p05-sales-isolation.md`, and `docs/okf/decisions/adr-004-p05-sales-currency-and-snapshots.md`.
 - P05 browser evidence screenshots linked in `docs/UI_DESIGN.md#p05-sales-workflow-evidence`.
+- P06: `app/Http/Controllers/Api/V1/StockController.php`; `app/Services/Stock/StockService.php`; `app/Models/InventoryOperation.php`, `InventoryMovement.php`, and `StockReservation.php`; migration `2026_11_21_000007_create_p06_inventory_tables.php`; `tests/Feature/P06StockWorkflowTest.php`; `resources/js/api/stock.ts`; `resources/js/screens/StockScreen.tsx`; `scripts/Verify-P06Browser.mjs`, `Lock-P06StockForConcurrency.php`, and `Verify-P06StockRows.php`.
+- P06 OKF concepts: `docs/okf/architecture/p06-stock-workflow.md`, `docs/okf/data/p06-stock-balances.md`, `docs/okf/security/p06-stock-isolation.md`, and `docs/okf/decisions/adr-005-p06-stock-ledger-and-locks.md`.
+- Four P06 Chrome screenshots listed in `docs/UI_DESIGN.md#p06-verification-evidence`.
 
 ## Files Modified
 
@@ -109,6 +117,7 @@ Next agent: read current Git status and continue only the newly requested phase.
 - Instructions/docs: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, and P03-related OKF overview, indexes, architecture, decision, security, and log documents
 - P01/P02 source files in the integration list were already untracked at task start. P03-specific entries above were created this phase and are also untracked. `README.md` was already modified at task start and received further P03 documentation. Git's tracking status cannot separate changes within existing untracked files, so the lists above identify the files touched in this phase without implying staged/tracked state.
 - P05 modified `routes/api.php`, `routes/web.php`, `app/Http/Controllers/Api/V1/WorkspaceController.php`, `app/Models/Organization.php`, `app/Policies/OrganizationPolicy.php`, `app/Console/Commands/ProvisionP03Demo.php`, `database/seeders/P03DemoSeeder.php`, `resources/js/api/products.ts`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, and `resources/css/products.css`. It also updated README, AGENTS, UI_DESIGN, P04 OKF documents/indexes, the OKF root/project overview/decisions/security/data/architecture indexes/log, and this handoff.
+- P06 also modified `app/Http/Controllers/Api/V1/ProductController.php` and `LocationController.php` to lock master-data keys against concurrent stock writes; `app/Models/Organization.php`, `app/Policies/OrganizationPolicy.php`, `routes/api.php`, `routes/web.php`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, and `resources/css/products.css`. Documentation updates include `AGENTS.md`, `README.md`, `docs/UI_DESIGN.md`, the OKF root/project overview, P06 concepts/indexes/log, and this handoff.
 
 ## Important Architecture and Design Decisions
 
@@ -126,6 +135,10 @@ Next agent: read current Git status and continue only the newly requested phase.
 - The UI loads the supplied static IRANSansX weights 100–900 locally. Persian text uses FaNum glyphs; LTR identifiers use the standard family when styled as LTR and code badges retain monospace with a Persian fallback.
 - The organization/code unique index may only be removed when no code repeats between organizations. The down migration checks and refuses unsafe restoration of global uniqueness.
 - P03 uses synthetic local accounts. No registration, invitation, password reset, role-management UI, cloud, or deployment behavior was added.
+- P06 defines the stock key as `(organization_id, product_id, location_id)`. Immutable positive inbound/outbound thousandth legs and open reservations are the source records; physical/reserved/available quantities are derived rather than cached.
+- `stock_locks` is an organization/product/location lock registry, created in the same transaction before locking so first writes also have a stable target. Writers lock the product, sorted warehouses/locations, then sorted stock keys; transfers create two legs under one operation transaction. P06 holds product base unit and location warehouse stable after the first stock key.
+- P06 operation/reservation creates use organization-unique idempotency UUIDs and payload hashes. Exact values are strings at the API, converted to integer thousandths, bounded by `999999999.999`. Opening must be the first movement; correct a posted count with a receipt or issue. Releases are one-way and idempotent.
+- P06 has no order-line links. P07 can link `stock_reservations.id` and movement/operation IDs to sales-order lines through organization-scoped link rows and add partial-delivery/remainder-release semantics.
 
 ## Commands Executed
 
@@ -174,6 +187,22 @@ Next agent: read current Git status and continue only the newly requested phase.
 - `erp_test` rehearsal: P05 rollback preview listed only the six P05 tables; actual P05 rollback left all P03/P04 migrations ran and P05 pending; path-specific P05 reapply succeeded; the full suite passed again afterward.
 - P05 Chrome harness `node scripts/Verify-P05Browser.mjs` passed at 1280×900 and 390×844, forced bright fallback, keyboard Tab/Enter, zero-overdue-after-reload, exact quote UI/API amounts, snapshot after authorized price change, and reader 403 checks. It held the quote row lock while conversion requests reached two PHP workers; statuses 201/200 returned the same order ID. Final run saved six screenshots under `docs/screenshots/` and reported zero browser runtime errors. The harness restored the P05 fixture price.
 - Development fixture readback after repeat provisioning kept products ID 1/2/3 and P05 fixture IDs 4/5, list ID 3, and source prices 1,200,000/1,350,000 rials.
+- Read the P06 request, repository instructions, README/HANDOFF/MASTER_PLAN/UI_DESIGN, relevant P04/P05 and OKF concepts, current Git state, the fingerprint-matched ERP mistakes log, and the installed Liquid Glass Design skill. Execution profile GPT-6 Luna/max was not exposed for verification.
+- Normal-shell Docker and MariaDB loopback calls were denied. Elevated documented `docker compose up -d --wait db` reported `erp-local-db-1` healthy; the existing `erp_mariadb_data` volume was retained.
+- `artisan migrate:status` on `erp_dev` showed only migration 000007 pending. Readback confirmed product IDs 1/2 DEMO-001 with null units, ID 3 DEMO-002/EA, IDs 4/5 P05-DEMO-001/002/EA, warehouses 1/2 and locations 1/2. `artisan migrate --force` applied only P06 migration 000007; no seed/reset ran.
+- `artisan route:list --path=api/v1/stock --except-vendor` registered seven P06 routes.
+- Normal-shell focused P06 tests could not connect to MariaDB loopback. Elevated `artisan test --filter=P06StockWorkflowTest` passed 5 tests / 101 assertions on guarded `erp_test`.
+- `artisan migrate:status --env=testing` showed migrations 000001–000007 applied on `erp_test`. A read-only P06 rollback `--pretend` preview listed `drop stock_reservations`, `inventory_movements`, `inventory_operations`, and `stock_locks`. The first real rollback request was rejected by automatic review; after the user explicitly reauthorized it, the exact P06-only rollback/reapply was performed and verified below.
+- `npm run dev` initially exited because verified same-repository ERP listeners held 8000/5173. Those three same-project listeners were stopped; the requested launcher then started Laravel and Vite successfully. A separate same-repository PHP peer on 8001 remained and was reused by the race harness.
+- `node scripts/Verify-P06Browser.mjs` passed in Google Chrome at 1280×900 and 390×844 with zero runtime errors. Fixtures: product 4 P05-DEMO-001 and product 5 P05-DEMO-002 (EA), product 3 DEMO-002 (EA), product 1 unitless DEMO-001, location 1 LOC-A-01, location 2 LOC-B-01. Reserve/release returned 10/3/7 and 10/0/10; transfer operation 2 had two legs and balances 6/4; two overlapping reservations waited 400 ms behind the MariaDB key lock and returned 201/422; fractional issue yielded 7.5/3/4.5; forced fallback had seven glass surfaces, zero refraction, and mobile content width 375/375. Four screenshots were saved.
+- `scripts/Verify-P06StockRows.php 1 5 1` read back physical/reserved/available milli-values 1000/1000/0 and exactly one open reservation. `scripts/Verify-P06StockRows.php 1 3 2` read back 7500/3000/4500 and movement legs for opening 10.000 and issue 2.500.
+- `npm run typecheck` passed and `npm run build` passed (32 modules). Pint identified formatting fixes; the elevated repository Pint run formatted only changed P06 PHP files before the final check.
+- First full serial suite run found one P04 scope-first 404 regression from the P06 location locking change (49/50 passed). Restored the scoped location lookup before relationship validation; the focused P04 test passed 1 test / 31 assertions and the final full guarded serial suite passed 50 tests / 464 assertions.
+- After the user explicitly authorized P06-only rollback/reapply, called `artisan migrate:rollback --path=database/migrations/2026_11_21_000007_create_p06_inventory_tables.php --step=1 --env=testing --force`. It completed on guarded `erp_test`; read-only status then showed 000007 pending and all P06 tables absent, while all P03–P05 table counts and probe rows remained unchanged.
+- Reapplied only migration 000007 with `artisan migrate --path=database/migrations/2026_11_21_000007_create_p06_inventory_tables.php --env=testing --force`. Readback showed all four P06 tables present, P05 migration 000006 still ran, the same P03–P05 counts/rows, and zero P06 rows. The final guarded serial suite then passed 50 tests / 464 assertions; it cleared the temporary probe rows through its normal test database refresh.
+- Final changed-file Pint, PHP syntax checks, `node --check scripts/Verify-P06Browser.mjs`, `git diff --check`, API route list, and OKF YAML/frontmatter/link validation passed; the OKF check parsed 25 Markdown files, 19 typed concepts, and 114 internal links, with only root `index.md` declaring version 0.2.
+- Appended event `erp-p06-trustworthy-stock-20261121T151154Z-d3a0c7e5-9f17-4ad3-b71c-8c82f40e3b69` to the exact local Notion queue under its exclusive lock. It remains `PENDING`; no Notion API was called.
+- Appended the P04 scope-first 404 correction to the verified ERP mistakes log after rechecking its ownership fingerprint.
 
 ## Validation and Test Results
 
@@ -204,30 +233,35 @@ Next agent: read current Git status and continue only the newly requested phase.
 - PASS: Chrome at 1280×900 and 390×844 plus `?glass=fallback&scene=bright`; seven final screenshots were inspected. No uncaught runtime errors. At mobile scroll end, document scrollWidth and clientWidth both measured 375 CSS px in the 390 px window. Party-form action bottom was y=609.53 vs dock y=770; location selector action bottom was y=622.31 vs dock y=770.
 - PASS: P04-only rollback/reapply on `erp_test` removed the P04 structures while retaining P03 products and organization ownership; reapply succeeded. The final guarded suite then passed.
 - PASS: `npm run dev` starts both local web processes in one terminal; sign-in page and Vite client/React entry return HTTP 200. Ctrl+C stops both. The launcher does not issue Docker commands.
+- PASS: P06 migration 000007 applied to the existing `erp_dev` schema without resetting its volume. Pre/post reads preserved products 1/2 DEMO-001 (both unitless), product 3 DEMO-002/EA, and P05 product IDs 4/5/EA.
+- PASS: Final serial guarded `artisan test` passed 50 tests / 464 assertions on `erp_test`, including P06 ledger/reservation behavior, rollback after a controlled second transfer-leg exception, scope/role/CSRF/pair/precision checks, and the P04 scope-first 404 regression.
+- PASS: `npm run typecheck`, `npm run build`, focused P04 regression, Chrome P06 browser harness, route registration, stock-row readback helpers, browser syntax check, changed-file `pint --test`, PHP syntax, `git diff --check`, and OKF YAML/frontmatter/internal-link validation passed. The OKF validator parsed 25 Markdown files, 19 typed concepts, 114 internal links, and confirmed only the bundle root carries `okf_version: "0.2"`.
+- PASS: Chrome P06 acceptance at 1280×900, 390×844, and forced bright fallback. Reservation/release values were 10.000/3.000/7.000 and 10.000/0.000/10.000. Transfer operation 2 has two legs and 6.000/4.000 balances. Two real requests on separate PHP/MariaDB connections remained pending behind the locked stock key, then returned 201/422; stored rows show one open reservation and 1.000/1.000/0.000. DEMO-002 issue 8.000 rejected; 2.500 posted, leaving 7.500/3.000/4.500. Four screenshots are linked from `docs/UI_DESIGN.md`.
+- PASS: P06-only rollback/reapply of migration 000007 on guarded `erp_test`. Before/after counts matched for organizations (1), memberships/audits (0/0), products/parties/party roles/units/warehouses/locations/price lists/entries/leads/quotes (1 each), lead activities/quote lines/sales orders/order lines (0 each). The organization row ID 1, product ID 96/base unit 40, party ID 28, warehouse/location IDs 25/24, price list/entry IDs 22/30, and lead/quote IDs 8/8 retained their values. During rollback exactly four P06 tables were absent; reapply restored them empty. The final guarded serial suite passed 50 tests / 464 assertions.
 
 ## Known Issues and Blockers
 
-- The project-specific mistakes log is available at `D:\All projects\Mistakes\ERP\mistakes.md`; its fingerprint was verified at task start. No additional reusable P05 mistake was found.
-- Three prior ERP local report events plus P05 are in `D:\All projects\notion\notion.md`; the P05 event `erp-p05-sales-20261121T101356Z-7b4e61d2` and its task change remain `PENDING`. The shared queue has 47 event headers. No Notion API was called; explicit `SYNC_NOTION` is still required before any remote write.
-- The user-provided `docs/MASTER_PLAN.md` has pre-existing links to absent `docs/reverse-engineering/` files. It was preserved unchanged; this does not block P04.
+- The verified ERP-specific mistakes log is `D:\All projects\Mistakes\ERP\mistakes.md`; its project-root fingerprint matched at task start. It now records the reusable P04 scope-first 404 lesson caught by P06 regression.
+- Local P06 events `erp-p06-trustworthy-stock-20261121T151154Z-d3a0c7e5-9f17-4ad3-b71c-8c82f40e3b69` (partial checkpoint) and `erp-p06-trustworthy-stock-20261121T154000Z-7f5be2cb-7b1d-4a45-8a1e-04944d0d9474` (accepted completion) were appended to `D:\All projects\notion\notion.md` under the exclusive lock and remain `PENDING`. The queue has 53 event headers. No Notion API was called; explicit `SYNC_NOTION` is required before any remote write.
+- The user-provided `docs/MASTER_PLAN.md` has pre-existing links to absent `docs/reverse-engineering/` files. It was preserved unchanged.
 - Requested model/effort was GPT-6 Luna at maximum reasoning when available; the current session did not expose an execution-profile value, so Luna/max cannot be confirmed.
-- The normal sandbox shell could not access MariaDB loopback; the documented elevated local path worked for Docker, migrations, and guarded tests. Docker was stopped after acceptance, preserving the named volume.
-- An early overlapping double invocation of `artisan test` produced `erp_test` table races; the final serial suite passed 36/36 tests and 213 assertions. The correction is recorded in `AGENTS.md` and the ERP-specific mistakes log.
-- During Chrome runs, the Laravel/Vite watcher logged Windows `EBUSY` while observing temporary Chrome-profile files under `storage/framework/testing`. This did not affect page/API acceptance; the final browser harness exited cleanly, removed its profile, and reported zero browser runtime errors. The servers were stopped after acceptance. The ignored `public/hot` file still points to the documented Vite URL; start `npm run dev` when reopening the app.
-- MariaDB was stopped after acceptance with `docker compose stop db`; `erp_mariadb_data` remains intact. `npm run dev` was stopped with Ctrl+C. No listeners remain on ports 8000, 5173, or the temporary worker port 8001.
+- The normal shell could not access Docker's named pipe or MariaDB loopback; the documented elevated path successfully started MariaDB and ran migrations/tests. No Windows security/group settings were changed.
+- Auto-review initially rejected the destructive P06 rollback because it did not treat the pasted attachment as trusted authorization. The user then explicitly authorized the precise `erp_test` rollback/reapply; it completed successfully and preserved P03–P05 rows. No rollback was run against `erp_dev`.
+- `npm run dev` initially found ports 8000/5173 occupied by verified processes from this ERP repository; those listeners were stopped, and the requested launcher then started successfully. The dev launcher and Docker service started for this task were stopped afterward. A separate same-repository PHP peer on port 8001 (PID 28608) was preexisting and remains running; it was reused by the browser race harness.
 
 ## Risks and Assumptions
 
-- Only synthetic local data is used. Demo passwords remain in the ignored private local file; the editor credential was shared in chat only after the user explicitly requested it and was not copied into tracked files or the Notion queue.
-- Local migration, browser, and test evidence applies to the inspected `erp_dev`, isolated `erp_test`, Windows host PHP, Vite, and installed Google Chrome; no production environment was configured or qualified.
-- The development database intentionally now has two organizations and two rows sharing `DEMO-001`. Removing the organization-scoped uniqueness migration will be refused until those codes no longer conflict globally.
+- Only synthetic local data was used. Demo passwords remain in the ignored private local file and were not copied into tracked files or the Notion queue.
+- Migration, browser, and test evidence applies to local `erp_dev`, guarded `erp_test`, host PHP, Vite, and installed Google Chrome; no production environment was configured or qualified.
+- The development database still has two organizations with their own `DEMO-001` rows. Do not roll back organization-scoped code uniqueness while those codes conflict globally.
 
 ## Database or Migration State
 
-- MariaDB 11.8.9 Compose service is stopped after acceptance. The existing `erp_mariadb_data` volume was retained.
-- All nine migrations are applied on `erp_dev`; P03 migration batch is 2, P04 is 3, and P05 is 4. The development schema and `erp_mariadb_data` volume were not reset.
-- After repeat provisioning: `organizations` 2; `organization_memberships` 3; `organization_role_audits` 3; `products` 5; `parties` 2; `party_roles` 4; `units` 3; `warehouses` 2; `locations` 2; `price_lists` 3; `price_list_entries` 4.
-- Product ID 1 remains `DEMO-001`, «کالای نمونه», `organization_id=1`; product ID 2 remains the organization B `DEMO-001`. Both still have unknown base unit (`NULL`). P04 product ID 3 remains `DEMO-002` with unit `EA`. P05 added `P05-DEMO-001` ID 4 and `P05-DEMO-002` ID 5, plus `P05-QUOTE` list ID 3 with 1,200,000 and 1,350,000 rial entries. P05 snapshots display these as 120,000.0 and 135,000.0 toman.
+- MariaDB 11.8.9 Compose service was stopped after P06 acceptance; the `erp_mariadb_data` volume was retained.
+- Ten migrations, including `2026_11_21_000007_create_p06_inventory_tables`, are applied on `erp_dev`. No schema/volume reset was run.
+- Existing master data remains: products 1/2 are the two `DEMO-001` rows with null unit; product 3 `DEMO-002` has `EA`; products 4/5 `P05-DEMO-001/002` retain `EA`; locations 1/2 remain under warehouses 1/2.
+- P06 browser fixtures in organization 1: product 4 / `P05-DEMO-001` opened 10.000 in location 1, reserved 3.000, released twice, then transferred 4.000 to location 2; final physical balances are 6.000 and 4.000. Product 5 / `P05-DEMO-002` opened 1.000 at location 1 and has one open 1.000 reservation (physical/reserved/available 1.000/1.000/0.000). Product 3 / `DEMO-002` opened 10.000 at location 2, reserved 3.000, rejected issue 8.000, and posted issue 2.500; final is 7.500/3.000/4.500. These are synthetic P06 acceptance records; no existing product IDs or units were changed.
+- On `erp_test`, migration 000007 was rolled back and reapplied by path only. Before/after counts matched: organization 1; product, party, role, unit, warehouse, location, price list/entry, lead, and quote 1 each; memberships, audits, activities, quote lines, orders, order lines 0. Representative row IDs and relationships matched exactly. The final suite passed afterward and its normal `RefreshDatabase` run removed the temporary probe rows; all migration records, including 000007, are now applied.
 - Browser acceptance left synthetic development records: 5 P05 leads with 5 completed activities, 4 quotes (one empty draft, three confirmed), and 2 confirmed orders. One confirmed quote has no order; the two converted quote/orders each contain two lines. No existing master-data row or price was changed; the P05 first entry was restored to 1,200,000 rials.
 - `erp_test` remains separate and was the only target for Laravel database-refresh tests.
 
@@ -235,27 +269,27 @@ Next agent: read current Git status and continue only the newly requested phase.
 
 - PHP executable: `C:\php8.5\php.exe` (8.5.13); Composer PHAR: `C:\Users\moxfo\composer.phar` (2.11.2).
 - Node/npm: 26.13.1 / 11.17.0. Google Chrome is installed and used headless through a fresh isolated CDP profile for the final browser pass.
-- App URL: `http://127.0.0.1:8000`; run `npm run dev` from the repository root to start Laravel and Vite together. Development listeners are stopped after acceptance; start MariaDB separately with Docker before using database-backed pages.
+- App URL: `http://127.0.0.1:8000`; `npm run dev` starts Laravel and Vite together. MariaDB is managed separately with Docker.
 - MariaDB loopback port defaults to 3307. Docker operations on this host require Administrator PowerShell; no Windows security/group settings were changed.
-- `.env`, `.env.testing`, database credentials, `APP_KEY`, and P03 demo credentials remain ignored local data. Laravel/Vite servers were stopped after Chrome verification; the pre-existing `public/hot` file still points to Vite at 5173, so start `npm run dev` when reopening the UI.
+- `.env`, `.env.testing`, database credentials, `APP_KEY`, demo credentials, and `public/hot` remain ignored local data. Vite generated `public/hot` during acceptance; it is absent after the launcher stopped.
 
 ## Uncommitted or Partially Applied Changes
 
-P05 implementation and documentation remain uncommitted on `main`. No files were staged, committed, discarded, or reset. HEAD remains `95fe2735616be131f41acfa5a383cedadf5c4a7d`.
+P06 implementation, tests, screenshots, and documentation remain unstaged/uncommitted on `main`. No files were staged, committed, discarded, reset, or reverted. HEAD remains `e86ebbb5193f3bda5e9ec77a6773de8864d578f5`.
 
 ## Recovery or Rollback Notes
 
-Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored P03 credential file, and the database-safety guard. Do not use `down -v`, reset `erp_dev`, delete local environment files, or change Windows security/group settings. The migration that restores global product-code uniqueness refuses rollback while different organizations share a code; first reconcile/rename duplicate codes before considering that rollback. User-owned source and plan files remain intact.
+Keep `erp_mariadb_data`, `.env`, `.env.testing`, the ignored demo credential file, and the database-safety guard. Do not use `down -v`, reset `erp_dev`, delete local environment files, or change Windows security/group settings. P06 rollback/reapply was executed only on guarded `erp_test`; `erp_dev` and its P06 fixtures were not rolled back or reset.
 
 ## Related Documentation
 
 - `AGENTS.md` — repository-specific rules and runbook pointers.
-- `README.md` — setup, ignored local demo credentials, role matrix, P03–P05 provisioning, routes, and phase verification.
+- `README.md` — setup, ignored local demo credentials, role matrix, P03–P06 routes, and phase verification.
 - `docs/MASTER_PLAN.md` — preserved phase roadmap.
-- `docs/UI_DESIGN.md` — P02/P03/P04 UI behavior, Chrome screenshots, and mobile geometry evidence.
-- `docs/okf/index.md`, P04 architecture/data/security/decision concepts, and P03 access documents — current project knowledge and security boundary.
+- `docs/UI_DESIGN.md` — P02–P06 UI behavior, Chrome screenshots, and responsive geometry evidence.
+- `docs/okf/index.md`, P03–P06 architecture/data/security/decision concepts — current project knowledge and security boundaries.
 - `docs/okf/decisions/adr-002-p03-session-and-organization-boundary.md` — accepted P03 decision.
 
 ## Notes for the Next Agent
 
-P01–P05 are accepted. Local Persian UI text uses bundled IRANSansXFaNum weights 100–900; LTR identifiers have the standard family and monospace fallbacks. `npm run dev` starts Laravel and Vite together; start MariaDB separately without deleting its volume. P05 browser acceptance records remain synthetic local data. The P05 Notion queue event is local-only and will remain `PENDING`; no Notion API was called. P06 is the next planned phase if requested. Do not stage, commit, push, or change branches.
+P01–P06 are accepted. Stop at P06 as requested. P07 can link reservation and movement/operation IDs to sales-order lines, with organization-scoped multi-delivery link rows. Local Persian UI text uses bundled IRANSansXFaNum weights 100–900; LTR identifiers have the standard family and monospace fallbacks. Keep the P06 development fixtures synthetic. Do not stage, commit, push, or change branches.

@@ -37,4 +37,19 @@ class OrganizationPolicy
             ->where('role', OrganizationRole::Editor->value)
             ->exists();
     }
+
+    public function viewStock(User $user, Organization $organization): bool
+    {
+        return $organization->memberships()
+            ->where('user_id', $user->getKey())
+            ->exists();
+    }
+
+    public function manageStock(User $user, Organization $organization): bool
+    {
+        return $organization->memberships()
+            ->where('user_id', $user->getKey())
+            ->where('role', OrganizationRole::Editor->value)
+            ->exists();
+    }
 }

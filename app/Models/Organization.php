@@ -67,4 +67,14 @@ class Organization extends Model
     {
         return $this->hasMany(SalesOrder::class);
     }
+
+    public function inventoryOperations(): HasMany
+    {
+        return $this->hasMany(InventoryOperation::class);
+    }
+
+    public function stockReservations(): HasMany
+    {
+        return $this->hasMany(StockReservation::class);
+    }
 }

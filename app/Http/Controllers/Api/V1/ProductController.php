@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -67,19 +68,13 @@ class ProductController extends Controller
         ]);
 
         $organization = $request->attributes->get('activeOrganization');
-        $product = Product::query()
-            ->where('organization_id', $organization->getKey())
-            ->findOrFail($id);
-
-        Gate::authorize('update', $product);
-
         if ($validated === []) {
             throw ValidationException::withMessages(['request' => 'حداقل یک مشخصهٔ کالا را تغییر دهید.']);
         }
 
         if (array_key_exists('code', $validated)) {
             $request->validate([
-                'code' => [Rule::unique('products', 'code')->where('organization_id', $organization->getKey())->ignore($product->getKey())],
+                'code' => [Rule::unique('products', 'code')->where('organization_id', $organization->getKey())->ignore($id)],
             ]);
         }
 
@@ -89,12 +84,29 @@ class ProductController extends Controller
             ]);
         }
 
-        $product->fill($validated);
-        $product->save();
+        return DB::transaction(function () use ($organization, $validated, $id): JsonResponse {
+            $product = Product::query()
+                ->where('organization_id', $organization->getKey())
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        return response()->json([
-            'data' => $product->only(['id', 'code', 'name']),
-        ]);
+            Gate::authorize('update', $product);
+
+            if (
+                array_key_exists('base_unit_id', $validated)
+                && (int) $validated['base_unit_id'] !== (int) $product->base_unit_id
+                && DB::table('stock_locks')->where('organization_id', $organization->getKey())->where('product_id', $product->getKey())->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'base_unit_id' => 'پس از ثبت حرکت موجودی، واحد پایهٔ کالا قابل تغییر نیست.',
+                ]);
+            }
+
+            $product->fill($validated);
+            $product->save();
+
+            return response()->json(['data' => $product->only(['id', 'code', 'name'])]);
+        });
     }
 
     private function serializeDetail(Product $product): array

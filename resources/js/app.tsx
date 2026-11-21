@@ -5,6 +5,7 @@ import { SignInScreen } from './screens/SignInScreen';
 import { AccessDeniedScreen } from './screens/AccessDeniedScreen';
 import { MasterDataScreen } from './screens/MasterDataScreen';
 import { SalesScreen } from './screens/SalesScreen';
+import { StockScreen } from './screens/StockScreen';
 import '../css/app.css';
 
 const root = document.getElementById('app');
@@ -17,9 +18,10 @@ const scene = new URLSearchParams(window.location.search).get('scene') === 'brig
 document.documentElement.dataset.lgScene = scene;
 const isMasterDataRoute = /^\/(parties|units|warehouses|locations|price-lists)(?:\/(?:new|\d+))?\/?$/.test(window.location.pathname);
 const isSalesRoute = /^\/(leads|follow-ups|quotes|orders)(?:\/(?:new|\d+))?\/?$/.test(window.location.pathname);
+const isStockRoute = /^\/stock(?:\/(?:movements|reservations))?\/?$/.test(window.location.pathname);
 
 createRoot(root).render(
     <StrictMode>
-        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
+        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isStockRoute ? <StockScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
     </StrictMode>,
 );

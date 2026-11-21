@@ -1,6 +1,6 @@
 # ERP
 
-Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, and P04 adds shared organization-owned master data. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
+Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, and P06 adds standalone stock operations and reservations. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
 
 ## Local requirements
 
@@ -166,6 +166,31 @@ The P05 Chrome harness is `node scripts/Verify-P05Browser.mjs`; it uses the igno
 
 **P05 status: ACCEPTED (2026-11-21).** The guarded Laravel suite passed 45 tests / 363 assertions; TypeScript, production build, changed-file Pint, and PHP syntax checks passed. The P05-only rollback/reapply rehearsal on `erp_test` preserved the P04 layer. Google Chrome verified the journey at 1280×900 and 390×844, keyboard submission, and forced bright fallback. A MariaDB row-lock contention check returned the same order for both conversion requests (201/200), with one order and two copied lines. Price-list edits left both document snapshots at 178,831 toman; the demo list price was restored afterward. See the [P05 UI evidence](docs/UI_DESIGN.md#p05-sales-workflow-evidence) and [handoff](HANDOFF.md) for the synthetic local records and detailed run results.
 
+## P06 trustworthy stock balances
+
+P06 provides `/stock` for physical/reserved/available balances, `/stock/movements` for the immutable operation journal, and `/stock/reservations` for open/released reservations. Editors can post opening stock, receipts, issues, location transfers, and reservations/releases. Readers retain organization-scoped read access. Operations and reservations require `Idempotency-Key`; writes use the session, active organization, explicit CSRF token, and `manageStock` authorization.
+
+Quantities are decimal strings with up to three fractional digits, stored as integer thousandths up to `999999999.999`. Physical stock is derived from inbound/outbound movement legs; reserved stock is the sum of open reservations; available is physical minus reserved. A stable organization/product/location lock row serializes first and later writes. Transfers validate both warehouse/location pairs and commit both legs together. Opening stock must be the first movement for a key; correct a posted count with a receipt or issue. P06 does not link reservations or movements to sales-order lines; P07 owns those links and partial delivery.
+
+For an already initialized database, start MariaDB in **Administrator PowerShell** without removing its volume:
+
+```powershell
+docker compose up -d --wait db
+```
+
+Then apply the additive migration and launch Laravel/Vite in a regular PowerShell:
+
+```powershell
+$env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
+& $env:ERP_PHP_BINARY artisan migrate --force
+npm run dev
+node scripts/Verify-P06Browser.mjs
+```
+
+The browser harness uses existing synthetic fixtures without changing their IDs or units: `P05-DEMO-001` ID 4 and `P05-DEMO-002` ID 5 use `EA`; `DEMO-002` ID 3 uses `EA`; `DEMO-001` ID 1 has no base unit and is rejected for stock. `LOC-A-01` ID 1 is in `WH-MAIN` ID 1; `LOC-B-01` ID 2 is in `WH-SECOND` ID 2. The harness posts synthetic P06 operations/reservations and saves screenshots under `docs/screenshots/`.
+
+**P06 status: ACCEPTED (2026-11-21).** Migration `2026_11_21_000007_create_p06_inventory_tables` is applied to the existing `erp_dev` schema without resetting its volume or changing existing product IDs/base units. On guarded `erp_test`, the P06-only rollback/reapply succeeded; P03–P05 table counts and representative organization/product/party/unit/location/price/lead/quote rows matched before and after. The final guarded serial suite passed 50 tests / 464 assertions. Chrome passed reserve/release, linked transfer, last-unit two-connection race (201/422), exact fractional issue, reader/editor, keyboard validation, 1280×900, 390×844, and forced fallback; four synthetic screenshots are linked in [P06 UI evidence](docs/UI_DESIGN.md#p06-verification-evidence). See [P06 architecture](docs/okf/architecture/p06-stock-workflow.md) and [HANDOFF.md](HANDOFF.md).
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P05 are accepted. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P06 are accepted; P07 is the next planned phase and remains outside the current implementation. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\Warehouse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -53,12 +54,30 @@ class LocationController extends MasterDataController
     public function update(Request $request, int $id): JsonResponse
     {
         $organization = $this->activeOrganization($request);
-        $location = Location::query()->where('organization_id', $organization->getKey())->findOrFail($id);
+        $scopedLocation = Location::query()->where('organization_id', $organization->getKey())->findOrFail($id);
         $this->authorizeManage($organization);
         $this->rejectOrganizationOverride($request);
-        $location->update($this->validateLocation($request, $organization, $location->getKey()));
+        $validated = $this->validateLocation($request, $organization, $scopedLocation->getKey());
 
-        return response()->json(['data' => $this->serialize($location->fresh('warehouse'))]);
+        return DB::transaction(function () use ($organization, $id, $validated): JsonResponse {
+            $location = Location::query()
+                ->where('organization_id', $organization->getKey())
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            if (
+                (int) $location->warehouse_id !== (int) $validated['warehouse_id']
+                && DB::table('stock_locks')->where('organization_id', $organization->getKey())->where('location_id', $id)->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'warehouse_id' => 'پس از ثبت حرکت موجودی، انبارِ این مکان قابل تغییر نیست.',
+                ]);
+            }
+
+            $location->update($validated);
+
+            return response()->json(['data' => $this->serialize($location->fresh('warehouse'))]);
+        });
     }
 
     public function validateSelection(Request $request): JsonResponse

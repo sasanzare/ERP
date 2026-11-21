@@ -97,3 +97,20 @@ Keyboard Tab reached the customer selector and submit control; Enter submitted t
 | Confirmed order with source quote, lead, and customer, desktop 1280×900 | [P05 order](screenshots/p05-order-desktop-2026-11-21T09-56-40-423Z.png) |
 | Confirmed order lines, mobile 390×844 | [P05 mobile order](screenshots/p05-order-mobile-2026-11-21T09-56-40-423Z.png) |
 | Quote in forced bright fallback, mobile 390×844 | [P05 forced fallback](screenshots/p05-quote-fallback-mobile-2026-11-21T09-56-40-423Z.png) |
+
+## P06 stock workspace evidence
+
+The stock workspace reuses the accepted RTL shell and Lens Inspector hierarchy: the balances/history surface is the focal area, operation/reservation forms are a single grouped rail, and the shared toolbar and stock tabs remain command surfaces. Mobile collapses to one content column and retains the fixed navigation dock. The operational tables use short location/product details and keep exact quantities visually aligned with the base-unit label.
+
+Google Chrome verified synthetic local `erp_dev` data at 1280×900 and 390×844, including reserve/release, duplicate release, linked transfer legs and both locations, one exact last-unit race on separate MariaDB connections, issue availability, fractional precision, missing base unit, wrong warehouse/location, reader write denial, keyboard form submission and validation feedback. The race worker held the `stock_locks` row while two requests were sent to independent PHP servers; after 400 ms both remained pending, then exactly one reservation succeeded (201/422). A direct read of the stored rows confirmed one open 1.000 reservation and physical/reserved/available milli-values of 1000/1000/0. The browser run reported zero uncaught errors.
+
+At mobile scroll end, `documentWidth` and `clientWidth` both measured 375 CSS px in the 390×844 window. The last reservation panel ended at y=676.19 while the fixed dock started at y=770. Forced bright fallback retained seven glass surfaces, enabled zero SVG-refraction surfaces, and kept the stock views usable.
+
+| View | Screenshot |
+|---|---|
+| Balances and editor operation form, desktop 1280×900 | [P06 balances](screenshots/p06-balances-desktop-2026-11-21T14-52-28-542Z.png) |
+| Movement history with linked transfer path, desktop 1280×900 | [P06 movements](screenshots/p06-movements-desktop-2026-11-21T14-52-28-542Z.png) |
+| Reservations and editor form, mobile 390×844 | [P06 reservations](screenshots/p06-reservations-mobile-2026-11-21T14-52-28-542Z.png) |
+| Balances in forced bright fallback, mobile 390×844 | [P06 forced fallback](screenshots/p06-fallback-mobile-2026-11-21T14-52-28-542Z.png) |
+
+The full guarded serial Laravel suite passed 50 tests / 464 assertions; `npm run typecheck` and `npm run build` passed. The implementation and remaining migration rehearsal boundary are recorded in [HANDOFF.md](../HANDOFF.md).

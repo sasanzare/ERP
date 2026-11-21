@@ -27,6 +27,9 @@ Route::middleware(['auth', ResolveActiveOrganization::class])->group(function ()
     Route::view('/products/{id}', 'products')
         ->whereNumber('id')
         ->name('products.show');
+    Route::view('/stock', 'products')->name('stock.balances');
+    Route::view('/stock/movements', 'products')->name('stock.movements');
+    Route::view('/stock/reservations', 'products')->name('stock.reservations');
     Route::get('/{resource}/{record?}', function (string $resource, ?string $record = null) {
         abort_unless(in_array($resource, ['parties', 'units', 'warehouses', 'locations', 'price-lists', 'leads', 'follow-ups', 'quotes', 'orders'], true), 404);
         abort_if($record !== null && $record !== 'new' && ! ctype_digit($record), 404);
