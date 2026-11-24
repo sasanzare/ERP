@@ -29,3 +29,9 @@ Products without a base unit cannot enter stock. A product's base unit and a loc
 P06 writers lock the product row, then sorted warehouse/location rows, then stable stock-key registry rows in ascending location order. P07 first locks its order line, then follows that P06 stock order and locks linked reservation rows afterward. Missing registry rows are inserted inside the transaction before `SELECT ... FOR UPDATE`. Under the stock-key lock, the service reads current movement legs and open reservation outstanding amounts with locking reads. Transfer legs, reservations, releases, and P07 delivery/cancellation effects are atomic; deadlock victims retry up to three times. Unique per-organization idempotency keys prevent duplicate successful operation/reservation/delivery writes on retry. The application has no path that edits or deletes posted movement history.
 
 See [P03 organization access](organization-access.md), [P06 workflow](../architecture/p06-stock-workflow.md), and [P06 data equations](../data/p06-stock-balances.md).
+
+## P08 receipt reuse
+
+P08 may call the internal receipt service only after resolving an active-organization purchase order and order line and enforcing both purchasing and stock editor policies. Its internal source scope binds the stock idempotency hash to that order line. P08 passes its outstanding-quantity and current-unit check as a callback after P06 has acquired the stock-key lock; the callback does not relax P06's active-organization, location-pair, availability, maximum-quantity, or transaction rules. The standalone `/stock/operations` route still accepts only the documented P06 fields and remains usable.
+
+See [P08 purchasing isolation](p08-purchasing.md) and [ADR-007](../decisions/adr-007-p08-purchase-approval-and-pricing.md).

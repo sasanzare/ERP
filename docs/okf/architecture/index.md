@@ -1,6 +1,6 @@
 # Architecture
 
-This section tracks the implemented runtime architecture, the local database topology, and the current workspace and P03 access implementation.
+This section tracks the implemented runtime architecture, the local database topology, and the current P03–P09 workspace and access boundaries.
 
 - [Current architecture](current-architecture.md) — actual runtime and database topology.
 - [P02 reusable product workspace](ui-workspace.md) — routes, React components, API reuse, and P03 shell integration.
@@ -9,3 +9,5 @@ This section tracks the implemented runtime architecture, the local database top
 - [P05 sales workflow](p05-sales-workflow.md) — scoped lead and activity routes, quote states, snapshots, conversion, and the P07 order-line contract.
 - [P06 stock workflow](p06-stock-workflow.md) — standalone operations, location balances, reservations, locking, and the P07 link boundary.
 - [P07 sales fulfillment](p07-sales-fulfillment.md) — confirmed order-line reservation, outbound issue, delivery history, and remainder cancellation.
+- [P08 purchasing](p08-purchasing.md) — independent approval, one supplier order per request, exact Rial snapshots, and partial inbound receipts through P06.
+- [P09 accounting](p09-accounting.md) — manual balanced journals, period controls, retries, and reversals.

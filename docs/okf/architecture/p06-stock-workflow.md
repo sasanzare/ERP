@@ -40,3 +40,9 @@ Every operation and reservation create request requires an `Idempotency-Key` UUI
 The P07 migration adds nullable `stock_reservations.sales_order_line_id` for line-owned holds, without changing standalone reservation behavior. `sales_order_deliveries` records each partial delivery against its reservation, issue operation, and outbound movement. P06 deliberately does not accept order-line IDs on its standalone routes; its release route returns conflict for a line-managed reservation so line reconciliation must go through P07. These links do not change the P06 ledger key or quantity representation.
 
 See [P06 stock data](../data/p06-stock-balances.md), [P06 isolation](../security/p06-stock-isolation.md), [P07 fulfillment](p07-sales-fulfillment.md), [ADR-005](../decisions/adr-005-p06-stock-ledger-and-locks.md), and the [UI verification evidence](../../UI_DESIGN.md#p06-verification-evidence).
+
+## P08 inbound purchase interface
+
+P08 uses the existing internal `StockService::postOperation` entry point with `operation_type=receipt`; the public standalone P06 route and its payload remain unchanged. P08 supplies an internal source scope for its order-line identity so an inventory idempotency key cannot be replayed for another purchase line with otherwise matching stock fields. It also supplies a domain callback that runs after P06 locks the product, warehouse/location pair, stock key, and current ledger rows. The callback rechecks the locked order/line outstanding amount and base unit before P06 creates the operation. P08 owns the purchase receipt/order/movement link; P06 remains unaware of the purchase tables.
+
+See [P08 purchasing](p08-purchasing.md) and [ADR-007](../decisions/adr-007-p08-purchase-approval-and-pricing.md).

@@ -12,6 +12,7 @@ use App\Models\SalesOrderLine;
 use App\Models\StockReservation;
 use App\Models\User;
 use App\Models\Warehouse;
+use Closure;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -21,7 +22,7 @@ class StockService
 {
     public const MAX_QUANTITY_MILLI = 999_999_999_999;
 
-    public function postOperation(Organization $organization, User $actor, array $input): array
+    public function postOperation(Organization $organization, User $actor, array $input, ?Closure $beforePersist = null): array
     {
         $quantityMilli = self::quantityToMilli($input['quantity']);
         $locations = $input['operation_type'] === 'transfer'
@@ -29,7 +30,7 @@ class StockService
             : [(int) $input['location_id']];
         $locationIds = array_values(array_unique($locations));
         sort($locationIds, SORT_NUMERIC);
-        $requestHash = $this->requestHash([
+        $hashPayload = [
             'operation_type' => $input['operation_type'],
             'product_id' => (int) $input['product_id'],
             'quantity_milli' => $quantityMilli,
@@ -37,10 +38,15 @@ class StockService
             'location_id' => (int) $input['location_id'],
             'destination_warehouse_id' => isset($input['destination_warehouse_id']) ? (int) $input['destination_warehouse_id'] : null,
             'destination_location_id' => isset($input['destination_location_id']) ? (int) $input['destination_location_id'] : null,
-        ]);
+        ];
+
+        if (isset($input['source_scope'])) {
+            $hashPayload['source_scope'] = $input['source_scope'];
+        }
+        $requestHash = $this->requestHash($hashPayload);
 
         try {
-            return DB::transaction(function () use ($organization, $actor, $input, $quantityMilli, $locationIds, $requestHash): array {
+            return DB::transaction(function () use ($organization, $actor, $input, $quantityMilli, $locationIds, $requestHash, $beforePersist): array {
                 $existing = InventoryOperation::query()
                     ->where('organization_id', $organization->getKey())
                     ->where('idempotency_key', $input['idempotency_key'])
@@ -76,6 +82,8 @@ class StockService
                 foreach ($locationIds as $locationId) {
                     $balances[$locationId] = $this->lockedBalance($organization, $product, $locationId);
                 }
+
+                $beforePersist?->__invoke();
 
                 $type = $input['operation_type'];
                 $source = $type === 'issue' || $type === 'transfer' ? $selectedSource : null;

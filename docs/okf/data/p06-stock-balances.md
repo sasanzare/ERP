@@ -21,6 +21,8 @@ Every product, unit, location, and movement relationship is constrained to the o
 
 `inventory_operations` stores the organization, product, base unit, operation type, exact quantity in thousandths, actor, timestamp, idempotency key, and request hash. It also snapshots the product, unit, and from/to location labels. `inventory_movements` stores positive quantity legs with an `inbound` or `outbound` direction and references the parent operation.
 
+Standalone P06 request hashes bind the supplied operation and stock fields. P08 calls the same internal receipt service with an additional source scope in the hash for its purchase order and order line; this does not add a purchase foreign key or change the standalone P06 request contract. P08 stores its own immutable receipt link to the operation and movement.
+
 Opening and receipt operations create one inbound leg. Issues create one outbound leg. A transfer creates an outbound source leg and an inbound destination leg under one operation ID and one transaction; equal source/destination locations are rejected. Posted operations and movement rows have no edit/delete route.
 
 ## Exact quantities

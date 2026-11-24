@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # ERP Project Knowledge
 
-This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P07 are accepted at their local-development boundaries. See the handoff for current runtime and acceptance evidence.
+This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P09 are accepted at their local-development boundaries. Source-driven accounting remains gated by open domain decisions. See the handoff for current runtime and acceptance evidence.
 
 ## Start here
 
@@ -14,18 +14,26 @@ This bundle records the scope, architecture, and decisions for the local-develop
 - [P05 sales workflow](architecture/p05-sales-workflow.md) — leads, follow-ups, quote snapshots, and confirmed order conversion.
 - [P06 stock workflow](architecture/p06-stock-workflow.md) — standalone stock operations, balance views, and reservations.
 - [P07 sales fulfillment](architecture/p07-sales-fulfillment.md) — linked reservations, partial delivery, immutable issue trace, and remainder cancellation.
+- [P08 purchasing](architecture/p08-purchasing.md) — request approval, supplier-order snapshots, exact Rial totals, and partial warehouse receipts.
+- [P09 accounting](architecture/p09-accounting.md) — manual balanced journals, fiscal periods, posting identity, and reversals; source-driven posting remains gated by open domain decisions.
 - [Data models](data/index.md) — organization-owned master data and exact rial amount storage.
 - [P05 sales documents](data/p05-sales-documents.md) — organization-scoped sales records and exact Rial-to-Toman calculations.
 - [P06 stock data](data/p06-stock-balances.md) — stock keys, exact quantities, balance equations, opening rule, and correction strategy.
 - [P07 fulfillment data](data/p07-sales-fulfillment.md) — order-line quantity reconciliation, linked reservation counters, delivery links, and migration evidence.
+- [P08 purchasing data](data/p08-purchasing.md) — source-linked request/order lines, purchase-price snapshots, exact receipt quantities, and movement IDs.
+- [P09 accounting data](data/p09-accounting.md) — books, accounts, periods, immutable posted journals, exact Rial lines, source references, and retry keys.
 - [Organization access security](security/organization-access.md) — session, membership, product isolation, and role boundary.
 - [P04 master-data isolation](security/p04-master-data-isolation.md) — reader/editor, selectors, foreign IDs, and relationship checks.
 - [P05 sales isolation](security/p05-sales-isolation.md) — document scoping, editor writes, transitions, and conversion safeguards.
 - [P06 stock isolation](security/p06-stock-isolation.md) — organization-scoped stock reads/writes, location pairing, and concurrency locks.
 - [P07 fulfillment isolation](security/p07-sales-fulfillment.md) — scoped order-line actions, editor permissions, and linked-reservation release protection.
-- [UI design reference](../UI_DESIGN.md) — shared P02 workspace design and P03–P07 browser evidence.
-- [Decisions](decisions/index.md) — accepted project decisions.
+- [P08 purchase isolation](security/p08-purchasing.md) — independent approver, organization-scoped supplier/order/receipt access, and idempotency controls.
+- [P09 accounting isolation](security/p09-accounting.md) — active-organization scope, editor writes, reader review, scoped line accounts, and serialized period closure.
+- [UI design reference](../UI_DESIGN.md) — shared P02 workspace design and P03–P09 browser evidence.
+- [Decisions](decisions/index.md) — accepted project decisions and active records for rules still awaiting owner input.
 - [ADR-006: P07 reserved issues and lock order](decisions/adr-006-p07-reserved-sales-order-issues.md) — atomic reserved delivery, idempotency, cancellation, and cross-module locking.
+- [ADR-007: P08 approval, currency, and receipt locking](decisions/adr-007-p08-purchase-approval-and-pricing.md) — no self-approval, whole-rial snapshots, and atomic inbound trace.
+- [ADR-008: P09 accounting scope and posting decisions](decisions/adr-008-p09-accounting-scope-and-posting-decisions.md) — synthetic worked journals, exact Rial boundary, manual-only source behavior, and unresolved business posting rules.
 - [Maintenance log](log.md) — significant knowledge updates.
 
 Read [HANDOFF.md](../../HANDOFF.md) for current repository state, validation evidence, and exact next steps.

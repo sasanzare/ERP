@@ -133,4 +133,40 @@ The mobile document/client widths were both 375 CSS px in the 390×844 viewport.
 | Fulfillment history and fixed dock, mobile 390×844 | [P07 mobile order](screenshots/p07-order-mobile-2026-11-21T16-58-33-946Z.png) |
 | Fulfillment in forced bright fallback, mobile 390×844 | [P07 forced fallback](screenshots/p07-fallback-mobile-2026-11-21T16-58-33-946Z.png) |
 
-P08 can reuse the stock options/quantity interface, stock-key locking, and P06 receipt operation while maintaining purchase-order-specific traceability.
+## P08 purchasing evidence
+
+The purchase workspace uses the existing Lens Inspector shell and a single focal document panel. Request composition keeps product/unit/quantity together; order lines group ordered, received, remaining, price, and receipt history. Actions remain shared Liquid Glass buttons, and status/actor/supplier snapshots stay in the document surface. Mobile keeps the same document hierarchy with the fixed bottom dock; forced bright fallback uses solid high-contrast panels and dark links.
+
+Google Chrome verified the local synthetic workflow with an editor requester and a separate editor approver. The requester could not approve through the UI and a direct same-session approval returned 403; the second editor approved with actor/time persisted. Conversion created one supplier order for 5.000 units at 100,000 IRR per unit (500,000 IRR total); exact retry returned the existing order and a changed price returned 409. Receipts of 3.000 and 2.000 closed the order. Before the independent last-quantity contention receipt, readback was physical/reserved/available 15.000/4.000/11.000. The final UI receipt replay after closeout returned the same receipt 11, operation 31, and movement 32. The separate two-connection race returned 201/409 and wrote one receipt. Expected 403/409/422 validation responses did not produce JavaScript runtime errors.
+
+At 390×844, document `scrollWidth` and client width both measured 375 CSS px. At the scroll end, the last P08 panel ended at y=670.97 and the dock began at y=770, leaving a 99.03 CSS px gap. Keyboard Tab reached request quantity and receipt submission with visible focus; submitting 6.000 against the 5.000 outstanding amount showed validation feedback and left stock unchanged. Forced bright fallback retained four shared glass surfaces with zero SVG-refraction surfaces. Chrome reported zero runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Submitted request awaiting an independent approver, desktop 1280×900 | [P08 approval pending](screenshots/p08-request-awaiting-approval-desktop-2026-11-21T19-31-34-456Z.png) |
+| Authorized approver action, desktop 1280×900 | [P08 approver](screenshots/p08-request-approver-desktop-2026-11-21T19-31-34-456Z.png) |
+| Supplier order, desktop 1280×900 | [P08 supplier order](screenshots/p08-purchase-order-desktop-2026-11-21T19-31-34-456Z.png) |
+| Partial 3.000 receipt, desktop 1280×900 | [P08 partial receipt](screenshots/p08-receipt-partial-desktop-2026-11-21T19-31-34-456Z.png) |
+| Both receipts and linked inbound movements, desktop 1280×900 | [P08 completed order](screenshots/p08-purchase-order-complete-desktop-2026-11-21T19-31-34-456Z.png) |
+| Receipt history at scroll end, mobile 390×844 | [P08 mobile order](screenshots/p08-purchase-order-mobile-2026-11-21T19-31-34-456Z.png) |
+| Receipt history in forced bright fallback, mobile 390×844 | [P08 bright fallback](screenshots/p08-purchase-order-fallback-mobile-2026-11-21T19-31-34-456Z.png) |
+
+The repeat harness is [scripts/Verify-P08Browser.mjs](../scripts/Verify-P08Browser.mjs). It uses an isolated temporary Chrome profile and stores synthetic screenshots under `docs/screenshots/`.
+
+## P09 accounting evidence
+
+The P09 workspace adapts the Instrument Bay composition for the dense journal register, with the book selector and journal list as the focal surface and account/period setup grouped in a supporting rail. On mobile it becomes one document column above the shared focus dock. Account balances and journal lines remain solid content surfaces; Liquid Glass is limited to the shell, navigation, and actions. A visible note states that these are manual synthetic postings and that live source recognition, tax, and costing rules remain open.
+
+The isolated Chrome harness created an `IRR` book, five postable accounts, and inclusive Gregorian periods through the UI, then posted the four worked examples: sale journal 1 for 1,000,000 IRR, purchase/inventory journal 2 for 500,000 IRR, collection journal 3 for 400,000 IRR, and supplier payment journal 4 for 200,000 IRR. Sale journal 1 was reversed as journal 5 on 2027-01-01 after its 2026 period closed; the original plus reversal netted to zero by account. Replaying journal 1's posting key after closure returned the same journal (HTTP 200). Two independent MariaDB connections posting one draft with the same key returned 201/200 and one persisted journal (journal 11 in the final harness run). A separate race between closing a period and posting serialized to close 200 / post 422, leaving journal 12 in draft and the future period closed. The period-close control updated its status in place in the workspace.
+
+At 1280×900 and 390×844, the mobile document/client widths were both 375 CSS px. At the mobile scroll end, the last setup panel ended at y=687.81 and the fixed dock began at y=770, leaving an 82.19 px gap. Tab focus on the journal search control showed a visible focus-within rim/shadow. Forced bright fallback retained eight shared glass surfaces, disabled active SVG refraction on all of them, and kept the synthetic-only note readable. The live route loaded Vite's client and `accounting.css`; Chrome reported zero runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Posted sale journal with exact Rial totals, desktop 1280×900 | [P09 posted sale](screenshots/p09-sale-posted-desktop-2026-11-22T08-33-42-246Z.png) |
+| Journal register with the worked examples, desktop 1280×900 | [P09 journal register](screenshots/p09-journal-register-desktop-2026-11-22T08-33-42-246Z.png) |
+| Reversal linked to its original, desktop 1280×900 | [P09 reversal detail](screenshots/p09-reversal-detail-desktop-2026-11-22T08-33-42-246Z.png) |
+| Journal register and setup rail at scroll end, mobile 390×844 | [P09 mobile register](screenshots/p09-journal-register-mobile-2026-11-22T08-33-42-246Z.png) |
+| Accounting workspace in forced bright fallback, mobile 390×844 | [P09 bright fallback](screenshots/p09-fallback-mobile-2026-11-22T08-33-42-246Z.png) |
+
+The repeat harness is [scripts/Verify-P09Browser.mjs](../scripts/Verify-P09Browser.mjs). It uses an isolated Chrome profile, preserves synthetic `erp_dev` records, and saves evidence under `docs/screenshots/`.

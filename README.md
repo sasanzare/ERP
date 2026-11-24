@@ -1,6 +1,6 @@
 # ERP
 
-Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, and P06 adds standalone stock operations and reservations. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
+Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, P06 added stock operations and reservations, P07 added sales-order fulfillment, P08 added purchasing/receipts, and P09 adds a manual balanced accounting engine. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
 
 ## Local requirements
 
@@ -201,8 +201,62 @@ Migration `2026_11_21_000008_add_p07_sales_fulfillment` is applied to the existi
 
 For local browser acceptance, start MariaDB and `npm run dev`, then run `node scripts/Verify-P07Browser.mjs`. The harness creates synthetic product, warehouse/location, quote/order, and stock fixtures, verifies the order-line UI at 1280×900 and 390×844, keyboard focus, forced bright fallback, retry conflict, and a two-connection MariaDB delivery race. It saves screenshots under `docs/screenshots/` and does not reset or remove the fixture records. The verified main fixture progressed through physical/reserved/available `10.000/0.000/10.000`, `10.000/3.000/7.000`, `8.000/1.000/7.000`, and `8.000/0.000/8.000`; delivery 3 links operation 14 to outbound movement 15. See [P07 UI evidence](docs/UI_DESIGN.md#p07-sales-fulfillment-evidence), the [P07 workflow](docs/okf/architecture/p07-sales-fulfillment.md), and [HANDOFF.md](HANDOFF.md).
 
-**P07 status: ACCEPTED (2026-11-21).** P08 can reuse P06's stock options, exact quantity helpers, stable stock-key locks, and receipt operation while recording purchase-order line traceability in its own workflow.
+**P07 status: ACCEPTED (2026-11-21).** P08 reuses P06's stock options, exact quantity helpers, stable stock-key locks, and inbound receipt operation while recording purchase-order line traceability in its own workflow.
+
+## P08 purchase request to warehouse receipt
+
+P08 provides `/purchase-requests` and `/purchase-orders`. Editors create a draft request with one or more product lines in each product's active base unit, submit it, and receive approval from a different organization editor. The requester cannot approve their own request; the API returns 403 for direct self-approval and saves the independent approver and timestamp.
+
+An approved request converts into one supplier order for an organization-owned party with the supplier role. Order lines retain their source request line, product/unit/quantity labels, agreed unit price, and line/total values as historical snapshots. Purchase prices are whole IRR per base unit (currency scale 0); line totals round half-up once to a whole rial, and the order total sums those rounded line totals. P04 price lists remain in rials and P05 sales documents remain in Toman.
+
+Each order line accepts partial receipts at an organization-owned warehouse/location pair. Product and unit come from the saved line. The receipt posts the existing P06 `receipt` operation and inbound movement in the same transaction as the receipt trace, cumulative received amount, and order closeout. Orders close after every line is fully received. Receipt keys are UUIDs bound to the organization, order line, warehouse, location, and quantity; an exact retry returns the original receipt even after closeout, and changed input returns 409. The order/line lock serializes receipts on different lines while P06's stock-key lock prevents inconsistent inventory writes. Reservations remain unchanged.
+
+For an existing P08 local database, run the additive migration in **Administrator PowerShell** after starting the existing MariaDB service. The default-local-organization approver fixture is generated once and its credential is kept only in the ignored private storage directory; the command does not print it:
+
+```powershell
+$env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
+& $env:ERP_PHP_BINARY artisan migrate --force
+& $env:ERP_PHP_BINARY artisan p08:provision-approver
+```
+
+Then, in a regular PowerShell with the local application running, use the isolated Chrome acceptance harness:
+
+```powershell
+node scripts/Verify-P08Browser.mjs
+```
+
+The Chrome harness uses an isolated temporary profile and synthetic local records. It verifies the editor/requester self-approval denial, the separate approver UI, price-bound conversion retry, 5.000 received as 3.000 + 2.000, unchanged reservation quantity, closed-order replay, location validation, keyboard focus, mobile geometry, forced bright fallback, and a two-connection last-quantity contention. It saves screenshots under `docs/screenshots/` and preserves the synthetic records it creates.
+
+**P08 status: ACCEPTED (2026-11-21).** Migration `2026_11_21_000009_create_p08_purchase_tables` was applied forward to existing `erp_dev`; its pre-existing product, stock-operation, and sales-order counts stayed unchanged. The full guarded serial Laravel suite passed 61 tests / 694 assertions. TypeScript, Vite build, changed-file Pint, PHP/Node syntax, and Chrome acceptance passed. The main browser fixture's 5.000-unit order was received as 3.000 + 2.000; before the separate one-unit contention fixture, its balance was physical/reserved/available 15.000/4.000/11.000. The final receipt replay returned receipt 11, operation 31, and movement 32. The contention requests returned 201/409 and stored one receipt. At 390×844 the page had no horizontal overflow and the last order panel cleared the dock by 99.03 CSS px; bright fallback retained four shared glass surfaces and zero SVG-refraction surfaces. Screenshots and full local evidence are in [P08 UI evidence](docs/UI_DESIGN.md#p08-purchasing-evidence) and [HANDOFF.md](HANDOFF.md).
+
+## P09 balanced accounting engine
+
+P09 provides `/accounting/journals` for a Persian RTL manual journal workspace and `/accounting/journals/new` / `/accounting/journals/{id}` for drafts and review. Editors can create IRR books, postable or heading accounts, inclusive Gregorian periods, draft lines, balanced postings, period closures, and reversals. Readers can review books, periods, journal lines, totals, and original/reversal links. Every write uses the active organization session, editor policy, and explicit CSRF token.
+
+Journal lines contain one positive whole-rial debit or credit and zero on the other side. Posting requires exact debit/credit equality, same-book active postable accounts, one matching open period, and an idempotency UUID. Posted journals are immutable. A reversal appends swapped lines, preserves the original, and uses a new open period when the original is closed. Same-key retries return the persisted journal after closure; a different payload conflicts. Book-first locking serializes posting, reversal, period creation, and closure.
+
+P05 sales totals remain whole Toman and P08 purchase totals remain whole Rial. P09 amounts are serialized as decimal strings; the exact conversion helper maps 178831 toman to 1788310 rial, while a 500000-rial purchase amount remains 500000. No current P05/P06/P07/P08 workflow posts automatically. Account recognition, purchase debit mapping, tax, inventory costing, settlements, and production closed-period correction rules are recorded as open decisions in [ADR-008](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md); source-driven posting stays disabled until they are approved.
+
+For an existing P08 local database, start the already-created MariaDB volume in **Administrator PowerShell**, then apply only pending forward migrations:
+
+```powershell
+docker compose up -d --wait db
+$env:ERP_PHP_BINARY = 'C:\php8.5\php.exe'
+& $env:ERP_PHP_BINARY artisan migrate --database=mariadb --force
+```
+
+Run the guarded tests serially and the browser harness with Laravel/Vite running. The browser harness uses local P03 editor credentials, an isolated Chrome profile, synthetic data, and an independent MariaDB lock worker. It preserves its `erp_dev` fixtures and screenshots; set `P09_BROWSER_BOOK_CODE` to resume a partial fixture, or omit it for a fresh book.
+
+```powershell
+& $env:ERP_PHP_BINARY artisan test
+npm run typecheck
+npm run build
+& $env:ERP_PHP_BINARY vendor\bin\pint --test app\Http\Controllers\Api\V1\AccountingController.php app\Services\Accounting\AccountingService.php
+node scripts/Verify-P09Browser.mjs
+```
+
+**P09 status: ACCEPTED (2026-11-22) at the local manual/synthetic engine boundary.** Migrations `2026_11_22_000010_create_p09_accounting_tables` and `2026_11_22_000011_add_p09_one_sided_line_amount_check` are applied to `erp_dev` and guarded `erp_test`; pre-existing P01–P08 table counts matched before/after. The full guarded suite passed 78 tests / 825 assertions. TypeScript, Vite build, changed-file Pint, PHP syntax, route registration, and Chrome checks passed. In browser book 1, journal 1 posted sale on account (Dr AR / Cr revenue 1,000,000 IRR), journal 2 purchase/inventory (500,000 IRR), journal 3 customer collection (400,000 IRR), and journal 4 supplier payment (200,000 IRR); all were balanced. Journal 5 reverses sale journal 1 in open period 2027-01-01 after the 2026 period closed. Same-key replay returned 200 for journal 1 after closure. The latest two-connection posting race returned 201/200 and persisted journal 11 once. A separate close/post race returned close 200 / post 422 and left journal 12 in draft. At 390×844, document/client widths were 375/375 px and the last setup panel cleared the fixed dock by 82.19 px. Bright fallback applied zero SVG refraction surfaces; Chrome reported zero runtime errors and the live Vite route loaded `accounting.css`. Evidence is in [P09 UI design](docs/UI_DESIGN.md#p09-accounting-evidence) and [HANDOFF.md](HANDOFF.md). Open domain decisions continue to gate all source-driven posting.
 
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P07 are accepted; P08 is the next planned phase. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P09 are accepted at their local-development boundaries; P10 supplier invoices/payables remain out of scope. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

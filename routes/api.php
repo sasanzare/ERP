@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\V1\LeadActivityController;
+use App\Http\Controllers\Api\V1\AccountingController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\PartyController;
 use App\Http\Controllers\Api\V1\PriceListController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\PurchasingController;
 use App\Http\Controllers\Api\V1\SalesOrderController;
 use App\Http\Controllers\Api\V1\SalesQuoteController;
 use App\Http\Controllers\Api\V1\SalesWorkspaceController;
@@ -47,6 +49,14 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/stock/balances', [StockController::class, 'balances']);
         Route::get('/stock/movements', [StockController::class, 'movements']);
         Route::get('/stock/reservations', [StockController::class, 'reservations']);
+        Route::get('/purchases/options', [PurchasingController::class, 'options']);
+        Route::get('/purchase-requests', [PurchasingController::class, 'requestIndex']);
+        Route::get('/purchase-requests/{purchaseRequest}', [PurchasingController::class, 'requestShow'])->whereNumber('purchaseRequest');
+        Route::get('/purchase-orders', [PurchasingController::class, 'orderIndex']);
+        Route::get('/purchase-orders/{purchaseOrder}', [PurchasingController::class, 'orderShow'])->whereNumber('purchaseOrder');
+        Route::get('/accounting/options', [AccountingController::class, 'options']);
+        Route::get('/accounting/journals', [AccountingController::class, 'journalIndex']);
+        Route::get('/accounting/journals/{journalId}', [AccountingController::class, 'journalShow'])->whereNumber('journalId');
 
         Route::middleware(RequireExplicitCsrfToken::class)->group(function (): void {
             Route::post('/products', [ProductController::class, 'store']);
@@ -85,6 +95,20 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::post('/stock/operations', [StockController::class, 'postOperation']);
             Route::post('/stock/reservations', [StockController::class, 'reserve']);
             Route::post('/stock/reservations/{reservation}/release', [StockController::class, 'release'])->whereNumber('reservation');
+            Route::post('/purchase-requests', [PurchasingController::class, 'requestStore']);
+            Route::post('/purchase-requests/{purchaseRequest}/submit', [PurchasingController::class, 'requestSubmit'])->whereNumber('purchaseRequest');
+            Route::post('/purchase-requests/{purchaseRequest}/approve', [PurchasingController::class, 'requestApprove'])->whereNumber('purchaseRequest');
+            Route::post('/purchase-requests/{purchaseRequest}/convert', [PurchasingController::class, 'requestConvert'])->whereNumber('purchaseRequest');
+            Route::post('/purchase-orders/{purchaseOrder}/lines/{line}/receipts', [PurchasingController::class, 'receiveLine'])
+                ->whereNumber('purchaseOrder')->whereNumber('line');
+            Route::post('/accounting/books', [AccountingController::class, 'bookStore']);
+            Route::post('/accounting/books/{bookId}/accounts', [AccountingController::class, 'accountStore'])->whereNumber('bookId');
+            Route::post('/accounting/books/{bookId}/periods', [AccountingController::class, 'periodStore'])->whereNumber('bookId');
+            Route::post('/accounting/periods/{periodId}/close', [AccountingController::class, 'periodClose'])->whereNumber('periodId');
+            Route::post('/accounting/journals', [AccountingController::class, 'journalStore']);
+            Route::put('/accounting/journals/{journalId}', [AccountingController::class, 'journalUpdate'])->whereNumber('journalId');
+            Route::post('/accounting/journals/{journalId}/post', [AccountingController::class, 'journalPost'])->whereNumber('journalId');
+            Route::post('/accounting/journals/{journalId}/reverse', [AccountingController::class, 'journalReverse'])->whereNumber('journalId');
         });
     });
 });
