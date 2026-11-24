@@ -384,6 +384,10 @@ class AccountingService
                 throw new HttpException(409, 'فقط سند ثبت‌شدهٔ اصلی و بدون برگشت قابل برگشت‌زدن است.');
             }
 
+            if (str_starts_with((string) $original->source_type, 'p10.')) {
+                throw new HttpException(409, 'برگشت مستقل ژورنال P10 مجاز نیست؛ اصلاح باید همراه با صورتحساب و تخصیص انجام شود.');
+            }
+
             $originalHash = $this->draftHash($original);
             $requestHash = $this->hash([
                 'operation' => 'reverse',

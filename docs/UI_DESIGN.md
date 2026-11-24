@@ -170,3 +170,21 @@ At 1280×900 and 390×844, the mobile document/client widths were both 375 CSS p
 | Accounting workspace in forced bright fallback, mobile 390×844 | [P09 bright fallback](screenshots/p09-fallback-mobile-2026-11-22T08-33-42-246Z.png) |
 
 The repeat harness is [scripts/Verify-P09Browser.mjs](../scripts/Verify-P09Browser.mjs). It uses an isolated Chrome profile, preserves synthetic `erp_dev` records, and saves evidence under `docs/screenshots/`.
+
+## P10 customer and supplier settlement evidence
+
+P10 uses a focused invoice register as the primary surface and a compact source-invoice rail. The register keeps original amount, allocated amount, outstanding balance, effective/due dates, order links, P07 delivery or P08 warehouse-receipt links, treasury movement IDs, and P09 journal links together. The shared Glass shell, toolbar, tabs, and action buttons remain the control layer; invoice, source, and financial details stay on solid surfaces. Customer amounts show both whole Rial and the exact Toman equivalent.
+
+The Chrome acceptance harness used a separate `P10-SYNTH-BROWSER` IRR book and existing synthetic P07/P08 sources. Customer invoice 4 (journal 20) links sales order 9 / line 11 / delivery 4. Customer receipt treasury movement 5, allocation 5, and journal 21 record 400,000 IRR, leaving 600,000 IRR / 60,000 Toman. Supplier invoice 6 (journal 25) links purchase order 5 / line 5 / warehouse receipts 7 and 8. Supplier payment treasury movement 8, allocation 8, and journal 26 record 200,000 IRR, leaving 300,000 IRR. All linked P09 journals balance. A separate customer contention invoice 5 (journal 22) on order 8 / delivery 3 accepted one of two simultaneous 400,000-IRR allocations (HTTP 201/422), persisted 800,000 IRR against the 1,000,000-IRR open item, and retained a 200,000-IRR balance. Its base/winning receipts are treasury movements 6/7, with balanced journals 23/24. A screenshot-only Chrome pass then reused these persisted records after the synthetic-only notice was added to the source form.
+
+At 1280×900, the register and source rail both rendered with linked source and journal details. At 390×844, document/client widths were 375/375 CSS px. At the scroll end, the P10 content bottom was y=688.25 / y=688.28 and the dock began at y=770, leaving 81.75 / 81.72 px for the customer/supplier views. Keyboard Tab focus remained visible. Bright forced fallback retained 9 shared glass surfaces with 0 active SVG refraction surfaces and kept the synthetic-only note legible; the live route loaded the Vite client and `settlements.css`. Chrome reported 0 runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Customer invoice/source/receipt and 600,000-rial / 60,000-toman balance, desktop 1280×900 | [P10 customer settled](screenshots/p10-customer-settled-review-desktop-2026-11-24T10-11-58-823Z.png) |
+| Supplier invoice, P08 receipts, payment, and 300,000-rial balance, desktop 1280×900 | [P10 supplier settled](screenshots/p10-supplier-settled-review-desktop-2026-11-24T10-11-58-823Z.png) |
+| Customer balance, mobile 390×844 | [P10 customer mobile](screenshots/p10-customer-settled-review-mobile-2026-11-24T10-11-58-823Z.png) |
+| Supplier balance, mobile 390×844 | [P10 supplier mobile](screenshots/p10-supplier-settled-review-mobile-2026-11-24T10-11-58-823Z.png) |
+| Settlement workspace in bright forced fallback, mobile 390×844 | [P10 bright fallback](screenshots/p10-settlement-bright-fallback-review-mobile-2026-11-24T10-11-58-823Z.png) |
+
+The repeat harness is [scripts/Verify-P10Browser.mjs](../scripts/Verify-P10Browser.mjs). It preserves its synthetic P10 book and invoices in local `erp_dev`; its capture-only mode reuses the records without creating additional invoices.

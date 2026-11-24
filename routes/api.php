@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\PurchasingController;
 use App\Http\Controllers\Api\V1\SalesOrderController;
 use App\Http\Controllers\Api\V1\SalesQuoteController;
 use App\Http\Controllers\Api\V1\SalesWorkspaceController;
+use App\Http\Controllers\Api\V1\SettlementController;
 use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\UnitController;
 use App\Http\Controllers\Api\V1\WarehouseController;
@@ -57,6 +58,8 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/accounting/options', [AccountingController::class, 'options']);
         Route::get('/accounting/journals', [AccountingController::class, 'journalIndex']);
         Route::get('/accounting/journals/{journalId}', [AccountingController::class, 'journalShow'])->whereNumber('journalId');
+        Route::get('/settlements/options', [SettlementController::class, 'options']);
+        Route::get('/settlements/invoices', [SettlementController::class, 'invoiceIndex']);
 
         Route::middleware(RequireExplicitCsrfToken::class)->group(function (): void {
             Route::post('/products', [ProductController::class, 'store']);
@@ -109,6 +112,14 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::put('/accounting/journals/{journalId}', [AccountingController::class, 'journalUpdate'])->whereNumber('journalId');
             Route::post('/accounting/journals/{journalId}/post', [AccountingController::class, 'journalPost'])->whereNumber('journalId');
             Route::post('/accounting/journals/{journalId}/reverse', [AccountingController::class, 'journalReverse'])->whereNumber('journalId');
+            Route::post('/settlements/sales-orders/{salesOrder}/customer-invoices', [SettlementController::class, 'customerInvoiceStore'])
+                ->whereNumber('salesOrder');
+            Route::post('/settlements/purchase-orders/{purchaseOrder}/supplier-invoices', [SettlementController::class, 'supplierInvoiceStore'])
+                ->whereNumber('purchaseOrder');
+            Route::post('/settlements/customer-invoices/{invoice}/receipts', [SettlementController::class, 'customerReceiptStore'])
+                ->whereNumber('invoice');
+            Route::post('/settlements/supplier-invoices/{invoice}/payments', [SettlementController::class, 'supplierPaymentStore'])
+                ->whereNumber('invoice');
         });
     });
 });

@@ -55,12 +55,16 @@ const purchasingLinks = [
 const accountingLinks = [
     { id: 'accounting', href: '/accounting/journals', label: 'دفتر روزنامه' },
 ];
+const settlementLinks = [
+    { id: 'settlements', href: '/settlements', label: 'صورتحساب و تسویه' },
+];
 
 const isMasterDataResource = (resource: string) => resourceLinks.some((item) => item.id === resource && item.id !== 'products');
 const isSalesResource = (resource: string) => salesLinks.some((item) => item.id === resource);
 const isStockResource = (resource: string) => stockLinks.some((item) => item.id === resource);
 const isPurchasingResource = (resource: string) => purchasingLinks.some((item) => item.id === resource);
 const isAccountingResource = (resource: string) => accountingLinks.some((item) => item.id === resource);
+const isSettlementResource = (resource: string) => settlementLinks.some((item) => item.id === resource);
 const activeListHref = (resource: string) => salesLinks.find((item) => item.id === resource)?.href ?? '/parties';
 const activeListLabel = (resource: string) => salesLinks.find((item) => item.id === resource)?.label ?? 'اطلاعات پایه';
 const activeStockHref = (resource: string) => stockLinks.find((item) => item.id === resource)?.href ?? '/stock';
@@ -69,6 +73,8 @@ const activePurchasingHref = (resource: string) => purchasingLinks.find((item) =
 const activePurchasingLabel = (resource: string) => purchasingLinks.find((item) => item.id === resource)?.label ?? 'درخواست‌های خرید';
 const activeAccountingHref = (resource: string) => accountingLinks.find((item) => item.id === resource)?.href ?? '/accounting/journals';
 const activeAccountingLabel = (resource: string) => accountingLinks.find((item) => item.id === resource)?.label ?? 'دفتر روزنامه';
+const activeSettlementHref = (resource: string) => settlementLinks.find((item) => item.id === resource)?.href ?? '/settlements';
+const activeSettlementLabel = (resource: string) => settlementLinks.find((item) => item.id === resource)?.label ?? 'صورتحساب و تسویه';
 
 function shellHref(path: string): string {
     const currentParams = new URLSearchParams(window.location.search);
@@ -148,7 +154,7 @@ export function WorkspaceShell({
                         <span className={`connection-indicator connection-${connectionState}`} aria-hidden="true" />
                         <span>{connectionLabel}</span>
                         <bdi className="topbar-separator" dir="ltr">/</bdi>
-                        <span>{isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
+                        <span>{isSettlementResource(activeResource) ? 'تسویه‌ها' : isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
                     </div>
                 </LiquidGlass>
 
@@ -251,6 +257,14 @@ export function WorkspaceShell({
                                         <span className="nav-link-mark" aria-hidden="true" />
                                     </a>
                                 ))}
+                                <div className="nav-group-label">صورتحساب · P10</div>
+                                {settlementLinks.map((item) => (
+                                    <a key={item.id} className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`} href={shellHref(item.href)} aria-current={activeResource === item.id ? 'page' : undefined}>
+                                        <NavGlyph kind="list" />
+                                        <span className="nav-link-text">{item.label}</span>
+                                        <span className="nav-link-mark" aria-hidden="true" />
+                                    </a>
+                                ))}
                             </nav>
                             <div className="sidebar-spacer" />
                             <div className="sidebar-status">
@@ -339,7 +353,14 @@ export function WorkspaceShell({
                         {isAccountingResource(activeResource) && (
                             <nav className="master-data-tabs" aria-label="بخش‌های حسابداری">
                                 {accountingLinks.map((item) => (
-                                    <a key={item.id} href={shellHref(item.href)} className="is-current" aria-current="page">{item.label}</a>
+                                    <a key={item.id} href={shellHref(item.href)} className={activeResource === item.id ? 'is-current' : ''} aria-current={activeResource === item.id ? 'page' : undefined}>{item.label}</a>
+                                ))}
+                            </nav>
+                        )}
+                        {isSettlementResource(activeResource) && (
+                            <nav className="master-data-tabs" aria-label="بخش‌های صورتحساب و تسویه">
+                                {settlementLinks.map((item) => (
+                                    <a key={item.id} href={shellHref(item.href)} className={activeResource === item.id ? 'is-current' : ''} aria-current={activeResource === item.id ? 'page' : undefined}>{item.label}</a>
                                 ))}
                             </nav>
                         )}
@@ -400,6 +421,12 @@ export function WorkspaceShell({
                         <a className="is-current" href={shellHref(activeAccountingHref(activeResource))} aria-label={activeAccountingLabel(activeResource)} aria-current="page">
                             <NavGlyph kind="list" />
                             <span>{activeAccountingLabel(activeResource)}</span>
+                        </a>
+                    )}
+                    {isSettlementResource(activeResource) && (
+                        <a className="is-current" href={shellHref(activeSettlementHref(activeResource))} aria-label={activeSettlementLabel(activeResource)} aria-current="page">
+                            <NavGlyph kind="list" />
+                            <span>{activeSettlementLabel(activeResource)}</span>
                         </a>
                     )}
                 </LiquidGlass>

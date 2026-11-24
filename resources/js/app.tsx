@@ -8,9 +8,11 @@ import { SalesScreen } from './screens/SalesScreen';
 import { StockScreen } from './screens/StockScreen';
 import { PurchasingScreen } from './screens/PurchasingScreen';
 import { AccountingScreen } from './screens/AccountingScreen';
+import { SettlementScreen } from './screens/SettlementScreen';
 import '../css/app.css';
 import '../css/purchases.css';
 import '../css/accounting.css';
+import '../css/settlements.css';
 
 const root = document.getElementById('app');
 
@@ -25,9 +27,10 @@ const isSalesRoute = /^\/(leads|follow-ups|quotes|orders)(?:\/(?:new|\d+))?\/?$/
 const isStockRoute = /^\/stock(?:\/(?:movements|reservations))?\/?$/.test(window.location.pathname);
 const isPurchasingRoute = /^\/(purchase-requests|purchase-orders)(?:\/(?:new|\d+))?\/?$/.test(window.location.pathname);
 const isAccountingRoute = /^\/accounting(?:\/journals(?:\/(?:new|\d+))?)?\/?$/.test(window.location.pathname);
+const isSettlementRoute = /^\/settlements\/?$/.test(window.location.pathname);
 
 createRoot(root).render(
     <StrictMode>
-        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isStockRoute ? <StockScreen /> : isAccountingRoute ? <AccountingScreen /> : isPurchasingRoute ? <PurchasingScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
+        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isStockRoute ? <StockScreen /> : isSettlementRoute ? <SettlementScreen /> : isAccountingRoute ? <AccountingScreen /> : isPurchasingRoute ? <PurchasingScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
     </StrictMode>,
 );
