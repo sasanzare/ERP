@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # ERP Project Knowledge
 
-This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P11 are accepted at their local-development boundaries. P10 approval is limited to the exact local synthetic invoice and settlement mapping in ADR-008; live/production posting remains disabled. See the handoff for current runtime and acceptance evidence.
+This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P12 are accepted at their local-development boundaries. P10 approval is limited to the exact local synthetic invoice and settlement mapping in ADR-008; live/production posting remains disabled. See the handoff for current runtime and acceptance evidence.
 
 ## Start here
 
@@ -18,6 +18,7 @@ This bundle records the scope, architecture, and decisions for the local-develop
 - [P09 accounting](architecture/p09-accounting.md) — manual balanced journals, fiscal periods, posting identity, and reversals; source-driven posting remains gated by open domain decisions.
 - [P10 settlement](architecture/p10-settlement.md) — accepted local ERP MVP paths for customer/supplier invoices, open items, treasury movements, allocations, and P09 journal links.
 - [P11 dashboard](architecture/p11-dashboard.md) — read-only reporting workspace, source drill-downs, timezone contract, and safe walkthrough command.
+- [P12 project work](architecture/p12-project-work.md) — organization-scoped projects, task transitions/counts, assigned inbox, local due reminders, and P08 purchase-line costs.
 - [Data models](data/index.md) — organization-owned master data and exact rial amount storage.
 - [P05 sales documents](data/p05-sales-documents.md) — organization-scoped sales records and exact Rial-to-Toman calculations.
 - [P06 stock data](data/p06-stock-balances.md) — stock keys, exact quantities, balance equations, opening rule, and correction strategy.
@@ -26,6 +27,7 @@ This bundle records the scope, architecture, and decisions for the local-develop
 - [P09 accounting data](data/p09-accounting.md) — books, accounts, periods, immutable posted journals, exact Rial lines, source references, and retry keys.
 - [P10 settlement data](data/p10-settlement.md) — exact Rial invoices/open items, source delivery/receipt links, treasury movements, allocations, and the P11 as-of reporting contract.
 - [P11 reporting data](data/p11-reporting.md) — four metric definitions, timestamp and date boundaries, exact units/currency, exclusions, and reconciliation.
+- [P12 project work data](data/p12-project-work.md) — project/task/comment/reminder tables and the unique exact-rial purchase-line association.
 - [Organization access security](security/organization-access.md) — session, membership, product isolation, and role boundary.
 - [P04 master-data isolation](security/p04-master-data-isolation.md) — reader/editor, selectors, foreign IDs, and relationship checks.
 - [P05 sales isolation](security/p05-sales-isolation.md) — document scoping, editor writes, transitions, and conversion safeguards.
@@ -35,6 +37,7 @@ This bundle records the scope, architecture, and decisions for the local-develop
 - [P09 accounting isolation](security/p09-accounting.md) — active-organization scope, editor writes, reader review, scoped line accounts, and serialized period closure.
 - [P10 settlement isolation](security/p10-settlement.md) — primary-document scope, editor/CSRF enforcement, retry locking, P09 atomicity, and synthetic-only posting profiles.
 - [P11 reporting isolation](security/p11-reporting.md) — active-organization read scope, organization-owned book validation, and test/development seed restrictions.
+- [P12 project work isolation](security/p12-project-work.md) — member/editor access, parent scoping, valid assignees, current-recipient reminders, and purchase-line uniqueness.
 - [UI design reference](../UI_DESIGN.md) — shared P02 workspace design and P03–P09 browser evidence.
 - [Decisions](decisions/index.md) — accepted project decisions and active records for rules still awaiting production approval.
 - [ADR-006: P07 reserved issues and lock order](decisions/adr-006-p07-reserved-sales-order-issues.md) — atomic reserved delivery, idempotency, cancellation, and cross-module locking.

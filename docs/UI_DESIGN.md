@@ -213,3 +213,22 @@ The user's existing Chrome profile was signed out at the local ERP route. The ac
 | Dashboard at scroll end in bright forced fallback, 390×844 | [P11 bright fallback](screenshots/p11-dashboard-bright-fallback-mobile-2026-11-26T11-49-52-906Z.png) |
 
 **P11 status: ACCEPTED (2026-11-26) at the local dashboard and synthetic walkthrough boundary.** The focused guarded suite passed 5 tests / 122 assertions and the full suite passed 90 / 1,083. `npm run typecheck`, `npm run build`, changed-file Pint, Node syntax, and `git diff --check` passed. The repeat harness is [scripts/Verify-P11Browser.mjs](../scripts/Verify-P11Browser.mjs). It reads dashboard/source records and saves screenshots; the provisioning command separately creates the synthetic business journeys.
+
+## P12 projects and assigned-work evidence
+
+P12 keeps the shared workspace shell and Liquid Glass navigation as the command layer. The project detail is the focal content surface; status counts form one compact rail, while task records stay on sharp, solid surfaces. Desktop uses the existing Lens Inspector hierarchy. Mobile keeps a single task surface and the P12 project/inbox links in the existing bottom dock.
+
+Chrome acceptance used an isolated task-prefixed OS-temporary profile and the existing local P03 editor/P08 approver credentials. It created or reused synthetic project `پذیرش مرورگر P12`, assigned `وظیفهٔ محول‌شدهٔ P12` to the distinct P08 editor, added project/task text comments, and linked P11 purchase order `PO-000009` line 9. The project shows exactly `500,000` IRR committed, and its link opened and scrolled to the original P08 line. The assignee's inbox contained 1 open task and 1 due reminder. Repeated reminder processing created 0 additional records; after completion and refresh the inbox open/reminder counts were both 0. The project list and board both showed 0 open and 1 completed task.
+
+At 1280×900 Chrome captured the project and linked purchase line. At 390×844 the inbox had 375/375 CSS-pixel document/client widths, its mobile dock was visible, and the content cleared the dock by 100.23 px at the initial position and 194.23 px at scroll end. Keyboard focus was visible. Bright forced fallback retained six shared glass surfaces and zero active refraction surfaces. The live Vite client and `project-work.css` loaded; Chrome reported zero runtime/network errors.
+
+| View | Screenshot |
+|---|---|
+| Project detail, task list, summary counts, and purchase commitment, 1280×900 | [P12 project desktop](screenshots/p12-project-desktop-2026-11-26T18-19-15-239Z.png) |
+| Source P08 purchase order line 9 opened from the project, 1280×900 | [P12 purchase-line trace](screenshots/p12-purchase-line-source-desktop-2026-11-26T18-19-15-239Z.png) |
+| Assigned editor's inbox with its due reminder, 390×844 | [P12 assigned inbox](screenshots/p12-assigned-inbox-mobile-2026-11-26T18-19-15-239Z.png) |
+| Assigned task details and completion action, 390×844 | [P12 assigned task](screenshots/p12-assigned-task-detail-mobile-2026-11-26T18-19-15-239Z.png) |
+| Completed project state, 0 open / 1 completed, 1280×900 | [P12 completed project](screenshots/p12-completed-project-desktop-2026-11-26T18-19-15-239Z.png) |
+| Project in bright forced fallback at scroll end, 390×844 | [P12 bright fallback](screenshots/p12-bright-fallback-mobile-2026-11-26T18-19-15-239Z.png) |
+
+The repeat harness is [scripts/Verify-P12Browser.mjs](../scripts/Verify-P12Browser.mjs). It reuses the synthetic project, task, comment, and purchase association, uses only a temporary Chrome profile, and does not print credentials. The date-boundary and reminder-reassignment cases are covered by fixed-clock guarded feature tests. P12's focused suite passed 7 tests / 133 assertions; the full serial guarded suite passed 97 / 1,216. `npm run typecheck`, `npm run build`, changed-file Pint, PHP/Node syntax, and `git diff --check` passed. **P12 status: ACCEPTED (2026-11-26) at the local project-work boundary.**

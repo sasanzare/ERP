@@ -328,6 +328,26 @@ See [P11 UI evidence](docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence), [P11
 
 **P11 status: ACCEPTED (2026-11-26) at the local read-only reporting and synthetic walkthrough boundary.** The focused guarded suite passed 5 tests / 122 assertions and the full serial guarded suite passed 90 tests / 1,083 assertions. `npm run typecheck`, `npm run build`, changed-file Pint, Node syntax, and `git diff --check` passed. The Chrome harness matched all four independently reconciled totals, exercised date boundaries and source links, verified loading/error/empty states, mobile geometry, keyboard focus, bright fallback, and live Vite styling, and reported zero runtime errors. Live/production posting remains disabled.
 
+## P12 projects and assigned work
+
+P12 adds `/projects`, `/projects/{id}`, `/projects/{id}/tasks/{taskId}`, and `/inbox` in the Persian RTL workspace. The project detail shares one task collection between list and board views. Editors create tasks, choose active-organization members, change status, and add plain-text project/task comments. Readers can review their organization's project work.
+
+Tasks use `open`, `in_progress`, and `completed`. `completed_by` and `completed_at` are recorded on completion, cleared on reopen, and unchanged when the same completion request is repeated. The due date is date-only. `config('app.timezone')` defines the local date cutoff; the current repository setting is `UTC`. A due reminder is eligible at the start of the due date, and the task becomes overdue at the start of the next day.
+
+When a member opens `/inbox`, the UI posts to `/api/v1/work/inbox/process-due-reminders` and reads `/api/v1/work/inbox`. This local, synchronous process stores one persistent reminder per task, assignment version, recipient, and due date. Repeated processing is safe. Completed tasks leave the inbox. Reassignment changes the identity so a previous assignee stops receiving the reminder and the new assignee can receive one if the task is due.
+
+An editor can associate an open or closed P08 purchase-order line with one project. P12 records the exact whole-rial `line_total_rial` snapshot and source labels. A line can be linked only once across projects; retrying the same project's association returns the existing link. The project opens the P08 order at the source line without changing the order, receipt, stock, or P09/P10 records.
+
+With the documented MariaDB service running, launch Laravel and Vite with `npm run dev`, then run the isolated Chrome acceptance harness:
+
+```powershell
+node scripts/Verify-P12Browser.mjs
+```
+
+The harness reuses its synthetic P12 project/task, existing local P03 editor and P08 editor credentials, and P11 order `PO-000009` line 9. It opens the assigned editor's mobile inbox, verifies the due reminder, follows the task to its project, completes it, and reconciles the list/board counts. It also verifies the 500,000-IRR source link, 1280×900 and 390×844 layouts, keyboard focus, bright forced fallback, live Vite CSS, and browser errors. Credentials remain in ignored private storage and are never printed. The run leaves synthetic P12 project/work records in `erp_dev` and screenshots under `docs/screenshots/`.
+
+P12's focused guarded suite passed 7 tests / 133 assertions; the full serial guarded suite passed 97 tests / 1,216 assertions. `npm run typecheck`, `npm run build`, changed-file Pint, PHP/Node syntax checks, route listing, and `git diff --check` passed. See [P12 UI evidence](docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence), [P12 architecture](docs/okf/architecture/p12-project-work.md), [P12 data model](docs/okf/data/p12-project-work.md), [P12 access model](docs/okf/security/p12-project-work.md), and [HANDOFF.md](HANDOFF.md).
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P11 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P12 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

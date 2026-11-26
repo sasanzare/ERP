@@ -10,5 +10,6 @@ This section documents organization-owned records and their persisted relationsh
 - [P09 accounting records](p09-accounting.md) — book, account, period, journal, line, and request-key records.
 - [P10 settlement records](p10-settlement.md) — invoices, open items, treasury movements, allocations, whole-Rial amounts, and P11 as-of reporting.
 - [P11 reporting contract](p11-reporting.md) — metric source rows, date/unit boundaries, organization/book scope, exact currency display, and all-page reconciliation.
+- [P12 project work](p12-project-work.md) — project/task/comment/reminder persistence and exact whole-rial project purchase costs.
 
 Read the [P04 architecture](../architecture/p04-master-data.md) for routes and request behavior, and the [P04 decision](../decisions/adr-003-p04-master-data-ownership-and-pricing.md) for the ownership and pricing rationale.

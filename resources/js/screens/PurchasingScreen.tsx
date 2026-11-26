@@ -337,7 +337,7 @@ function OrderDetail({
                 <div className="purchase-line-list">
                     {order.lines.map((line) => {
                         const fields = receiptFields[line.id] ?? { warehouseId: '', locationId: '', quantity: line.remaining_quantity };
-                        return <article className="purchase-line-card" key={line.id} data-testid={`purchase-order-line-${line.id}`} data-last-receipt-key={receiptKeys[line.id]?.value ?? ''}>
+                        return <article className="purchase-line-card" id={`p08-purchase-line-${line.id}`} key={line.id} data-testid={`purchase-order-line-${line.id}`} data-last-receipt-key={receiptKeys[line.id]?.value ?? ''}>
                             <div className="purchase-line-heading"><div><p className="eyebrow"><bdi dir="ltr">{line.product_code}</bdi></p><h3>{line.product_name}</h3></div><span>{line.unit.name} · <bdi dir="ltr">{line.unit.symbol}</bdi></span></div>
                             <div className="purchase-quantity-row"><span>سفارش: <bdi dir="ltr">{formatQuantity(line.ordered_quantity)}</bdi></span><span>دریافت‌شده: <bdi dir="ltr">{formatQuantity(line.received_quantity)}</bdi></span><strong>باقی‌مانده: <bdi dir="ltr">{formatQuantity(line.remaining_quantity)}</bdi></strong></div>
                             <div className="purchase-price-row"><span>قیمت توافقی هر واحد: <strong>{formatMoney(line.unit_price_rial)} ریال</strong></span><span>جمع سطر: <strong>{formatMoney(line.line_total_rial)} ریال</strong></span></div>
@@ -432,6 +432,13 @@ export function PurchasingScreen() {
         void load();
         return () => controller.abort();
     }, [isRequest, reloadCounter, route.id]);
+
+    useEffect(() => {
+        const lineId = new URLSearchParams(window.location.search).get('line');
+        if (isRequest || route.id === null || purchaseOrder?.id !== route.id || !lineId) return;
+
+        document.getElementById(`p08-purchase-line-${lineId}`)?.scrollIntoView({ block: 'center' });
+    }, [isRequest, purchaseOrder, route.id]);
 
     function setReceiptFields(lineId: number, value: ReceiptFields) {
         setReceiptFieldsState((current) => ({ ...current, [lineId]: value }));

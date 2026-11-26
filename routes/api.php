@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\PartyController;
 use App\Http\Controllers\Api\V1\PriceListController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\ProjectWorkController;
 use App\Http\Controllers\Api\V1\PurchasingController;
 use App\Http\Controllers\Api\V1\SalesOrderController;
 use App\Http\Controllers\Api\V1\SalesQuoteController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\UnitController;
 use App\Http\Controllers\Api\V1\WarehouseController;
 use App\Http\Controllers\Api\V1\WorkspaceController;
+use App\Http\Controllers\Api\V1\WorkInboxController;
 use App\Http\Middleware\RequireExplicitCsrfToken;
 use App\Http\Middleware\ResolveActiveOrganization;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +66,12 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/accounting/journals/{journalId}', [AccountingController::class, 'journalShow'])->whereNumber('journalId');
         Route::get('/settlements/options', [SettlementController::class, 'options']);
         Route::get('/settlements/invoices', [SettlementController::class, 'invoiceIndex']);
+        Route::get('/projects/options', [ProjectWorkController::class, 'options']);
+        Route::get('/projects', [ProjectWorkController::class, 'projectIndex']);
+        Route::get('/projects/{project}', [ProjectWorkController::class, 'projectShow'])->whereNumber('project');
+        Route::get('/projects/{project}/tasks/{task}', [ProjectWorkController::class, 'taskShow'])
+            ->whereNumber('project')->whereNumber('task');
+        Route::get('/work/inbox', [WorkInboxController::class, 'index']);
 
         Route::middleware(RequireExplicitCsrfToken::class)->group(function (): void {
             Route::post('/products', [ProductController::class, 'store']);
@@ -124,6 +132,18 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
                 ->whereNumber('invoice');
             Route::post('/settlements/supplier-invoices/{invoice}/payments', [SettlementController::class, 'supplierPaymentStore'])
                 ->whereNumber('invoice');
+            Route::post('/projects', [ProjectWorkController::class, 'projectStore']);
+            Route::post('/projects/{project}/tasks', [ProjectWorkController::class, 'taskStore'])->whereNumber('project');
+            Route::patch('/projects/{project}/tasks/{task}', [ProjectWorkController::class, 'taskUpdate'])
+                ->whereNumber('project')->whereNumber('task');
+            Route::post('/projects/{project}/tasks/{task}/transition', [ProjectWorkController::class, 'taskTransition'])
+                ->whereNumber('project')->whereNumber('task');
+            Route::post('/projects/{project}/comments', [ProjectWorkController::class, 'projectCommentStore'])->whereNumber('project');
+            Route::post('/projects/{project}/tasks/{task}/comments', [ProjectWorkController::class, 'taskCommentStore'])
+                ->whereNumber('project')->whereNumber('task');
+            Route::post('/projects/{project}/purchase-costs', [ProjectWorkController::class, 'purchaseCostStore'])
+                ->whereNumber('project');
+            Route::post('/work/inbox/process-due-reminders', [WorkInboxController::class, 'processDueReminders']);
         });
     });
 });

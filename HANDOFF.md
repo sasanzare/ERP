@@ -6,26 +6,27 @@
 
 ## Project Summary
 
-Local-development-only ERP prototype using synthetic MariaDB data. P01–P11 are accepted at their local-development boundaries; P10 approval applies only to the local synthetic ERP MVP mapping in ADR-008. P11 is accepted for the local read-only dashboard and repeatable synthetic walkthrough. Live/production posting remains disabled. Production deployment, cloud, and external integrations remain out of scope.
+Local-development-only ERP prototype using synthetic MariaDB data. P01–P12 are accepted at their local-development boundaries; P10 approval applies only to the local synthetic ERP MVP mapping in ADR-008. P12 adds organization-scoped projects, assigned tasks, comments, local inbox reminders, and committed purchase-line costs. Live/production posting remains disabled. Production deployment, cloud, and external integrations remain out of scope.
 
 ## Current Objective
 
-P11 acceptance is complete in the existing local repository. Preserve the existing P10 `synthetic_test` profile and prior `erp_dev` records. Do not stage, commit, push, or change branches.
+P12 is accepted at its local-development boundary. Preserve P01–P12 behavior, the P10 `synthetic_test` profile, existing development records, and the MariaDB volume. Do not stage, commit, push, or change branches. Sync the local Notion queue only after an explicit request.
 
 ## Current Phase or Milestone
 
-P09 is accepted for manual and synthetic journals. P10 is ACCEPTED for the local ERP MVP only (user approval dated 2026-11-24); live/production posting remains disabled. P11 is ACCEPTED (2026-11-26). The full guarded suite passed 90 tests / 1,083 assertions; the focused P11 suite passed 5 / 122. At task start, Git was clean on `main` at `0c9261d271666b932a47b07416807e9221ddc8d1`, matching `origin/main`; the prior P10 handoff's worktree/HEAD details were stale. MariaDB 11.8.9 is healthy on 127.0.0.1:3307 with migrations through 000012 applied to `erp_dev`. Read-only inspection verified organization 1 / `legacy-local`, book 2 / `P10-SYNTH-BROWSER`, `Asia/Tehran`, the unchanged `synthetic_test` profile, and the six ADR-008 accounts (1010, 1020, 1100, 2100, 4100, 5100) as active/postable; approval metadata remains null. At task start there were four customer invoices totaling 4,000,000 IRR and two supplier invoices totaling 1,000,000 IRR in that book. The P11 walkthrough command ran twice on `erp_dev`; it added one sale order/delivery, one purchase request/order/receipt, one pending request, two invoices, two settlements, three P11 product movements, and four linked P09 journals. Existing P10 profile and prior manual journal records were not changed. Independent source-row and Chrome readbacks at organization 1 / book 2 / 2026-11-26 are 5,000,000 IRR net sales, 600,000 IRR overdue receivables, 131,500 EA available across 15 positive product/location rows, and 1 pending purchase approval. No P11 migration was added. The existing XAMPP MariaDB remains on port 3306 and must not be used or changed. Normal shell access to Docker and DB loopback requires escalation.
+P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the local ERP MVP only (user approval dated 2026-11-24); live/production posting remains disabled. P11 is ACCEPTED (2026-11-26); its prior full guarded suite passed 90 tests / 1,083 assertions and focused suite passed 5 / 122. P12 is ACCEPTED (2026-11-26) at the local project-work boundary. At P12 start, Git is clean on `main` at `b18e24054962e1bf6648b2b31755d0ea8e709c86`, matching `origin/main`; the preceding handoff's repository state was stale and has been reconciled. Read-only Laravel Boost checks reached `erp_dev` (MariaDB 11.8.9) and found migrations through `2026_11_24_000012_create_p10_settlement_tables`, 2 organizations, 4 memberships, 9 purchase orders/lines, 8 invoices, and 30 journals. Organization 1 is `legacy-local`; its existing P11 purchase order `PO-000009`, line 9, is closed and has a 500,000 IRR line snapshot. `.env` targets `127.0.0.1:3307`; MariaDB's reported internal server port is 3306. The normal shell cannot access Docker Desktop's named pipe or the host DB socket, so no service was started. The existing XAMPP MariaDB on host port 3306 must not be used or changed.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `0c9261d271666b932a47b07416807e9221ddc8d1`
-- Current HEAD: `0c9261d271666b932a47b07416807e9221ddc8d1` (`feat(p10): implement local invoice and settlement workflow`)
-- Working tree status: P11 implementation and this handoff update are uncommitted; branch `main` remains at the starting HEAD and matches `origin/main` (0 ahead/behind). Re-read with `git -c core.fsmonitor=false` after the normal status command reported an fsmonitor IPC error.
+- Base or starting commit: `b18e24054962e1bf6648b2b31755d0ea8e709c86`
+- Current HEAD: `b18e24054962e1bf6648b2b31755d0ea8e709c86` (`feat(p11): add reconciled local ERP dashboard`)
+- Working tree status at P12 completion: P12 changes remain unstaged; `main` remains at the starting HEAD and matches `origin/main` (0 ahead/behind). `git -c core.fsmonitor=false status --short --branch` was used for the final readback.
 - Staged changes: none.
-- Unstaged tracked files: `AGENTS.md`, `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, `docs/okf/architecture/current-architecture.md`, `docs/okf/architecture/index.md`, `docs/okf/data/index.md`, `docs/okf/data/p06-stock-balances.md`, `docs/okf/data/p10-settlement.md`, `docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md`, `docs/okf/index.md`, `docs/okf/log.md`, `docs/okf/project-overview.md`, `docs/okf/security/index.md`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `routes/api.php`, and `routes/web.php`.
-- Untracked P11 files: `app/Console/Commands/ProvisionP11Walkthrough.php`, `app/Http/Controllers/Api/V1/DashboardController.php`, `app/Services/Reporting/P11DashboardService.php`, `docs/okf/architecture/p11-dashboard.md`, `docs/okf/data/p11-reporting.md`, `docs/okf/security/p11-reporting.md`, six P11 screenshots under `docs/screenshots/`, `resources/css/dashboard.css`, `resources/js/api/dashboard.ts`, `resources/js/screens/DashboardScreen.tsx`, `scripts/Verify-P11Browser.mjs`, and `tests/Feature/P11DashboardTest.php`.
+- Unstaged tracked files: `AGENTS.md`, `HANDOFF.md`, `README.md`, `app/Models/Organization.php`, `app/Models/User.php`, `app/Policies/OrganizationPolicy.php`, `docs/UI_DESIGN.md`, `docs/okf/architecture/current-architecture.md`, `docs/okf/architecture/index.md`, `docs/okf/data/index.md`, `docs/okf/index.md`, `docs/okf/log.md`, `docs/okf/project-overview.md`, `docs/okf/security/index.md`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/js/screens/PurchasingScreen.tsx`, `routes/api.php`, and `routes/web.php`.
+- Untracked files: P12 enum, models, API controllers, services, migration, test, browser harness, frontend API/screen/CSS, three OKF concepts, and 16 P12 screenshots under `docs/screenshots/`. The six final screenshots from `2026-11-26T18-19-15-239Z` are linked from `docs/UI_DESIGN.md`; earlier harness retries left unlinked captures. `public/build/` remains ignored build output.
+- Untracked paths: `app/Enums/WorkTaskStatus.php`; `app/Http/Controllers/Api/V1/ProjectWorkController.php`, `WorkInboxController.php`; `app/Models/ProjectPurchaseCost.php`, `WorkComment.php`, `WorkProject.php`, `WorkTask.php`, `WorkTaskReminder.php`; `app/Services/ProjectWork/ProjectWorkService.php`, `DueReminderService.php`; `database/migrations/2026_11_26_000013_create_project_work_tables.php`; `docs/okf/architecture/p12-project-work.md`, `docs/okf/data/p12-project-work.md`, `docs/okf/security/p12-project-work.md`; screenshots `p12-assigned-inbox-mobile-2026-11-26T18-13-31-274Z.png`, `p12-assigned-inbox-mobile-2026-11-26T18-17-31-204Z.png`, `p12-assigned-inbox-mobile-2026-11-26T18-19-15-239Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-13-31-274Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-17-31-204Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-19-15-239Z.png`, `p12-bright-fallback-mobile-2026-11-26T18-17-31-204Z.png`, `p12-bright-fallback-mobile-2026-11-26T18-19-15-239Z.png`, `p12-completed-project-desktop-2026-11-26T18-17-31-204Z.png`, `p12-completed-project-desktop-2026-11-26T18-19-15-239Z.png`, `p12-project-desktop-2026-11-26T18-13-31-274Z.png`, `p12-project-desktop-2026-11-26T18-17-31-204Z.png`, `p12-project-desktop-2026-11-26T18-19-15-239Z.png`, `p12-purchase-line-source-desktop-2026-11-26T18-13-31-274Z.png`, `p12-purchase-line-source-desktop-2026-11-26T18-17-31-204Z.png`, and `p12-purchase-line-source-desktop-2026-11-26T18-19-15-239Z.png`; `resources/css/project-work.css`, `resources/js/api/project-work.ts`, `resources/js/screens/ProjectWorkScreen.tsx`, `scripts/Verify-P12Browser.mjs`, and `tests/Feature/P12ProjectWorkTest.php`.
 
 ## Completed Work
 
@@ -57,18 +58,23 @@ P09 is accepted for manual and synthetic journals. P10 is ACCEPTED for the local
 - Added the repeatable local P11 walkthrough command through accepted P05/P06/P07/P08/P10 workflows, with stable identities and no new migration or P10 profile changes.
 - Added P11 feature coverage, isolated Chrome acceptance, six screenshots, and relevant OKF/README/UI documentation. Reviewed and updated the fingerprint-matched `D:\All projects\Mistakes\ERP\mistakes.md` with the reusable Chrome-profile watcher lesson.
 - Appended event `erp-p11-local-mvp-acceptance-20261126-f12edeed-504f-41d5-bb7c-78966676ce3a` under the shared queue lock; readback confirmed one `PENDING` event with no database changes. No Notion API was called.
+- Implemented and documented P12 organization-owned projects/tasks, status and completion rules, member assignment, comments, assigned-work inbox, persistent local due reminders, and unique exact-Rial P08 purchase-line associations.
+- Added migration 000013, focused P12 feature coverage, Persian RTL workspace/list/board/task/inbox views, P08 source-line deep links, and P12 Chrome acceptance evidence.
+- P12 focused guarded suite passed 7 tests / 133 assertions; the full serial suite passed 97 tests / 1,216 assertions. Typecheck, build, Pint, PHP/Node syntax, route listing, and diff checks passed.
+- Migration 000013 applied in `erp_dev` and exercised on guarded `erp_test`; all observed pre-existing `erp_dev` counts remained unchanged. Chrome verified the assigned-editor journey, reminder deduplication, 1→0 open counts, 500,000-IRR purchase trace, 1280×900/390×844 layouts, focus, bright fallback, live Vite, and zero runtime errors.
+- Reviewed the fingerprint-matched ERP mistakes log at `D:\All projects\Mistakes\ERP\mistakes.md`; no new reusable lesson was needed. All code/document changes remain unstaged.
 
 ## Work in Progress
 
-No implementation task is currently in progress. P11 acceptance, documentation, browser evidence, and local queue reporting are complete. Preserve the P10 synthetic profile, prior invoices, P08/P09 records, P11 synthetic fixture, and screenshots.
+P12 implementation, docs, and acceptance are complete. Focused P12 tests passed 7 tests / 133 assertions; the full serial guarded suite passed 97 / 1,216. `npm run typecheck`, `npm run build`, changed-file Pint, PHP syntax checks, route listing, Node syntax, and `git diff --check` passed. The P12 screen is lazy-loaded; the production build emitted a 487.20 kB entry chunk and 26.97 kB P12 chunk with no size warning. Migration 000013 is applied to `erp_test` and `erp_dev`. Read-only post-migration counts matched baseline: 2 organizations, 4 memberships, 9 P08 orders/lines, 8 P10 invoices, and 30 P09 journals. The P11 purchase line `PO-000009` / line 9 remains 500,000 IRR. Chrome P12 acceptance passed at 1280×900 and 390×844, including live Vite, visible focus, mobile dock, bright fallback, source-line link, one reminder, and zero runtime errors. The dev servers were stopped after the run; pre-existing Docker MariaDB remains healthy.
 
 ## Remaining Work
 
-No P11 engineering or acceptance work remains. Queue events remain `PENDING` until explicitly synced by the user; live/production posting and coordinated corrections remain outside the approved local MVP.
+No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` is `PENDING` in the local queue and awaits an explicit sync request. P01–P12 remain local-development-only; do not use XAMPP or enable live/production posting.
 
 ## Exact Next Steps
 
-1. Review the unstaged P11 diff and screenshots.
+1. Review the unstaged P12 diff and saved Chrome evidence.
 2. Leave staging, commit, push, and branch changes to the user; sync the local Notion queue only after an explicit request.
 
 ## Files Created
@@ -94,6 +100,11 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P11 Chrome evidence: six screenshots linked from `docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence`.
 - P07 OKF architecture/data/security/ADR-006 documents.
 - Five final P07 screenshots linked from `docs/UI_DESIGN.md#p07-sales-fulfillment-evidence`.
+- P12: `app/Enums/WorkTaskStatus.php`, five work/cost models, migration `2026_11_26_000013_create_project_work_tables.php`, `ProjectWorkService.php`, `DueReminderService.php`, and the project/inbox API controllers.
+- P12: `tests/Feature/P12ProjectWorkTest.php` and `scripts/Verify-P12Browser.mjs`.
+- P12 UI: `resources/js/api/project-work.ts`, `resources/js/screens/ProjectWorkScreen.tsx`, and `resources/css/project-work.css`.
+- P12 OKF: `architecture/p12-project-work.md`, `data/p12-project-work.md`, and `security/p12-project-work.md`.
+- P12 Chrome evidence: six final screenshots linked from `docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence`.
 
 ## Files Modified
 
@@ -107,6 +118,7 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P10: `app/Services/Accounting/AccountingService.php` rejects standalone reversal of `p10.*` journals; `routes/api.php`, `routes/web.php`, `resources/js/app.tsx`, and `resources/js/components/WorkspaceShell.tsx` register the settlement UI/API.
 - P10 approval task: updated `AGENTS.md`, `README.md`, ADR-008, P10 OKF architecture/data/security concepts, current architecture/project overview/indexes/log, and `HANDOFF.md`; extended `tests/Feature/P10SettlementTest.php` with exact posting-account and closed-period correction assertions.
 - P11: updated `AGENTS.md`, `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, `routes/api.php`, `routes/web.php`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, and related OKF concepts/indexes/log.
+- P12: updated `AGENTS.md`, `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, OKF root/project/architecture/data/security indexes and log, current architecture, `app/Models/Organization.php`, `app/Models/User.php`, `app/Policies/OrganizationPolicy.php`, routes, `resources/js/app.tsx`, `WorkspaceShell.tsx`, and `PurchasingScreen.tsx`.
 - P09 OKF: root/architecture/data/security/decision indexes, P09 architecture/data/security concepts, ADR-008, and `docs/okf/log.md`.
 - OKF root/indexes, P05/P06 architecture/data/security/ADR documents, P08 concepts/ADR-007, project overview, and maintenance log.
 
@@ -123,6 +135,9 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P09 API routes are `GET /api/v1/accounting/options`, `GET /api/v1/accounting/journals`, `GET /api/v1/accounting/journals/{id}`, `POST /api/v1/accounting/books`, `POST /api/v1/accounting/books/{id}/accounts`, `POST /api/v1/accounting/books/{id}/periods`, `POST /api/v1/accounting/periods/{id}/close`, `POST /api/v1/accounting/journals`, `PUT /api/v1/accounting/journals/{id}`, and `POST /post` and `/reverse` actions on a journal. The internal P10 service action also requires callers to resolve source records in the active organization.
 - P10 lock order is book → source order → sorted order lines/source events → open item → treasury movement, followed by the existing P09 book → journal → period → sorted accounts path. P10 journals use `p10.*` source types and cannot be reversed through the standalone P09 route. Customer amounts derive from delivered P05 snapshots in exact whole Toman then convert ×10 to Rial; supplier amounts derive from received P08 quantities and whole-Rial unit-price snapshots with cumulative rounding. These rules are approved only for the exact local synthetic mapping in ADR-008; live/production use remains disabled.
 - P11 reads only the active organization. Net sales and overdue receivables are scoped to the selected book; stock availability and pending purchase approvals cover that organization. Financial cutoffs use the selected book's timezone. Drill-downs use the same source predicates as tile totals, with no P11 ledger posting or schema migration.
+- P12 `viewWork` grants organization members read access and `manageWork` limits writes to editors. Assignees need an active-organization membership; reader assignment does not grant write access. All task, comment, inbox, and cost lookups remain parent/organization-scoped.
+- P12 due dates are date-only in `config('app.timezone')` (currently UTC): reminders become eligible at the start of `due_on`; overdue begins at the start of the next day. Inbox entry posts the local reminder processor. Its persistent identity and unique key include task, assignment version, recipient, and due-date snapshot; completion hides the task, while reassignment invalidates the prior recipient's active reminder.
+- P12 project costs link one eligible P08 purchase-order line to at most one project. P12 stores the exact `line_total_rial` and source-label snapshots; retries for the same project return that link, and a different project receives 409. P12 does not mutate P08 receipt/source lines, P06 stock, or P09/P10 postings.
 
 ## Commands Executed
 
@@ -185,6 +200,17 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - `php artisan test --filter=P11DashboardTest` — 5 tests / 122 assertions passed. Full serial `php artisan test` — 90 tests / 1,083 assertions passed on guarded `erp_test`.
 - `npm run typecheck`, `npm run build`, changed-file Pint, `node --check scripts/Verify-P11Browser.mjs`, `git diff --check`, and Symfony YAML/internal-link validation passed. OKF validation: 43 Markdown files, 37 typed concepts, root-only OKF 0.2, 250 valid internal file links.
 
+### P12 task
+
+- Read-only baseline: clean `main` at `b18e24054962e1bf6648b2b31755d0ea8e709c86`; Laravel Boost `erp_dev` read showed migrations through 000012, MariaDB 11.8.9, 2 organizations, 4 memberships, 9 purchase orders/lines, 8 invoices, and 30 journals. P11 `PO-000009` line 9 retained its 500,000-IRR snapshot.
+- `docker compose ps` via the authorized elevated shell confirmed the existing MariaDB container healthy on `127.0.0.1:3307 → 3306`. Read-only listener/process checks found ports 8000/5173 free before starting the local app.
+- `C:\php8.5\php.exe artisan test --filter=P12ProjectWorkTest` — 7 tests / 133 assertions passed against guarded `erp_test`.
+- `C:\php8.5\php.exe artisan test` — full serial guarded suite passed 97 tests / 1,216 assertions.
+- `C:\php8.5\php.exe artisan migrate --path=database/migrations/2026_11_26_000013_create_project_work_tables.php --force --no-interaction` — applied migration 000013 to configured `erp_dev` only. Post-migration readback confirmed counts stayed at 2 organizations, 4 memberships, 9 P08 orders/lines, 8 P10 invoices, and 30 P09 journals. New P12 tables held 1 synthetic project, 1 task, 2 comments, 1 reminder, and 1 purchase-cost association after browser acceptance.
+- `npm run typecheck`, `npm run build`, changed-file `vendor/bin/pint --test`, PHP syntax checks for P12 files, `php artisan route:list --path=projects`, and `git diff --check` passed. Production entry chunk is 487.20 kB and the lazy P12 chunk is 26.97 kB.
+- `node --check scripts/Verify-P12Browser.mjs` passed. `node scripts/Verify-P12Browser.mjs` passed in isolated Chrome: P08 editor inbox count 1 → 0 after completion; reminder count 1, two repeated processor calls created 0/0 additional reminders; project list and board reconciled to 0 open / 1 completed; P11 `PO-000009` line 9 linked at exactly 500,000 IRR and its source row opened. At 1280×900 and 390×844, mobile width was 375/375 CSS px with the dock visible and no overlap, keyboard focus was visible, bright forced fallback showed 6 surfaces / 0 active refraction, live Vite client and `project-work.css` loaded, and Chrome reported 0 runtime errors. Six final screenshots are linked from `docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence`.
+- `npm run dev` started Laravel/Vite only after port checks and was stopped after browser acceptance. The existing Docker MariaDB service was left running. No P10/P11 source record or XAMPP database was changed.
+
 ## Validation and Test Results
 
 ### P11 task
@@ -196,6 +222,16 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - Historical checks returned overdue 0 on the invoice due date 2026-11-24, 1,000,000 IRR on 2026-11-25 before the 2026-11-26 receipt, and 600,000 IRR afterward. A second same-organization book returned zero sales. Toman values were 500,000 and 60,000.
 - Chrome verified confirmed sales order/delivery, independent purchase approval/order/receipt, and both invoice/settlement cards; each P11 seed replay returned the same source IDs and balances. At 390×844, document/client widths were 375/375 CSS px and the report cleared the dock by 82.08 px. Keyboard focus was visible; bright fallback retained three glass surfaces and zero active refraction; Vite `dashboard.css` loaded; runtime errors: 0.
 - The user's existing Chrome profile was signed out at the local app. The isolated Chrome harness used the local P03 fixture, and no credentials were entered into the user's profile. Screenshots are linked from `docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence`.
+
+### P12 task
+
+- Focused `php artisan test --filter=P12ProjectWorkTest`: 7 tests / 133 assertions passed. Full serial `php artisan test`: 97 tests / 1,216 assertions passed against guarded `erp_test`.
+- The feature suite uses fixed UTC dates to verify due/overdue cutoffs, one-time reminder processing, reassignments, completion replay, inbox/project counts, foreign IDs, reader write denials, and purchase-line retries/snapshots.
+- `npm run typecheck`, `npm run build`, changed-file Pint, changed-file PHP syntax checks, `php artisan route:list --path=projects`, `node --check scripts/Verify-P12Browser.mjs`, and `git diff --check` passed. OKF 0.2 was preserved.
+- Symfony YAML/frontmatter and internal-link validation passed for 46 OKF Markdown files, 40 typed concept documents, 278 internal links, and root-only OKF 0.2 metadata.
+- Migration 000013 applied to `erp_dev` and ran via `RefreshDatabase` on guarded `erp_test`. `erp_dev` counts after migration remained organizations 2, memberships 4, purchase orders/lines 9/9, invoices 8, and journals 30. P11 purchase order 9 / line 9 remains `P11-WALKTHROUGH-ITEM` at 500,000 IRR.
+- Chrome P12 harness passed on 2026-11-26. The assigned editor's inbox/project open count changed 1→0 after task completion; the project list and board both showed 0 open / 1 completed. Two repeated reminder process requests each created 0 new reminders, and the inbox had 0 due reminders after completion. The cost link opened P08 `PO-000009` line 9 with exact 500,000 IRR.
+- Chrome captured 1280×900 desktop and 390×844 mobile evidence. The mobile document/client widths were 375/375 CSS px; the dock was visible and cleared content by 100.23 px at initial position and 194.23 px at scroll end. Keyboard focus was visible. Bright fallback showed 6 glass surfaces / 0 active refraction, live Vite and `project-work.css` loaded, and runtime errors were 0. Six final screenshots are linked from `docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence`.
 
 ### P10 task
 
@@ -234,6 +270,7 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 
 - The six P10 workflow rules and exact organization 1 / book 2 / account mapping are approved for the local ERP MVP only and recorded in ADR-008. Production/live mappings, tax and costing treatment, treasury policy, and a coordinated correction workflow remain outside scope; do not activate a live profile from this local approval.
 - P10 local acceptance passed, with no remaining local engineering blocker. The boundary is explicit: new postings into a closed period are rejected, exact retries return existing records, and P10 journals cannot be independently reversed. P11 is ACCEPTED at its local read-only dashboard/walkthrough boundary; live/source posting remains disabled.
+- P12 is ACCEPTED at its local project-work boundary. No P12 engineering or acceptance blocker remains. Live/production posting and deployment remain outside scope.
 - An early test attempt overlapped because a wrapper did not capture/poll a session. The corrected focused and full suites both passed serially; preserve the existing one-test-process rule for future suites.
 
 - P08 has no implementation blocker. The user's Chrome session was a reader in organization B; it rendered the P08 read-only list. The isolated Chrome harness used local synthetic editor and approver accounts for write acceptance.
@@ -261,6 +298,8 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P11 adds no migration. The local command created synthetic product 17 / location 18, sale order 10 / delivery 5, purchase request 9 / order 9 / receipt 13, P10 customer/supplier invoices 7/8, treasury movements 9/10, and linked P09 journals 27–30. It also left request 10 submitted for approval. The dedicated P11 product/location is 10.000 EA physical, 0.000 reserved, and 10.000 available after the sale issue and purchase receipt. The command replay returned the same IDs without increasing these counts.
 - The local P10 profile remains organization 1 / book 2 / `synthetic_test` with the ADR-008 mapping and null approval metadata. P09 manual book 1 / journals 1–12 are preserved. No P11 schema migration was applied.
 - The full guarded `erp_test` suite passed 90 tests / 1,083 assertions after migrations through 000012; its RefreshDatabase operations never targeted `erp_dev`.
+- P12 migration `2026_11_26_000013_create_project_work_tables` is applied in batch 10 in `erp_dev` and ran via guarded `RefreshDatabase` in `erp_test`. Post-migration `erp_dev` counts are organizations/memberships 2/4, purchase orders/lines 9/9, P10 invoices 8, and accounting journals 30; all match the read-only P12 baseline. The persistent volume was not reset.
+- Local Chrome acceptance created/reused work project 1, task 1, two comments, one due reminder, and one project cost. Task 1 is completed by the assigned editor. Its due reminder row remains deduplicated but is no longer returned in the active inbox. Cost 1 links project 1 to P11 purchase order 9 / line 9 for 500,000 IRR; source P08 records are unchanged.
 
 - P09 migrations 000010 and 000011 were exercised by guarded `erp_test`. Both are applied in batch 8 to existing `erp_dev`. It contains one book, five accounts, four periods, twelve journals, twenty-four lines, and ten request-key rows from synthetic acceptance.
 
@@ -273,18 +312,23 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P10 invoice/settlement writes are internally replayable and transaction-bound. Its profile remains `synthetic_test` with the exact six local accounts in ADR-008; the user approval did not create or enable a live `approved` profile.
 
 - `.env`, `.env.testing`, and examples were not changed. PHP 8.5.13 is at `C:\php8.5\php.exe`; MariaDB uses loopback port 3307. P03/P08 synthetic credentials remain only in ignored private storage and were not printed.
+- The P12 date-only due/reminder contract reads `config('app.timezone')`; the current value is UTC. No new environment variable is required.
+- P12 date-only task cutoffs use `config('app.timezone')`, currently `UTC`; reminder eligibility begins at 00:00 on the due date and overdue starts the following day.
 - The normal command sandbox cannot reach the DB host port; database/Docker commands were run through the permitted elevated path.
 - During Chrome acceptance, `npm run dev` served the app on ports 8000/5173 and was stopped after the final run; the ports were free afterward. The final P11 harness uses OS temp for isolated Chrome profiles so Laravel's watcher does not scan Chrome cache files. Seven earlier `p11-browser-*` directories under ignored `storage/framework/testing` were confirmed unheld and removed by exact-path cleanup; none remain.
+- P12 Chrome ran in a fresh `erp-p12-browser-*` directory under OS temp and the harness removed that generated profile after Chrome exited. The P12 acceptance run saved six final linked screenshots and some earlier unlinked retry captures under `docs/screenshots/`.
 
 ## Uncommitted or Partially Applied Changes
 
-- All P11 code, documentation, and screenshot changes are unstaged on `main` at starting HEAD `0c9261d271666b932a47b07416807e9221ddc8d1`. No files are staged, committed, pushed, or on a new branch.
+- All P12 code, tests, documentation, and screenshots are unstaged on `main` at HEAD `b18e24054962e1bf6648b2b31755d0ea8e709c86`, matching `origin/main` (0 ahead/behind). No files are staged, committed, pushed, or on a new branch. No unrelated pre-existing worktree changes existed at P12 start.
 - P10 migration 000012 is applied in both `erp_test` and `erp_dev`. The `P10-SYNTH-BROWSER` book, invoices, treasury movements, allocations, linked journals, and screenshots are intentional synthetic acceptance data retained for review.
 - The starting HEAD contains the accepted P07/P08/P09/P10 baseline. P11 made no migration and no change to P10 profile configuration.
 - The earlier overlapping P10 test attempt was superseded by successful serial focused/full runs. P10 acceptance rows and the synthetic profile are intentionally retained only in `P10-SYNTH-BROWSER` in `erp_dev`.
 - Earlier P07 event `erp-p07-sales-order-fulfillment-20261121T172436Z-82e0d709-8890-4ab4-a65d-ed3df03b9d37` remains `PENDING` in `D:\All projects\notion\notion.md`.
 - P08 event `erp-p08-purchase-request-to-receipt-20261122T051859Z-4e82c0a6-7d21-4b5e-9731-6b48be21a7dc` was appended as `PENDING` and verified by readback. No remote sync was done.
 - P10 events `erp-p10-customer-supplier-settlement-20261124-1e0754c4-488d-41e7-a858-5998c508ac84` and `erp-p10-local-mvp-acceptance-20261124-65bf8ae5-d503-4d00-92be-6d1cc4288a5e`, and P11 event `erp-p11-local-mvp-acceptance-20261126-f12edeed-504f-41d5-bb7c-78966676ce3a`, are in the shared queue with `PENDING` state. No Notion API was called.
+- P12 event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` was appended under the existing queue lock and read back as `PENDING` with no changes. No Notion API was called.
+- P12 synthetic acceptance data in `erp_dev` is retained for review: project 1, completed task 1, project/task comments, one persistent due reminder, and one unique 500,000-IRR cost link to P11 line 9. P08 source row snapshots remain unchanged.
 
 ## Recovery or Rollback Notes
 
@@ -294,6 +338,7 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - P09 migrations are additive. Rolling back 000011 removes only the journal-line CHECK; rolling back 000010 drops the six P09 tables and all P09 books/accounts/periods/journals/lines/retry records. Do not roll them back in `erp_dev`; any rehearsal must target guarded `erp_test` only.
 - P10 migration 000012 adds P10 tables and two source-trace unique indexes. It is applied in `erp_test` and `erp_dev`; do not roll it back from `erp_dev`. Any P10 rollback rehearsal must be separately authorized and target guarded `erp_test` only.
 - P11 creates only stable synthetic business records through accepted local workflows. It has no schema rollback; do not delete the accepted walkthrough fixture or reset `erp_dev`.
+- P12 migration 000013 adds five new tables. It is applied in `erp_test` and `erp_dev`; `erp_dev` now contains the accepted synthetic project, completed task, comments, persistent reminder, and cost link. Do not roll back P12 or delete these records in `erp_dev`; any rollback rehearsal must target guarded `erp_test` only.
 - Do not run `migrate:fresh`, reset the MariaDB volume, or delete generated evidence.
 
 ## Related Documentation
@@ -304,7 +349,10 @@ No P11 engineering or acceptance work remains. Queue events remain `PENDING` unt
 - [P09 workflow](docs/okf/architecture/p09-accounting.md), [data](docs/okf/data/p09-accounting.md), [security](docs/okf/security/p09-accounting.md), [ADR-008](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md), and [P09 UI evidence](docs/UI_DESIGN.md#p09-accounting-evidence).
 - [P10 workflow](docs/okf/architecture/p10-settlement.md), [data](docs/okf/data/p10-settlement.md), [security](docs/okf/security/p10-settlement.md), [ADR-008 live-rule decisions](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md), and [P10 UI evidence](docs/UI_DESIGN.md#p10-customer-and-supplier-settlement-evidence).
 - [P11 workflow](docs/okf/architecture/p11-dashboard.md), [reporting data](docs/okf/data/p11-reporting.md), [security](docs/okf/security/p11-reporting.md), and [P11 UI evidence](docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence).
+- [P12 workflow](docs/okf/architecture/p12-project-work.md), [data](docs/okf/data/p12-project-work.md), [security](docs/okf/security/p12-project-work.md), and [P12 UI evidence](docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence).
 
 ## Notes for the Next Agent
 
 P09 remains accepted at its local manual/synthetic boundary. P10 is ACCEPTED for the local ERP MVP only; P11 is ACCEPTED for local read-only reporting and synthetic walkthroughs only. Preserve P08 fixtures, P09 manual journals, P10 synthetic book 2/profile and prior settlements, the new P11 product/workflow fixtures, and screenshots. No P11 migration was added. Live/production posting remains disabled. Read [ADR-008](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md) before changing posting gates. Run only one guarded Laravel test process at a time; capture and poll its session to completion. The fingerprint-verified ERP mistakes log now records the temp-profile watcher correction. Local queue events `erp-p10-customer-supplier-settlement-20261124-1e0754c4-488d-41e7-a858-5998c508ac84`, `erp-p10-local-mvp-acceptance-20261124-65bf8ae5-d503-4d00-92be-6d1cc4288a5e`, and `erp-p11-local-mvp-acceptance-20261126-f12edeed-504f-41d5-bb7c-78966676ce3a` remain `PENDING`; do not sync unless the user explicitly requests it. No Notion API was called.
+
+P12 is ACCEPTED at its local boundary. Preserve the P12 project/task/comments/reminder/cost link and the P11 source line 9; the linked amount is an immutable 500,000-IRR snapshot. Migration 000013 is applied to `erp_dev`; use only guarded `erp_test` for rollback rehearsals. `config('app.timezone')` is currently UTC for task due-date/reminder cutoffs. The isolated P12 Chrome profile and local dev servers were stopped after acceptance. Queue event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` remains `PENDING` until an explicit user sync request.

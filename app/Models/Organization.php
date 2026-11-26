@@ -77,4 +77,9 @@ class Organization extends Model
     {
         return $this->hasMany(StockReservation::class);
     }
+
+    public function workProjects(): HasMany
+    {
+        return $this->hasMany(WorkProject::class);
+    }
 }
