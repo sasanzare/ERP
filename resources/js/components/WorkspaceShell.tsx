@@ -58,7 +58,11 @@ const accountingLinks = [
 const settlementLinks = [
     { id: 'settlements', href: '/settlements', label: 'صورتحساب و تسویه' },
 ];
+const dashboardLinks = [
+    { id: 'dashboard', href: '/dashboard', label: 'نمای مدیریتی' },
+];
 
+const isDashboardResource = (resource: string) => dashboardLinks.some((item) => item.id === resource);
 const isMasterDataResource = (resource: string) => resourceLinks.some((item) => item.id === resource && item.id !== 'products');
 const isSalesResource = (resource: string) => salesLinks.some((item) => item.id === resource);
 const isStockResource = (resource: string) => stockLinks.some((item) => item.id === resource);
@@ -154,7 +158,7 @@ export function WorkspaceShell({
                         <span className={`connection-indicator connection-${connectionState}`} aria-hidden="true" />
                         <span>{connectionLabel}</span>
                         <bdi className="topbar-separator" dir="ltr">/</bdi>
-                        <span>{isSettlementResource(activeResource) ? 'تسویه‌ها' : isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
+                        <span>{isDashboardResource(activeResource) ? 'گزارش مدیریتی' : isSettlementResource(activeResource) ? 'تسویه‌ها' : isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
                     </div>
                 </LiquidGlass>
 
@@ -177,6 +181,19 @@ export function WorkspaceShell({
                                 <span className="sidebar-caption">پروتوتایپ محلی</span>
                             </div>
                             <nav className="workspace-nav" aria-label="صفحه‌ها">
+                                <div className="nav-group-label">گزارش · P11</div>
+                                {dashboardLinks.map((item) => (
+                                    <a
+                                        key={item.id}
+                                        className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`}
+                                        href={shellHref(item.href)}
+                                        aria-current={activeResource === item.id ? 'page' : undefined}
+                                    >
+                                        <NavGlyph kind="list" />
+                                        <span className="nav-link-text">{item.label}</span>
+                                        <span className="nav-link-mark" aria-hidden="true" />
+                                    </a>
+                                ))}
                                 <a
                                     className={`nav-link ${activeResource === 'products' && activePage === 'list' ? 'is-current' : ''}`}
                                     href={shellHref('/products')}
@@ -393,6 +410,12 @@ export function WorkspaceShell({
                             <span>جزئیات</span>
                         </a>
                     )}
+                    {isDashboardResource(activeResource) && (
+                        <a className="is-current" href={shellHref('/dashboard')} aria-current="page">
+                            <NavGlyph kind="list" />
+                            <span>گزارش</span>
+                        </a>
+                    )}
                     {isMasterDataResource(activeResource) && (
                         <a className="is-current" href={shellHref('/parties')} aria-label="فهرست طرف‌های تجاری" aria-current="page">
                             <NavGlyph kind="list" />
@@ -433,7 +456,7 @@ export function WorkspaceShell({
 
                 <footer className="workspace-footer">
                     <span>محیط توسعهٔ محلی</span>
-                    <span><bdi dir="ltr">{activeResource === 'products' ? 'GET /api/v1/products' : activeResource === 'orders' ? 'GET /api/v1/sales-orders' : activeResource === 'follow-ups' ? 'GET /api/v1/lead-activities/overdue' : activeResource === 'stock' ? 'GET /api/v1/stock/balances' : activeResource === 'stock-movements' ? 'GET /api/v1/stock/movements' : activeResource === 'stock-reservations' ? 'GET /api/v1/stock/reservations' : activeResource === 'accounting' ? 'GET /api/v1/accounting/journals' : `GET /api/v1/${activeResource}`}</bdi></span>
+                    <span><bdi dir="ltr">{activeResource === 'products' ? 'GET /api/v1/products' : activeResource === 'dashboard' ? 'GET /api/v1/dashboard' : activeResource === 'orders' ? 'GET /api/v1/sales-orders' : activeResource === 'follow-ups' ? 'GET /api/v1/lead-activities/overdue' : activeResource === 'stock' ? 'GET /api/v1/stock/balances' : activeResource === 'stock-movements' ? 'GET /api/v1/stock/movements' : activeResource === 'stock-reservations' ? 'GET /api/v1/stock/reservations' : activeResource === 'accounting' ? 'GET /api/v1/accounting/journals' : `GET /api/v1/${activeResource}`}</bdi></span>
                 </footer>
             </div>
         </main>

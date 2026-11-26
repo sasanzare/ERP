@@ -53,7 +53,11 @@ Reservations hold a positive original quantity against one organization/product/
 
 `stock_locks` is a serialization registry, not a balance cache. It has a unique organization/product/location key and is inserted before locking, so first writes also have a durable lock target. Because balances are derived, there is no cached total to reconcile; the live API and acceptance helpers independently sum the ledger/reservation rows.
 
-See [P06 workflow](../architecture/p06-stock-workflow.md), [P06 security](../security/p06-stock-isolation.md), [ADR-005](../decisions/adr-005-p06-stock-ledger-and-locks.md), [P04 master data](master-data.md), and [P05 sales documents](p05-sales-documents.md).
+## Historical cutoff reconstruction (P11)
+
+P11 reconstructs physical stock from movement legs whose persisted `created_at` is at or before the report cutoff. It includes reservations created by that same cutoff, subtracts linked `sales_order_deliveries.quantity_milli` only when each delivery's persisted `created_at` is at or before it, and subtracts the reservation's released counter only when `released_at` is at or before it. Current P06 standalone release and P07 cancel-remainder transitions release the full then-outstanding quantity at one recorded timestamp; individual P07 deliveries have their own trace rows/timestamps. This supports the accepted history through those transitions. If a future workflow introduces multiple partial release events on one reservation, it must persist a per-release event record before P11 can reconstruct intermediate cutoffs faithfully.
+
+See [P06 workflow](../architecture/p06-stock-workflow.md), [P06 security](../security/p06-stock-isolation.md), [P11 reporting](p11-reporting.md), [ADR-005](../decisions/adr-005-p06-stock-ledger-and-locks.md), [P04 master data](master-data.md), and [P05 sales documents](p05-sales-documents.md).
 
 ## Migration and validation state
 

@@ -188,3 +188,28 @@ At 1280×900, the register and source rail both rendered with linked source and 
 | Settlement workspace in bright forced fallback, mobile 390×844 | [P10 bright fallback](screenshots/p10-settlement-bright-fallback-review-mobile-2026-11-24T10-11-58-823Z.png) |
 
 The repeat harness is [scripts/Verify-P10Browser.mjs](../scripts/Verify-P10Browser.mjs). It preserves its synthetic P10 book and invoices in local `erp_dev`; its capture-only mode reuses the records without creating additional invoices.
+
+## P11 reconciled dashboard evidence
+
+The P11 screen keeps the accepted Lens Inspector workspace: the shared toolbar owns book/date/currency controls, the report surface is the single focal content area, and the existing sidebar/dock remain the command layer. The four sharp, solid-content tiles form a two-column desktop grid and a one-column mobile stack. Stock and approval tiles are explicitly labeled organization-wide; the financial tiles name the selected book. Each tile opens its own filtered, paginated source list. The panels reuse the existing tokens and shell glass; reduced-transparency, reduced-motion, increased-contrast, and forced-color fallbacks remain legible.
+
+The isolated Chrome harness used local synthetic data at organization `legacy-local` (ID 1), book `P10-SYNTH-BROWSER` (ID 2), report date `2026-11-26`, and `Asia/Tehran`. The dashboard API and rendered values matched independent source-row calculations: net sales `5,000,000` IRR, overdue receivables `600,000` IRR, available stock `131.500` EA over 15 positive product/location rows, and 1 pending purchase approval. Drill-down populations reconciled to 5 customer invoices, 1 overdue invoice, 15 stock rows, and 1 request. Toman mode displayed `500,000` and `60,000` exactly.
+
+The harness delayed local API fetches and observed the loading panel, sent an invalid Gregorian date and observed the error panel, then opened an as-of date with no matching invoices and observed the empty drill-down state. The guarded feature suite also verified 403/redirect behavior for an authenticated user with no active-organization membership.
+
+Boundary readbacks returned no overdue balance for an invoice due on `2026-11-24`, `1,000,000` IRR overdue on `2026-11-25` before the future-effective `2026-11-26` collection, and `600,000` IRR on `2026-11-26`. A second same-organization book returned `0` net sales. The run traversed the confirmed sale order, separately approved purchase request, closed purchase order/receipt, and customer/supplier settlement cards. Customer invoice `1,000,000` minus `400,000` collected left `600,000` IRR / `60,000` Toman; supplier invoice `500,000` minus `200,000` paid left `300,000` IRR. The local walkthrough command replay returned the same source IDs and did not add duplicate operations, receipts, invoices, settlements, or journals.
+
+At 1280×900 the four tiles fit in the workspace viewport. At 390×844 the mobile document/client widths were 375/375 CSS px; after scrolling to the content end, the report cleared the fixed dock by 82.08 px. Tab focus was visible. Bright forced fallback retained three shared glass surfaces and zero active SVG-refraction surfaces. The live route loaded both the Vite client and `dashboard.css`; Chrome reported zero runtime errors.
+
+The user's existing Chrome profile was signed out at the local ERP route. The acceptance harness used a separate temporary Chrome profile and the ignored local P03 editor fixture; no credential was entered into the user's open Chrome profile. The direct user-profile tab was closed after confirming its sign-in state.
+
+| View | Screenshot |
+|---|---|
+| Four dashboard metrics, 1280×900 | [P11 desktop dashboard](screenshots/p11-dashboard-desktop-2026-11-26T11-49-52-906Z.png) |
+| Filtered overdue-receivable source rows, 1280×900 | [P11 overdue drill-down](screenshots/p11-overdue-details-desktop-2026-11-26T11-49-52-906Z.png) |
+| Customer sale/order/issue/invoice/collection link, 1280×900 | [P11 customer journey](screenshots/p11-customer-journey-desktop-2026-11-26T11-49-52-906Z.png) |
+| Purchase approval/order/receipt/invoice/payment link, 1280×900 | [P11 supplier journey](screenshots/p11-supplier-journey-desktop-2026-11-26T11-49-52-906Z.png) |
+| Dashboard at the top of the mobile viewport, 390×844 | [P11 mobile dashboard](screenshots/p11-dashboard-mobile-2026-11-26T11-49-52-906Z.png) |
+| Dashboard at scroll end in bright forced fallback, 390×844 | [P11 bright fallback](screenshots/p11-dashboard-bright-fallback-mobile-2026-11-26T11-49-52-906Z.png) |
+
+**P11 status: ACCEPTED (2026-11-26) at the local dashboard and synthetic walkthrough boundary.** The focused guarded suite passed 5 tests / 122 assertions and the full suite passed 90 / 1,083. `npm run typecheck`, `npm run build`, changed-file Pint, Node syntax, and `git diff --check` passed. The repeat harness is [scripts/Verify-P11Browser.mjs](../scripts/Verify-P11Browser.mjs). It reads dashboard/source records and saves screenshots; the provisioning command separately creates the synthetic business journeys.

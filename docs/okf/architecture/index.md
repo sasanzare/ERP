@@ -1,6 +1,6 @@
 # Architecture
 
-This section tracks the implemented runtime architecture, the local database topology, and the current P03–P10 workspace and access boundaries.
+This section tracks the implemented runtime architecture, the local database topology, and the current P03–P11 workspace and access boundaries.
 
 - [Current architecture](current-architecture.md) — actual runtime and database topology.
 - [P02 reusable product workspace](ui-workspace.md) — routes, React components, API reuse, and P03 shell integration.
@@ -12,3 +12,4 @@ This section tracks the implemented runtime architecture, the local database top
 - [P08 purchasing](p08-purchasing.md) — independent approval, one supplier order per request, exact Rial snapshots, and partial inbound receipts through P06.
 - [P09 accounting](p09-accounting.md) — manual balanced journals, period controls, retries, and reversals.
 - [P10 settlement](p10-settlement.md) — customer/supplier invoices, open items, treasury allocations, linked P09 journals, and the current synthetic-only gate.
+- [P11 dashboard](p11-dashboard.md) — read-only reconciled metrics, active-book date/timezone handling, filtered source rows, and the repeatable local walkthrough.

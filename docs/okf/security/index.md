@@ -10,3 +10,4 @@ This section records application access boundaries and their enforcement points.
 - [P08 purchasing isolation](p08-purchasing.md) — separate-editor approval, supplier-role checks, organization-scoped receipt fields, and retry/lock enforcement.
 - [P09 accounting isolation](p09-accounting.md) — reader review, editor posting, scope checks, and transaction lock order.
 - [P10 settlement isolation](p10-settlement.md) — active-organization scoping, editor/CSRF writes, retry safety, P09 transaction boundary, and synthetic posting gate.
+- [P11 reporting isolation](p11-reporting.md) — authenticated read access, active-organization scope, book ownership checks, and the local-only seed boundary.

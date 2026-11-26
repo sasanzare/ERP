@@ -27,6 +27,6 @@ Each posted invoice creates one `p10_open_items` row containing direction, party
 
 ## P11 as-of reporting contract
 
-For a selected organization, book, direction, and Gregorian `as_of_date`, include posted invoices whose `effective_on <= as_of_date`. Subtract only allocations whose linked treasury movement has `effective_on <= as_of_date` and whose linked P09 journal is posted. Derive outstanding as the original amount less those dated allocations; use the stored `due_on` for aging. P10 currently rejects standalone reversal of linked journals and has no correction record, so a future P11 query must not infer voids that are not represented in P10 data.
+For a selected organization, book, direction, and Gregorian `as_of_date`, include posted invoices whose `effective_on <= as_of_date`. Subtract only allocations whose linked treasury movement has `effective_on <= as_of_date` and whose linked P09 journal is posted. Derive outstanding as the original amount less those dated allocations; use the stored `due_on` for aging. P10 currently rejects standalone reversal of linked journals and has no correction record, so P11 does not infer voids that are not represented in P10 data. See the implemented [P11 reporting contract](p11-reporting.md).
 
 See [P10 architecture](../architecture/p10-settlement.md), [P10 security](../security/p10-settlement.md), [P05 sales documents](p05-sales-documents.md), [P07 fulfillment](p07-sales-fulfillment.md), [P08 purchase data](p08-purchasing.md), and [P09 accounting data](p09-accounting.md).

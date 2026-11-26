@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\LeadActivityController;
 use App\Http\Controllers\Api\V1\AccountingController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\PartyController;
@@ -37,6 +38,9 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/price-lists/{priceList}/products/{productId}', [PriceListController::class, 'resolvePrice'])
             ->whereNumber('priceList')->whereNumber('productId');
         Route::get('/workspace', [WorkspaceController::class, 'show']);
+        Route::get('/dashboard/options', [DashboardController::class, 'options']);
+        Route::get('/dashboard', [DashboardController::class, 'summary']);
+        Route::get('/dashboard/metrics/{metric}', [DashboardController::class, 'records']);
         Route::get('/sales/options', [SalesWorkspaceController::class, 'options']);
         Route::get('/leads', [LeadController::class, 'index']);
         Route::get('/leads/{lead}', [LeadController::class, 'show'])->whereNumber('lead');

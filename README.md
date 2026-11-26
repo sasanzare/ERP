@@ -1,6 +1,6 @@
 # ERP
 
-Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, P06 added stock operations and reservations, P07 added sales-order fulfillment, P08 added purchasing/receipts, and P09 adds a manual balanced accounting engine. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
+Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, P06 added stock operations and reservations, P07 added sales-order fulfillment, P08 added purchasing/receipts, P09 adds a manual balanced accounting engine, P10 adds the approved local synthetic settlement path, and P11 adds a reconciled read-only dashboard and repeatable synthetic walkthrough. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
 
 ## Local requirements
 
@@ -277,6 +277,57 @@ node scripts/Verify-P10Browser.mjs
 
 The harness leaves synthetic P10 records in `erp_dev` and saves screenshots under `docs/screenshots/`. **P10 status: ACCEPTED for the local ERP MVP only (2026-11-24).** The focused guarded P10 suite passed 7 tests / 136 assertions, including both invoice/settlement journeys, exact journal accounts and balances, exact-key replay after period closure, and the closed-period correction boundary. The prior full guarded suite passed 85 tests / 945 assertions before this approval-test update; it was not rerun for this task. Migration `2026_11_24_000012_create_p10_settlement_tables` is applied to `erp_test` and `erp_dev`; previous P10 browser evidence is linked below. Live/production posting remains disabled and outside the approval. See [P10 UI evidence](docs/UI_DESIGN.md#p10-customer-and-supplier-settlement-evidence), [P10 architecture](docs/okf/architecture/p10-settlement.md), [P10 data](docs/okf/data/p10-settlement.md), [P10 security](docs/okf/security/p10-settlement.md), [ADR-008](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md), and [HANDOFF.md](HANDOFF.md).
 
+## P11 reconciled local dashboard
+
+P11 adds `/dashboard`, `GET /api/v1/dashboard/options`, `GET /api/v1/dashboard`, and paginated `GET /api/v1/dashboard/metrics/{metric}`. The dashboard derives organization scope from the authenticated active workspace. Financial tiles use the selected organization-owned book; available stock and pending purchase approvals are organization-wide. Each tile opens the exact filtered source rows, with a server-side page size of 25 and a reconciliation count/total for the full population.
+
+Select a Gregorian report date and display currency. The selected book's IANA timezone defines one inclusive end-of-day cutoff at `23:59:59` for timestamped operational events; the default local book uses `Asia/Tehran`. P10 invoices use their date-only `effective_on` and `due_on` fields. Net sales sums posted customer invoices in the selected book through the date and ignores receipts, supplier invoices, drafts, quotes/orders, and standalone P09 manual journals. Overdue receivables include only invoices due strictly before the date and subtract allocations effective through that date whose settlement journals are posted; future receipts do not change earlier balances. P10 has no correction/void record, so the dashboard does not infer one.
+
+Available stock reconstructs physical quantity from P06 movement timestamps and subtracts reservations outstanding at the cutoff using reservation creation, P07 delivery-event, and persisted release timestamps. P06 standalone releases and P07 cancel-remainder each release the full outstanding amount at one timestamp; this supports the current history contract. Stock totals group by base unit, and detail rows retain physical, reserved, and available quantities to three decimals. Pending approvals include requests submitted by the cutoff that had not yet been approved at that time, using `submitted_at` and `approved_at`.
+
+Money stays as exact whole-Rial strings in JSON. Toman display divides by ten without floating-point arithmetic and retains a fractional Toman when needed. The dashboard response and source drill-downs use the same filters; totals do not depend on the 200-row P10 settlement list limit.
+
+### Repeatable local walkthrough
+
+On the existing local setup, the following command reuses `legacy-local`, book `P10-SYNTH-BROWSER`, and the existing unapproved `synthetic_test` profile. It verifies the ADR-008 account mapping before writing, does not create a new accounting book/profile, and uses the accepted P05/P06/P07/P08/P10 workflows with stable fixture identities and idempotency keys. It is restricted to local debug `erp_dev`; test replay runs only inside guarded `erp_test`.
+
+```powershell
+& 'C:\php8.5\php.exe' artisan p11:provision-walkthrough
+```
+
+The repeatable journey covers:
+
+1. Customer party → lead → price-list quote → confirmed sales order → P06 opening baseline → P07 reservation and issue → 1,000,000-rial customer invoice → 400,000-rial collection → 600,000-rial / 60,000-toman residual.
+2. Purchase request → submission → approval by a different editor → 500,000-rial purchase order → P06/P08 warehouse receipt → supplier invoice → 200,000-rial payment → 300,000-rial residual.
+3. A separate submitted request left pending so the approval tile has a deterministic source row.
+
+The walkthrough uses a 10.000 EA baseline for its own synthetic product. After the one-unit issue and one-unit receipt, that product/location remains at 10.000 EA available. The command defaults the report date to the current date in the selected book timezone; customer invoice effective/due dates are four/two days before that date, and the supplier due date is thirty days after it. Re-running the command returns the existing source order, delivery, receipt, invoices, settlements, journals, and request rows.
+
+For a clean disposable schema, `tests/Feature/P11DashboardTest.php` uses guarded `erp_test`, creates an equivalent `synthetic_test` profile and P10-SYNTH book, then runs provisioning twice and compares the resulting records, journal links, balances, and movements. It never resets `erp_dev`.
+
+With MariaDB and Laravel/Vite running, verify and capture the live dashboard:
+
+```powershell
+node scripts/Verify-P11Browser.mjs
+```
+
+The harness uses a temporary Chrome profile and the ignored local P03 editor credential file without printing credentials. It checks all four tiles against the named local organization/book/date, source drill-down counts, the due-date and future-payment boundaries, a second same-organization book, exact Toman display, the sale/purchase source and settlement screens, mobile geometry, keyboard focus, bright forced fallback, live Vite `dashboard.css`, and JavaScript/network errors. It saves concise screenshots under `docs/screenshots/`. Do not run the harness if local P03 demo credentials are unavailable; do not copy them into source files or output.
+
+The current local readback on 2026-11-26 for organization `legacy-local` / book `P10-SYNTH-BROWSER` / `Asia/Tehran` was independently reconciled from source rows:
+
+| Metric | Expected | Observed |
+|---|---:|---:|
+| Net sales | 5,000,000 IRR | 5,000,000 IRR |
+| Overdue receivables | 600,000 IRR | 600,000 IRR |
+| Available stock | 131.500 EA across 15 positive product/location rows | 131.500 EA across 15 rows |
+| Pending purchase approvals | 1 request | 1 request |
+
+The dashboard drill-downs returned 5 sales invoices, 1 overdue customer invoice, 15 available product/location rows, and 1 pending request. Cutoff checks returned 0 overdue when the invoice was due on 2026-11-24, 1,000,000 IRR overdue on 2026-11-25 before the 2026-11-26 collection, and 600,000 IRR on 2026-11-26 after the collection. Toman display returned 500,000 for net sales and 60,000 for overdue receivables. The P11 fixture command ran twice in `erp_dev` with the same order, invoice, receipt, settlement, journal, and movement IDs. No P10 profile or manual journal was changed.
+
+See [P11 UI evidence](docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence), [P11 architecture](docs/okf/architecture/p11-dashboard.md), [P11 data contract](docs/okf/data/p11-reporting.md), [P11 security](docs/okf/security/p11-reporting.md), and [HANDOFF.md](HANDOFF.md) for current validation status.
+
+**P11 status: ACCEPTED (2026-11-26) at the local read-only reporting and synthetic walkthrough boundary.** The focused guarded suite passed 5 tests / 122 assertions and the full serial guarded suite passed 90 tests / 1,083 assertions. `npm run typecheck`, `npm run build`, changed-file Pint, Node syntax, and `git diff --check` passed. The Chrome harness matched all four independently reconciled totals, exercised date boundaries and source links, verified loading/error/empty states, mobile geometry, keyboard focus, bright fallback, and live Vite styling, and reported zero runtime errors. Live/production posting remains disabled.
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P10 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled, and P11 has not started. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P11 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
