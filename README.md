@@ -1,6 +1,6 @@
 # ERP
 
-Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, P06 added stock operations and reservations, P07 added sales-order fulfillment, P08 added purchasing/receipts, P09 adds a manual balanced accounting engine, P10 adds the approved local synthetic settlement path, and P11 adds a reconciled read-only dashboard and repeatable synthetic walkthrough. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
+Local-development ERP prototype. P01 established the product API, P02 added the Persian RTL workspace, P03 added session sign-in and organization-scoped access, P04 added shared master data, P05 added sales documents, P06 added stock operations and reservations, P07 added sales-order fulfillment, P08 added purchasing/receipts, P09 adds a manual balanced accounting engine, P10 adds the approved local synthetic settlement path, P11 adds a reconciled read-only dashboard and repeatable synthetic walkthrough, P12 adds organization-scoped project work, and P13 adds separately provisioned role administration and party CSV/XLSX exchange. The application reads synthetic data from MariaDB in Docker Compose. The application root is this directory.
 
 ## Local requirements
 
@@ -348,6 +348,37 @@ The harness reuses its synthetic P12 project/task, existing local P03 editor and
 
 P12's focused guarded suite passed 7 tests / 133 assertions; the full serial guarded suite passed 97 tests / 1,216 assertions. `npm run typecheck`, `npm run build`, changed-file Pint, PHP/Node syntax checks, route listing, and `git diff --check` passed. See [P12 UI evidence](docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence), [P12 architecture](docs/okf/architecture/p12-project-work.md), [P12 data model](docs/okf/data/p12-project-work.md), [P12 access model](docs/okf/security/p12-project-work.md), and [HANDOFF.md](HANDOFF.md).
 
+## P13 administration and party data exchange
+
+`/administration/memberships` lists members in the active organization for users with an explicitly provisioned role-manager grant. Role managers can change only `reader`/`editor` on an existing membership and read that membership's before/after audit history. This capability is separate from the editor's operational write access. A manager may change their own editor/reader role; the separate role-manager grant remains effective. Changes take effect on the subject's next protected request. The update carries the expected current role and returns 409 if another change won the race; an unchanged submission creates no audit event.
+
+Provision role-management authority only from local/testing CLI:
+
+```powershell
+& $env:ERP_PHP_BINARY artisan organization:grant-role-manager legacy-local editor@erp.local --actor=editor@erp.local
+& $env:ERP_PHP_BINARY artisan organization:revoke-role-manager legacy-local editor@erp.local
+```
+
+The revoke command refuses to remove an organization's last role manager. The role-management grant lives in `organization_role_managers`, not in the `reader`/`editor` membership role.
+
+The party register at `/parties` adds a CSV export button that uses the active organization, current search and customer/supplier filter, and stable display-name/ID ordering. It exports `party_id,party_code,display_name,roles`. The CSV is UTF-8 with a BOM and CRLF records. Fields are quoted with CSV escaping; formula-like text beginning with optional whitespace and `=`, `+`, `-`, or `@` gets a leading apostrophe so spreadsheet applications treat it as text. The CSV bytes preserve codes such as `00021`. When opening a CSV in Excel, use **Data → From Text/CSV** and set `party_code` to Text to keep leading zeros; do not rely on Excel's automatic type inference.
+
+Editors can open the party import panel from the same register and download its template. The exact header is `party_id,party_code,display_name,roles`; `party_id` is informational and ignored for create-only import. Roles are `customer`, `supplier`, or `customer|supplier`. CSV files use UTF-8, may include a BOM, and use comma delimiters with standard doubled-quote escaping. XLSX reads the first visible worksheet and rejects formula cells. Store XLSX codes as Text; a numeric code cell is invalid so leading zeros are never silently discarded. A file is limited to 5 MiB and 1,000 nonblank data rows.
+
+Preview classifies each row as valid, duplicate, or invalid in Persian and writes no party, role, import, or result row. Duplicate checks use the database's `parties.code` collation and the organization-scoped unique index. Apply only creates valid rows, never changes existing party data, and saves each party, its one/two roles, and the row outcome in a single row transaction. An `Idempotency-Key` is scoped to the organization and normalized payload hash. Replaying the same key/payload returns the stored outcomes and resumes pending rows; using the same key with changed normalized content returns 409. A code inserted after preview becomes a duplicate at apply, and the unique index is the final guard against concurrent inserts.
+
+`openspout/openspout` 5.15.4 is locked for XLSX parsing and is compatible with this machine's PHP 8.5.13 and its XMLReader/Zip extensions ([upstream](https://github.com/openspout/openspout/tree/v5.15.4)).
+
+Run the local P13 browser acceptance after the `db` and `npm run dev` services are available:
+
+```powershell
+node scripts/Verify-P13Browser.mjs
+```
+
+The harness provisions the existing P03 editor as a local role manager, creates a synthetic `.test` reader member, changes that membership in Chrome, previews equivalent CSV/XLSX inputs, applies and retries create-only data, downloads the filtered register, and saves screenshots under `docs/screenshots/`. It uses a task-prefixed OS-temporary Chrome profile and does not print credentials. The run leaves its synthetic member, role audit, party-import results, and parties in local `erp_dev`; retain them with the existing P01–P12 fixtures.
+
+P13 migration `2026_11_26_000014_create_p13_admin_exchange_tables` adds organization role-manager grants and party-import request/row results. It was applied to the existing `erp_dev` volume and exercised through guarded `erp_test`; preexisting organization, membership, role-audit, party, product, purchase-order, invoice, journal, and project counts matched before/after migration. The full serial guarded suite passed 110 tests / 1,344 assertions. TypeScript, production build, changed-file Pint, Composer validation, PHP/Node syntax, Chrome 1280×900/390×844 and bright forced fallback, live Vite CSS, visible keyboard focus, and `git diff --check` passed. **P13 status: ACCEPTED (2026-11-27) at the local administration/data-exchange boundary.** See [P13 UI evidence](docs/UI_DESIGN.md#p13-administration-and-data-exchange-evidence), [P13 architecture](docs/okf/architecture/p13-administration-and-data-exchange.md), [P13 data model](docs/okf/data/p13-administration-and-data-exchange.md), [P13 access model](docs/okf/security/p13-administration-and-data-exchange.md), [ADR-009](docs/okf/decisions/adr-009-p13-role-management.md), and [HANDOFF.md](HANDOFF.md).
+
 ## Scope and status
 
-This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P12 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).
+This repository is local-development-only. It contains synthetic data and no production, staging, deployment, cloud, or external-service configuration. P01–P13 are accepted at their local-development boundaries; P10's approval is limited to the exact local synthetic workflow in ADR-008. Live/production posting remains disabled. The reusable UI reference is [docs/UI_DESIGN.md](docs/UI_DESIGN.md), detailed phase state and evidence are in [HANDOFF.md](HANDOFF.md), and the user-provided phase roadmap remains at [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md).

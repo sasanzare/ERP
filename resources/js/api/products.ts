@@ -17,6 +17,7 @@ export interface WorkspaceContext {
         master_data: { manage: boolean };
         products: { update: boolean };
         sales: { manage: boolean };
+        membership_roles: { manage: boolean };
     };
 }
 
@@ -74,7 +75,8 @@ export async function fetchWorkspaceContext(signal?: AbortSignal): Promise<Works
         !Array.isArray(payload.organizations) ||
         typeof payload.capabilities?.products?.update !== 'boolean' ||
         typeof payload.capabilities?.master_data?.manage !== 'boolean' ||
-        typeof payload.capabilities?.sales?.manage !== 'boolean'
+        typeof payload.capabilities?.sales?.manage !== 'boolean' ||
+        typeof payload.capabilities?.membership_roles?.manage !== 'boolean'
     ) {
         throw new Error('Workspace context did not match the expected contract.');
     }

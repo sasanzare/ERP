@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\OrganizationRole;
 use App\Http\Controllers\Controller;
+use App\Models\OrganizationRoleManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,9 @@ class WorkspaceController extends Controller
                 ],
                 'sales' => [
                     'manage' => $role === OrganizationRole::Editor->value,
+                ],
+                'membership_roles' => [
+                    'manage' => $this->canManageMembershipRoles($request, $organization->getKey()),
                 ],
             ],
         ]);
@@ -74,7 +78,18 @@ class WorkspaceController extends Controller
                 'sales' => [
                     'manage' => $organization->pivot->role === OrganizationRole::Editor->value,
                 ],
+                'membership_roles' => [
+                    'manage' => $this->canManageMembershipRoles($request, $organization->getKey()),
+                ],
             ],
         ]);
+    }
+
+    private function canManageMembershipRoles(Request $request, int $organizationId): bool
+    {
+        return OrganizationRoleManager::query()
+            ->where('organization_id', $organizationId)
+            ->where('user_id', $request->user()->getKey())
+            ->exists();
     }
 }

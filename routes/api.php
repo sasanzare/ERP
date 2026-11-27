@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\V1\LeadActivityController;
 use App\Http\Controllers\Api\V1\AccountingController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\LeadActivityController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\LocationController;
+use App\Http\Controllers\Api\V1\MembershipAdministrationController;
 use App\Http\Controllers\Api\V1\PartyController;
+use App\Http\Controllers\Api\V1\PartyDataExchangeController;
 use App\Http\Controllers\Api\V1\PriceListController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProjectWorkController;
@@ -17,8 +19,8 @@ use App\Http\Controllers\Api\V1\SettlementController;
 use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\UnitController;
 use App\Http\Controllers\Api\V1\WarehouseController;
-use App\Http\Controllers\Api\V1\WorkspaceController;
 use App\Http\Controllers\Api\V1\WorkInboxController;
+use App\Http\Controllers\Api\V1\WorkspaceController;
 use App\Http\Middleware\RequireExplicitCsrfToken;
 use App\Http\Middleware\ResolveActiveOrganization;
 use Illuminate\Support\Facades\Route;
@@ -28,7 +30,12 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
         Route::get('/products', [ProductController::class, 'index']);
         Route::get('/products/{id}', [ProductController::class, 'show'])->whereNumber('id');
         Route::get('/parties', [PartyController::class, 'index']);
+        Route::get('/parties/export', [PartyDataExchangeController::class, 'export']);
+        Route::get('/parties/import/template', [PartyDataExchangeController::class, 'template']);
         Route::get('/parties/{id}', [PartyController::class, 'show'])->whereNumber('id');
+        Route::get('/organization/memberships', [MembershipAdministrationController::class, 'index']);
+        Route::get('/organization/memberships/{membershipId}/role-history', [MembershipAdministrationController::class, 'history'])
+            ->whereNumber('membershipId');
         Route::get('/units', [UnitController::class, 'index']);
         Route::get('/units/{id}', [UnitController::class, 'show'])->whereNumber('id');
         Route::get('/warehouses', [WarehouseController::class, 'index']);
@@ -78,6 +85,10 @@ Route::middleware('web')->prefix('v1')->group(function (): void {
             Route::patch('/products/{id}', [ProductController::class, 'update'])->whereNumber('id');
             Route::post('/parties', [PartyController::class, 'store']);
             Route::patch('/parties/{id}', [PartyController::class, 'update'])->whereNumber('id');
+            Route::post('/parties/import/preview', [PartyDataExchangeController::class, 'preview']);
+            Route::post('/parties/import/apply', [PartyDataExchangeController::class, 'apply']);
+            Route::patch('/organization/memberships/{membershipId}/role', [MembershipAdministrationController::class, 'updateRole'])
+                ->whereNumber('membershipId');
             Route::post('/units', [UnitController::class, 'store']);
             Route::patch('/units/{id}', [UnitController::class, 'update'])->whereNumber('id');
             Route::post('/warehouses', [WarehouseController::class, 'store']);

@@ -10,3 +10,4 @@ This directory records accepted architecture and scope decisions, plus active re
 - [P07 reserved sales-order issues](adr-006-p07-reserved-sales-order-issues.md) — atomic issue from reserved stock, partial delivery, idempotency, cancellation, and lock order.
 - [P08 approval, currency, and receipt locking](adr-007-p08-purchase-approval-and-pricing.md) — no self-approval, whole-rial snapshots, conversion identity, and coordinated stock locking.
 - [P09 accounting scope and posting decisions](adr-008-p09-accounting-scope-and-posting-decisions.md) — P09 manual journal boundary, approved local P10 paths and mappings, and remaining live/production gates.
+- [P13 separate membership role manager](adr-009-p13-role-management.md) — local access-administration grants remain separate from operational editor authority.

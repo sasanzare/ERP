@@ -40,6 +40,7 @@ Route::middleware(['auth', ResolveActiveOrganization::class])->group(function ()
     Route::view('/projects/{project}/tasks/{task}', 'products')
         ->whereNumber('project')->whereNumber('task')->name('projects.tasks.show');
     Route::view('/inbox', 'products')->name('work.inbox');
+    Route::view('/administration/memberships', 'products')->name('organization.memberships');
     Route::get('/{resource}/{record?}', function (string $resource, ?string $record = null) {
         abort_unless(in_array($resource, ['parties', 'units', 'warehouses', 'locations', 'price-lists', 'leads', 'follow-ups', 'quotes', 'orders', 'purchase-requests', 'purchase-orders'], true), 404);
         abort_if($record !== null && $record !== 'new' && ! ctype_digit($record), 404);

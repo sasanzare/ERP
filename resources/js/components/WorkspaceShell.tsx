@@ -65,9 +65,13 @@ const workLinks = [
     { id: 'projects', href: '/projects', label: 'پروژه‌ها' },
     { id: 'work-inbox', href: '/inbox', label: 'صندوق کار' },
 ];
+const administrationLinks = [
+    { id: 'membership-roles', href: '/administration/memberships', label: 'اعضای سازمان' },
+];
 
 const isDashboardResource = (resource: string) => dashboardLinks.some((item) => item.id === resource);
 const isWorkResource = (resource: string) => workLinks.some((item) => item.id === resource);
+const isAdministrationResource = (resource: string) => administrationLinks.some((item) => item.id === resource);
 const isMasterDataResource = (resource: string) => resourceLinks.some((item) => item.id === resource && item.id !== 'products');
 const isSalesResource = (resource: string) => salesLinks.some((item) => item.id === resource);
 const isStockResource = (resource: string) => stockLinks.some((item) => item.id === resource);
@@ -163,7 +167,7 @@ export function WorkspaceShell({
                         <span className={`connection-indicator connection-${connectionState}`} aria-hidden="true" />
                         <span>{connectionLabel}</span>
                         <bdi className="topbar-separator" dir="ltr">/</bdi>
-                        <span>{isDashboardResource(activeResource) ? 'گزارش مدیریتی' : isSettlementResource(activeResource) ? 'تسویه‌ها' : isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
+                        <span>{isDashboardResource(activeResource) ? 'گزارش مدیریتی' : isAdministrationResource(activeResource) ? 'مدیریت سازمان' : isSettlementResource(activeResource) ? 'تسویه‌ها' : isAccountingResource(activeResource) ? 'حسابداری' : isPurchasingResource(activeResource) ? 'خرید' : isStockResource(activeResource) ? 'انبار' : isSalesResource(activeResource) ? 'فروش' : 'اطلاعات پایه'}</span>
                     </div>
                 </LiquidGlass>
 
@@ -289,6 +293,14 @@ export function WorkspaceShell({
                                 ))}
                                 <div className="nav-group-label">پروژه و کار · P12</div>
                                 {workLinks.map((item) => (
+                                    <a key={item.id} className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`} href={shellHref(item.href)} aria-current={activeResource === item.id ? 'page' : undefined}>
+                                        <NavGlyph kind="list" />
+                                        <span className="nav-link-text">{item.label}</span>
+                                        <span className="nav-link-mark" aria-hidden="true" />
+                                    </a>
+                                ))}
+                                <div className="nav-group-label">مدیریت دسترسی · P13</div>
+                                {administrationLinks.map((item) => (
                                     <a key={item.id} className={`nav-link nav-link-resource ${activeResource === item.id ? 'is-current' : ''}`} href={shellHref(item.href)} aria-current={activeResource === item.id ? 'page' : undefined}>
                                         <NavGlyph kind="list" />
                                         <span className="nav-link-text">{item.label}</span>
@@ -467,6 +479,12 @@ export function WorkspaceShell({
                     )}
                     {isWorkResource(activeResource) && workLinks.map((item) => (
                         <a key={item.id} className={activeResource === item.id ? 'is-current' : ''} href={shellHref(item.href)} aria-current={activeResource === item.id ? 'page' : undefined}>
+                            <NavGlyph kind="list" />
+                            <span>{item.label}</span>
+                        </a>
+                    ))}
+                    {isAdministrationResource(activeResource) && administrationLinks.map((item) => (
+                        <a key={item.id} className="is-current" href={shellHref(item.href)} aria-current="page">
                             <NavGlyph kind="list" />
                             <span>{item.label}</span>
                         </a>

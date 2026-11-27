@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Organization;
 use App\Models\Party;
 use App\Models\PartyRole;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\Parties\PartyRegisterQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,22 +13,20 @@ use Illuminate\Validation\Rule;
 
 class PartyController extends MasterDataController
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, PartyRegisterQuery $register): JsonResponse
     {
         $organization = $this->activeOrganization($request);
-        $validated = $request->validate(['role' => ['sometimes', 'nullable', 'in:customer,supplier']]);
-        $query = Party::query()->where('organization_id', $organization->getKey());
-
-        if (($validated['role'] ?? null) !== null && $validated['role'] !== '') {
-            $query->whereHas('roles', fn (Builder $roles) => $roles
-                ->where('organization_id', $organization->getKey())
-                ->where('role', $validated['role']));
-        }
-
-        $this->applySearch($query, $request, $organization->getKey(), ['code', 'display_name']);
+        $validated = $request->validate([
+            'role' => ['sometimes', 'nullable', 'in:customer,supplier'],
+            'q' => ['sometimes', 'nullable', 'string', 'max:120'],
+        ]);
+        $query = $register->make($organization, (string) ($validated['q'] ?? ''), $validated['role'] ?? null)
+            ->with(['roles' => fn ($roles) => $roles->orderBy('role')])
+            ->orderBy('display_name')
+            ->orderBy('id');
 
         return response()->json([
-            'data' => $query->with('roles')->orderBy('display_name')->get()
+            'data' => $query->get()
                 ->map(fn (Party $party): array => $this->serialize($party))
                 ->values(),
         ]);

@@ -24,6 +24,7 @@ import { GlassButton } from '../components/GlassButton';
 import { GlassSearchField } from '../components/GlassSearchField';
 import { LabeledInput } from '../components/LabeledInput';
 import { WorkspaceShell } from '../components/WorkspaceShell';
+import { PartyImportPanel } from '../components/PartyImportPanel';
 
 type LoadState = 'loading' | 'success' | 'error' | 'denied';
 type RouteState = { resource: MasterDataResource; recordId: number | null; creating: boolean };
@@ -131,15 +132,18 @@ function EmptyState({ filtered, label }: { filtered: boolean; label: string }) {
 }
 
 function ResourceRegister({
-    resource, records, filter,
+    resource, records, filter, partyRole, onPartyRoleChange,
 }: {
-    resource: MasterDataResource; records: MasterDataRecord[]; filter: string;
+    resource: MasterDataResource; records: MasterDataRecord[]; filter: string; partyRole: 'all' | PartyRole;
+    onPartyRoleChange: (role: 'all' | PartyRole) => void;
 }) {
-    const [partyRole, setPartyRole] = useState<'all' | PartyRole>('all');
     const label = resourceNames[resource].plural;
     const matches = useMemo(() => records.filter((record) => {
         const needle = filter.trim().toLocaleLowerCase();
-        const textMatch = `${record.code} ${recordName(resource, record)} ${recordSummary(resource, record)}`.toLocaleLowerCase().includes(needle);
+        const searchable = resource === 'parties'
+            ? `${record.code} ${recordName(resource, record)}`
+            : `${record.code} ${recordName(resource, record)} ${recordSummary(resource, record)}`;
+        const textMatch = searchable.toLocaleLowerCase().includes(needle);
         const roleMatch = resource !== 'parties' || partyRole === 'all' || (record as PartyRecord).roles.includes(partyRole);
         return textMatch && roleMatch;
     }), [filter, partyRole, records, resource]);
@@ -158,7 +162,7 @@ function ResourceRegister({
                     {([
                         ['all', 'همه'], ['customer', 'مشتری'], ['supplier', 'تأمین‌کننده'],
                     ] as const).map(([id, text]) => (
-                        <button key={id} type="button" className={partyRole === id ? 'is-current' : ''} aria-pressed={partyRole === id} onClick={() => setPartyRole(id)}>{text}</button>
+                        <button key={id} type="button" className={partyRole === id ? 'is-current' : ''} aria-pressed={partyRole === id} onClick={() => onPartyRoleChange(id)}>{text}</button>
                     ))}
                 </div>
             )}
@@ -393,6 +397,8 @@ export function MasterDataScreen() {
     const [state, setState] = useState<LoadState>('loading');
     const [attempt, setAttempt] = useState(0);
     const [filter, setFilter] = useState('');
+    const [partyRole, setPartyRole] = useState<'all' | PartyRole>('all');
+    const [showPartyImport, setShowPartyImport] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState('');
     const [switching, setSwitching] = useState(false);
@@ -400,6 +406,22 @@ export function MasterDataScreen() {
     const config = resourceNames[route.resource];
     const canManage = context?.capabilities.master_data.manage ?? false;
     const title = route.recordId === null && !route.creating ? config.plural : route.creating ? `افزودن ${config.singular}` : `جزئیات ${config.singular}`;
+
+    function exportParties(): void {
+        const query = new URLSearchParams();
+        if (filter.trim()) query.set('q', filter.trim());
+        if (partyRole !== 'all') query.set('role', partyRole);
+        const suffix = query.size > 0 ? `?${query.toString()}` : '';
+        window.location.assign(`/api/v1/parties/export${suffix}`);
+    }
+
+    async function refreshPartyRegister(): Promise<void> {
+        try {
+            setRecords(await fetchMasterData<PartyRecord>('parties'));
+        } catch (error) {
+            setMessage(errorMessage(error));
+        }
+    }
 
     useEffect(() => {
         const controller = new AbortController();
@@ -500,6 +522,12 @@ export function MasterDataScreen() {
                 ) : <span className="toolbar-context-label">{config.singular} · اطلاعات پایه</span>}
             </div>
             <div className="toolbar-actions">
+                {route.resource === 'parties' && route.recordId === null && !route.creating && (
+                    <button className="p13-toolbar-button" data-testid="p13-party-export" type="button" onClick={exportParties}>خروجی CSV</button>
+                )}
+                {route.resource === 'parties' && route.recordId === null && !route.creating && canManage && (
+                    <button className="p13-toolbar-button" data-testid="p13-party-import-open" type="button" onClick={() => setShowPartyImport(true)}>ورود CSV / XLSX</button>
+                )}
                 {canManage && route.recordId === null && !route.creating && <a className="master-toolbar-create" href={href(`/${route.resource}/new`)}>مورد جدید</a>}
                 <GlassButton variant="tinted" onClick={() => setAttempt((current) => current + 1)} disabled={state === 'loading'} forceFallback={forceFallback}>
                     {state === 'loading' ? 'در حال دریافت' : 'به‌روزرسانی'}
@@ -545,7 +573,21 @@ export function MasterDataScreen() {
                 <section className="focus-content" data-lg-role="focus"><div className="state-panel denied-card" role="alert"><h2>دسترسی مجاز نیست</h2><p>عضویت شما در سازمان فعال باید دوباره بررسی شود.</p></div></section>
             ) : route.recordId === null && !route.creating ? (
                 <>
-                    <ResourceRegister resource={route.resource} records={records} filter={filter} />
+                    {route.resource === 'parties' && (
+                        <PartyImportPanel
+                            open={showPartyImport}
+                            onClose={() => setShowPartyImport(false)}
+                            onApplied={refreshPartyRegister}
+                            forceFallback={forceFallback}
+                        />
+                    )}
+                    <ResourceRegister
+                        resource={route.resource}
+                        records={records}
+                        filter={filter}
+                        partyRole={partyRole}
+                        onPartyRoleChange={setPartyRole}
+                    />
                     {route.resource === 'locations' && <LocationSelectionCheck warehouses={warehouses} />}
                 </>
             ) : missingRecord ? (

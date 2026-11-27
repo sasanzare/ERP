@@ -12,3 +12,4 @@ This section records application access boundaries and their enforcement points.
 - [P10 settlement isolation](p10-settlement.md) — active-organization scoping, editor/CSRF writes, retry safety, P09 transaction boundary, and synthetic posting gate.
 - [P11 reporting isolation](p11-reporting.md) — authenticated read access, active-organization scope, book ownership checks, and the local-only seed boundary.
 - [P12 project work](p12-project-work.md) — member/editor permissions, nested parent scope, assignee membership, inbox privacy, and unique cost links.
+- [P13 membership and party exchange](p13-administration-and-data-exchange.md) — separate role-manager permission, target-first 404 scoping, import revalidation, and active-organization export.

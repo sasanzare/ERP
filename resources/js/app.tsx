@@ -1,5 +1,5 @@
 import { StrictMode, Suspense, lazy } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import { ProductsScreen } from './screens/ProductsScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { AccessDeniedScreen } from './screens/AccessDeniedScreen';
@@ -16,9 +16,17 @@ import '../css/accounting.css';
 import '../css/settlements.css';
 import '../css/dashboard.css';
 import '../css/project-work.css';
+import '../css/p13.css';
 
 const root = document.getElementById('app');
 const ProjectWorkScreen = lazy(() => import('./screens/ProjectWorkScreen').then((module) => ({ default: module.ProjectWorkScreen })));
+const MembershipAdministrationScreen = lazy(() => import('./screens/MembershipAdministrationScreen').then((module) => ({ default: module.MembershipAdministrationScreen })));
+
+declare global {
+    interface Window {
+        __erpReactRoot?: Root;
+    }
+}
 
 if (!root) {
     throw new Error('The application mount point is missing.');
@@ -34,9 +42,13 @@ const isAccountingRoute = /^\/accounting(?:\/journals(?:\/(?:new|\d+))?)?\/?$/.t
 const isSettlementRoute = /^\/settlements\/?$/.test(window.location.pathname);
 const isDashboardRoute = /^\/dashboard\/?$/.test(window.location.pathname);
 const isProjectWorkRoute = /^\/(?:projects(?:\/\d+(?:\/tasks\/\d+)?)?|inbox)\/?$/.test(window.location.pathname);
+const isMembershipAdministrationRoute = /^\/administration\/memberships\/?$/.test(window.location.pathname);
 
-createRoot(root).render(
+const appRoot = window.__erpReactRoot ?? createRoot(root);
+window.__erpReactRoot = appRoot;
+
+appRoot.render(
     <StrictMode>
-        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isProjectWorkRoute ? <Suspense fallback={<main className="work-loading" data-lg-role="stage"><p>در حال آماده‌سازی فضای پروژه و کار…</p></main>}><ProjectWorkScreen /></Suspense> : isDashboardRoute ? <DashboardScreen /> : isStockRoute ? <StockScreen /> : isSettlementRoute ? <SettlementScreen /> : isAccountingRoute ? <AccountingScreen /> : isPurchasingRoute ? <PurchasingScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
+        {root.dataset.page === 'sign-in' ? <SignInScreen /> : root.dataset.page === 'denied' ? <AccessDeniedScreen /> : isProjectWorkRoute ? <Suspense fallback={<main className="work-loading" data-lg-role="stage"><p>در حال آماده‌سازی فضای پروژه و کار…</p></main>}><ProjectWorkScreen /></Suspense> : isMembershipAdministrationRoute ? <Suspense fallback={<main className="work-loading" data-lg-role="stage"><p>در حال آماده‌سازی مدیریت سازمان…</p></main>}><MembershipAdministrationScreen /></Suspense> : isDashboardRoute ? <DashboardScreen /> : isStockRoute ? <StockScreen /> : isSettlementRoute ? <SettlementScreen /> : isAccountingRoute ? <AccountingScreen /> : isPurchasingRoute ? <PurchasingScreen /> : isSalesRoute ? <SalesScreen /> : isMasterDataRoute ? <MasterDataScreen /> : <ProductsScreen />}
     </StrictMode>,
 );

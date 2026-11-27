@@ -2,33 +2,38 @@
 
 ## Last Updated
 
-2026-11-26
+2026-11-27
 
 ## Project Summary
 
-Local-development-only ERP prototype using synthetic MariaDB data. P01–P12 are accepted at their local-development boundaries; P10 approval applies only to the local synthetic ERP MVP mapping in ADR-008. P12 adds organization-scoped projects, assigned tasks, comments, local inbox reminders, and committed purchase-line costs. Live/production posting remains disabled. Production deployment, cloud, and external integrations remain out of scope.
+Local-development-only ERP prototype using synthetic MariaDB data. P01–P13 are accepted at their local-development boundaries; P10 approval applies only to the local synthetic ERP MVP mapping in ADR-008. P12 adds organization-scoped project work and P13 adds separately provisioned membership-role administration/audit plus create-only party CSV/XLSX exchange and filtered CSV export. Live/production posting remains disabled. Production deployment, cloud, and external integrations remain out of scope.
 
 ## Current Objective
 
-P12 is accepted at its local-development boundary. Preserve P01–P12 behavior, the P10 `synthetic_test` profile, existing development records, and the MariaDB volume. Do not stage, commit, push, or change branches. Sync the local Notion queue only after an explicit request.
+P13 is accepted at its local-development boundary. Preserve existing development records, P13 synthetic acceptance records, and the MariaDB volume; keep P10 live/production posting disabled. Do not stage, commit, push, or change branches. Sync Notion only after an explicit request; the current sandbox cannot write the shared queue path.
 
 ## Current Phase or Milestone
 
-P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the local ERP MVP only (user approval dated 2026-11-24); live/production posting remains disabled. P11 is ACCEPTED (2026-11-26); its prior full guarded suite passed 90 tests / 1,083 assertions and focused suite passed 5 / 122. P12 is ACCEPTED (2026-11-26) at the local project-work boundary. At P12 start, Git is clean on `main` at `b18e24054962e1bf6648b2b31755d0ea8e709c86`, matching `origin/main`; the preceding handoff's repository state was stale and has been reconciled. Read-only Laravel Boost checks reached `erp_dev` (MariaDB 11.8.9) and found migrations through `2026_11_24_000012_create_p10_settlement_tables`, 2 organizations, 4 memberships, 9 purchase orders/lines, 8 invoices, and 30 journals. Organization 1 is `legacy-local`; its existing P11 purchase order `PO-000009`, line 9, is closed and has a 500,000 IRR line snapshot. `.env` targets `127.0.0.1:3307`; MariaDB's reported internal server port is 3306. The normal shell cannot access Docker Desktop's named pipe or the host DB socket, so no service was started. The existing XAMPP MariaDB on host port 3306 must not be used or changed.
+P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the local ERP MVP only (user approval dated 2026-11-24); live/production posting remains disabled. P11 and P12 remain ACCEPTED at their local boundaries. P13 is ACCEPTED (2026-11-27). It started from clean `main` at `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6` (`feat(p12): add projects and assigned work`), matching `origin/main`. Migration 000014 is applied in batch 11 to `erp_dev`; pre-migration counts for organizations, memberships, audits, parties/roles, products, P08 orders, P10 invoices, P09 journals, and P12 projects matched after the additive migration. The final local acceptance records include one role-manager grant, three P13 member role changes with one user audit each, seven completed import requests, and 29 P13-coded party records. Preserve them. Do not use or change XAMPP MariaDB on port 3306.
 
 ## Repository State
 
 - Repository path: `D:\All projects\ERP`
 - Current branch: `main`
-- Base or starting commit: `b18e24054962e1bf6648b2b31755d0ea8e709c86`
-- Current HEAD: `b18e24054962e1bf6648b2b31755d0ea8e709c86` (`feat(p11): add reconciled local ERP dashboard`)
-- Working tree status at P12 completion: P12 changes remain unstaged; `main` remains at the starting HEAD and matches `origin/main` (0 ahead/behind). `git -c core.fsmonitor=false status --short --branch` was used for the final readback.
+- Base or starting commit: `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6`
+- Current HEAD: `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6` (`feat(p12): add projects and assigned work`)
+- Working tree status: 24 tracked paths modified and 69 untracked P13/source/evidence paths; all remain unstaged on `main`, which still matches `origin/main`. Read with `git -c core.fsmonitor=false status --short --branch`.
 - Staged changes: none.
-- Unstaged tracked files: `AGENTS.md`, `HANDOFF.md`, `README.md`, `app/Models/Organization.php`, `app/Models/User.php`, `app/Policies/OrganizationPolicy.php`, `docs/UI_DESIGN.md`, `docs/okf/architecture/current-architecture.md`, `docs/okf/architecture/index.md`, `docs/okf/data/index.md`, `docs/okf/index.md`, `docs/okf/log.md`, `docs/okf/project-overview.md`, `docs/okf/security/index.md`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/js/screens/PurchasingScreen.tsx`, `routes/api.php`, and `routes/web.php`.
-- Untracked files: P12 enum, models, API controllers, services, migration, test, browser harness, frontend API/screen/CSS, three OKF concepts, and 16 P12 screenshots under `docs/screenshots/`. The six final screenshots from `2026-11-26T18-19-15-239Z` are linked from `docs/UI_DESIGN.md`; earlier harness retries left unlinked captures. `public/build/` remains ignored build output.
-- Untracked paths: `app/Enums/WorkTaskStatus.php`; `app/Http/Controllers/Api/V1/ProjectWorkController.php`, `WorkInboxController.php`; `app/Models/ProjectPurchaseCost.php`, `WorkComment.php`, `WorkProject.php`, `WorkTask.php`, `WorkTaskReminder.php`; `app/Services/ProjectWork/ProjectWorkService.php`, `DueReminderService.php`; `database/migrations/2026_11_26_000013_create_project_work_tables.php`; `docs/okf/architecture/p12-project-work.md`, `docs/okf/data/p12-project-work.md`, `docs/okf/security/p12-project-work.md`; screenshots `p12-assigned-inbox-mobile-2026-11-26T18-13-31-274Z.png`, `p12-assigned-inbox-mobile-2026-11-26T18-17-31-204Z.png`, `p12-assigned-inbox-mobile-2026-11-26T18-19-15-239Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-13-31-274Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-17-31-204Z.png`, `p12-assigned-task-detail-mobile-2026-11-26T18-19-15-239Z.png`, `p12-bright-fallback-mobile-2026-11-26T18-17-31-204Z.png`, `p12-bright-fallback-mobile-2026-11-26T18-19-15-239Z.png`, `p12-completed-project-desktop-2026-11-26T18-17-31-204Z.png`, `p12-completed-project-desktop-2026-11-26T18-19-15-239Z.png`, `p12-project-desktop-2026-11-26T18-13-31-274Z.png`, `p12-project-desktop-2026-11-26T18-17-31-204Z.png`, `p12-project-desktop-2026-11-26T18-19-15-239Z.png`, `p12-purchase-line-source-desktop-2026-11-26T18-13-31-274Z.png`, `p12-purchase-line-source-desktop-2026-11-26T18-17-31-204Z.png`, and `p12-purchase-line-source-desktop-2026-11-26T18-19-15-239Z.png`; `resources/css/project-work.css`, `resources/js/api/project-work.ts`, `resources/js/screens/ProjectWorkScreen.tsx`, `scripts/Verify-P12Browser.mjs`, and `tests/Feature/P12ProjectWorkTest.php`.
+- Unstaged tracked files: `AGENTS.md`, `HANDOFF.md`, `README.md`, `app/Http/Controllers/Api/V1/PartyController.php`, `WorkspaceController.php`, `app/Policies/OrganizationPolicy.php`, `app/Services/MembershipRoleService.php`, `composer.json`, `composer.lock`, `docs/UI_DESIGN.md`, the P13-touched OKF architecture/data/decisions/security indexes and concepts, `resources/js/api/products.ts`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/js/screens/MasterDataScreen.tsx`, and `routes/api.php` / `routes/web.php`.
+- Untracked P13 files: role-manager commands/models/services, membership and party exchange controllers/parsers, migration `000014`, P13 React screen/API/component/CSS, browser fixture/harness, `tests/Feature/P13AdministrationTest.php`, new OKF concepts/ADR, and generated P13 screenshots (including earlier acceptance retries, all retained). No files are staged.
 
 ## Completed Work
+
+- Added separate organization role-manager grants, guarded local grant/revoke commands, manager-only membership and history APIs, expected-role conflict checks, atomic role audits, and workspace capability refresh.
+- Added one CSV/XLSX party parser with shared normalized rows, database-collation duplicate detection, formula-cell rejection, create-only application, per-row durable outcomes/retry, filtered CSV export, and formula-safe output.
+- Added the Persian P13 membership/audit screen and filtered party import/export controls. The role-admin screen is lazy-loaded to keep the initial entry bundle under the existing 500 kB build warning threshold.
+- The full guarded suite passed 110 tests / 1,344 assertions on `erp_test`. `npm run typecheck` passed. After lazy-loading P13 administration, `npm run build` passed with a 497.55 kB entry chunk and 9.34 kB P13 chunk without a size warning. Composer validation, changed-file Pint, PHP/Node syntax, route registration, and `git diff --check` passed.
+- The official OpenSpout 5.15.4 dependency is locked and installed; its Composer metadata supports the project's PHP 8.5 CLI and the required XMLReader/Zip extensions were present.
 
 - Added organization-scoped Reserve, Deliver, and Cancel Remainder actions. Product and unit are derived from the locked order line; incompatible current base units fail validation.
 - Preserved the original reservation quantity and tracked consumed/released thousandths separately. P06 balances count outstanding amounts only.
@@ -66,16 +71,17 @@ P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the 
 
 ## Work in Progress
 
-P12 implementation, docs, and acceptance are complete. Focused P12 tests passed 7 tests / 133 assertions; the full serial guarded suite passed 97 / 1,216. `npm run typecheck`, `npm run build`, changed-file Pint, PHP syntax checks, route listing, Node syntax, and `git diff --check` passed. The P12 screen is lazy-loaded; the production build emitted a 487.20 kB entry chunk and 26.97 kB P12 chunk with no size warning. Migration 000013 is applied to `erp_test` and `erp_dev`. Read-only post-migration counts matched baseline: 2 organizations, 4 memberships, 9 P08 orders/lines, 8 P10 invoices, and 30 P09 journals. The P11 purchase line `PO-000009` / line 9 remains 500,000 IRR. Chrome P12 acceptance passed at 1280×900 and 390×844, including live Vite, visible focus, mobile dock, bright fallback, source-line link, one reminder, and zero runtime errors. The dev servers were stopped after the run; pre-existing Docker MariaDB remains healthy.
+P13 implementation, documentation, migration, browser acceptance, screenshots, and validation are complete. The full guarded suite passed 110 tests / 1,344 assertions. Chrome acceptance passed at 1280×900 and 390×844 plus bright forced fallback; the role change produced one audit event, no-op replay added none, CSV/XLSX preview rows matched, the retryable import created two accepted parties, and the downloaded filtered export IDs matched the register. Vite/P13 CSS loaded, keyboard focus was visible, mobile dock clearance was positive, and runtime errors were zero. Final OKF link/frontmatter validation and Git readbacks passed. The Notion queue and mistakes log are outside the writable workspace root and were not modified.
 
 ## Remaining Work
 
-No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` is `PENDING` in the local queue and awaits an explicit sync request. P01–P12 remain local-development-only; do not use XAMPP or enable live/production posting.
+P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md` exists outside the writable workspace root, so no local event could be appended. The fingerprint-matching mistakes log was reviewed; its React `currentTarget` lesson recurred, but the path is outside the writable root. The project AGENTS file now carries the correction. Do not call Notion APIs or use another path. P01–P13 remain local-development-only; do not use XAMPP or enable live/production posting.
 
 ## Exact Next Steps
 
-1. Review the unstaged P12 diff and saved Chrome evidence.
-2. Leave staging, commit, push, and branch changes to the user; sync the local Notion queue only after an explicit request.
+1. For future P13 changes, run one guarded Laravel test process at a time and refresh only `erp_test` in tests.
+2. Preserve the P13 role-manager grant, synthetic membership/audit rows, completed imports, imported parties, and screenshots in `erp_dev`.
+3. Leave Git staging, commits, pushes, and branch changes to the user. Sync the shared Notion queue only after an explicit request and when its exact path is writable.
 
 ## Files Created
 
@@ -105,6 +111,10 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 - P12 UI: `resources/js/api/project-work.ts`, `resources/js/screens/ProjectWorkScreen.tsx`, and `resources/css/project-work.css`.
 - P12 OKF: `architecture/p12-project-work.md`, `data/p12-project-work.md`, and `security/p12-project-work.md`.
 - P12 Chrome evidence: six final screenshots linked from `docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence`.
+- P13: `app/Models/OrganizationRoleManager.php`, `PartyImport.php`, `PartyImportRow.php`; migration `2026_11_26_000014_create_p13_admin_exchange_tables.php`; role-manager grant/revoke and synthetic browser-member commands; `MembershipAdministrationController.php`, `PartyDataExchangeController.php`; `OrganizationRoleManagerService.php`; `PartyImportParser.php`, `PartyImportService.php`, `PartyRegisterQuery.php`; `tests/Feature/P13AdministrationTest.php`.
+- P13 UI and browser tooling: `resources/js/api/partyExchange.ts`, `MembershipAdministrationScreen.tsx`, `PartyImportPanel.tsx`, `resources/css/p13.css`, `scripts/Create-P13ImportFixture.php`, and `scripts/Verify-P13Browser.mjs`.
+- P13 OKF: architecture, data, and security concepts; ADR-009; updated root, architecture, data, decisions, and security indexes, project overview/current architecture, and maintenance log.
+- P13 Chrome evidence: seven final screenshots linked from `docs/UI_DESIGN.md#p13-administration-and-data-exchange-evidence`; earlier retries also left additional captures under `docs/screenshots/` and were preserved.
 
 ## Files Modified
 
@@ -121,6 +131,7 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 - P12: updated `AGENTS.md`, `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, OKF root/project/architecture/data/security indexes and log, current architecture, `app/Models/Organization.php`, `app/Models/User.php`, `app/Policies/OrganizationPolicy.php`, routes, `resources/js/app.tsx`, `WorkspaceShell.tsx`, and `PurchasingScreen.tsx`.
 - P09 OKF: root/architecture/data/security/decision indexes, P09 architecture/data/security concepts, ADR-008, and `docs/okf/log.md`.
 - OKF root/indexes, P05/P06 architecture/data/security/ADR documents, P08 concepts/ADR-007, project overview, and maintenance log.
+- P13: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, API/web routes, workspace/policy/role-service code, `PartyController.php`, Composer manifests, and related OKF indexes/concepts were updated with the local permission and exchange boundaries.
 
 ## Important Architecture and Design Decisions
 
@@ -138,8 +149,23 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 - P12 `viewWork` grants organization members read access and `manageWork` limits writes to editors. Assignees need an active-organization membership; reader assignment does not grant write access. All task, comment, inbox, and cost lookups remain parent/organization-scoped.
 - P12 due dates are date-only in `config('app.timezone')` (currently UTC): reminders become eligible at the start of `due_on`; overdue begins at the start of the next day. Inbox entry posts the local reminder processor. Its persistent identity and unique key include task, assignment version, recipient, and due-date snapshot; completion hides the task, while reassignment invalidates the prior recipient's active reminder.
 - P12 project costs link one eligible P08 purchase-order line to at most one project. P12 stores the exact `line_total_rial` and source-label snapshots; retries for the same project return that link, and a different project receives 409. P12 does not mutate P08 receipt/source lines, P06 stock, or P09/P10 postings.
+- P13 membership-role authority is an explicit organization/user grant in `organization_role_managers`, independent from `reader`/`editor`. Managers may manage membership roles and read scoped history; ordinary editors keep only operational write authority. Only local/testing CLI commands grant or revoke the capability, and revocation refuses the last manager. A manager may change their own reader/editor role; the manager grant persists independently and workspace capabilities are re-read on the next request.
+- P13 browser role writes resolve the target membership inside the active organization before validating role inputs, then lock the organization and membership, recheck the role-manager grant and expected current role, and write the change plus user audit row in one transaction. A stale expected role returns 409; an unchanged role is a no-op.
+- P13 party exchange uses the same active-organization party register query for search/role filtering. The import template is `party_id,party_code,display_name,roles`; `party_id` is informational on import and exported as a source ID. `roles` accepts `customer`, `supplier`, or `customer|supplier`. CSV/XLSX normalize into one payload; only the first valid row per collated code is eligible. Existing codes are create-only duplicates and retain their data.
+- P13 import preview is read-only. Apply binds organization + UUID key + normalized payload hash, rejects a changed payload for that key, and commits each party, its roles, and its row outcome atomically. Pending rows remain resumable after interruption. The existing organization-scoped `parties(organization_id, code)` unique index is the final concurrent-write guard.
+- P13 XLSX reads only the first visible worksheet and rejects formula cells. CSV is UTF-8 with optional BOM and comma delimiters; the file limit is 5 MiB / 1000 data rows. XLSX codes must be stored as text. CSV exports preserve UTF-8 and code text, apply the same search/role filters, order by name then ID, and prefix formula-like cells with an apostrophe.
 
 ## Commands Executed
+
+### P13 task
+
+- The starting repository was clean `main` at `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6`, matching `origin/main`; the current branch and HEAD remain unchanged. P13 work is unstaged and no files are staged.
+- Laravel Boost read-only queries confirmed the `erp_dev` baseline on MariaDB 11.8.9: organizations/memberships/role audits 2/4/3, parties/roles 2/4, products 17, P08 orders 9, P10 invoices 8, P09 journals 30, and P12 projects 1. Migration `000014` was later applied additively to `erp_dev`; these preexisting counts matched immediately after migration.
+- Docker Desktop's named pipe was unavailable to the normal shell. The existing local application was observed in Chrome; the isolated task-prefixed acceptance harness used OS temp for its profile. No Docker volume reset or XAMPP database change occurred.
+- PHP 8.5.13 had the required XMLReader/Zip extensions. OpenSpout 5.15.4 was installed and locked; `composer validate --no-check-publish` passed.
+- Party and membership role routes were listed. PHP syntax and `node --check scripts/Verify-P13Browser.mjs` passed.
+- The full guarded serial Laravel suite passed 110 tests / 1,344 assertions on `erp_test`. `npm run typecheck`, `npm run build` (497.55 kB entry, 9.34 kB lazy P13 chunk), changed-file `vendor/bin/pint --test`, Composer validation, PHP/Node syntax, route registration, OKF validation, and `git diff --check` passed.
+- Migration `2026_11_26_000014_create_p13_admin_exchange_tables` is applied in batch 11 on `erp_dev` and ran under guarded `erp_test`. Browser acceptance created retained synthetic local data; see Database or Migration State.
 
 ### P10 task
 
@@ -213,6 +239,14 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 
 ## Validation and Test Results
 
+### P13 task
+
+- Full guarded serial Laravel suite: 110 tests / 1,344 assertions passed on `erp_test`, including role self-change/next-request capability, reader/editor denials, 404 scoping, last-manager protection, optional CSV BOM, CSV/XLSX parity, formula/numeric-code rejection, preview zero-write, create-only retry, interrupted apply, concurrent unique constraint, filtered export, leading zeros, and formula escaping.
+- `npm run typecheck` passed. Final `npm run build` passed with a 497.55 kB entry and 9.34 kB lazy P13 administration chunk without a size warning.
+- Changed-file `vendor/bin/pint --test` passed; Composer validation, route registration, PHP/Node syntax checks, OKF 0.2 validation (50 Markdown files, 44 typed concepts, 311 internal Markdown links), and final `git diff --check` passed. A whole-project Pint run also reports existing formatting issues in unchanged `app/Support/DatabaseTestSafetyGuard.php`.
+- Isolated Chrome at 1280×900/390×844 and bright forced fallback passed. The P13 CSS and live Vite client loaded, document widths had no horizontal overflow, mobile content cleared the dock by about 82 px at scroll end, focus was visible, active refraction was zero in fallback, and runtime errors were 0. Seven final screenshots are linked in `docs/UI_DESIGN.md`.
+- Migration 000014 is applied in `erp_test` through guarded refresh and in `erp_dev` as batch 11. Read-only before/after migration counts matched; browser acceptance later added only synthetic P13 data.
+
 ### P11 task
 
 - Focused `php artisan test --filter=P11DashboardTest`: 5 tests / 122 assertions passed. Full serial `php artisan test`: 90 tests / 1,083 assertions passed against guarded `erp_test`.
@@ -268,6 +302,11 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 
 ## Known Issues and Blockers
 
+- P13 is accepted at its local boundary. Live/production role administration and posting remain out of scope.
+- The normal sandbox cannot connect to the local MariaDB socket or Docker Desktop API. Laravel Boost was used for read-only checks; the guarded tests and additive local migration used the reviewed elevated command path.
+- `D:\All projects\notion\notion.md` exists outside the writable workspace root. The P13 local queue event cannot be appended from this sandbox; do not call Notion APIs or use another path.
+- The project mistakes log was fingerprint-verified and reviewed, but could not be edited outside the writable root. The recurring React event-capture rule was added to `AGENTS.md`.
+
 - The six P10 workflow rules and exact organization 1 / book 2 / account mapping are approved for the local ERP MVP only and recorded in ADR-008. Production/live mappings, tax and costing treatment, treasury policy, and a coordinated correction workflow remain outside scope; do not activate a live profile from this local approval.
 - P10 local acceptance passed, with no remaining local engineering blocker. The boundary is explicit: new postings into a closed period are rejected, exact retries return existing records, and P10 journals cannot be independently reversed. P11 is ACCEPTED at its local read-only dashboard/walkthrough boundary; live/source posting remains disabled.
 - P12 is ACCEPTED at its local project-work boundary. No P12 engineering or acceptance blocker remains. Live/production posting and deployment remain outside scope.
@@ -283,11 +322,17 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 
 ## Risks and Assumptions
 
+- P13 remains local-only. Role-manager CLI commands are restricted to local/testing; no live role administration or external deployment is authorized.
+- P13 migration 000014 is additive; it is applied to both `erp_test` and `erp_dev`. The P13 browser harness created retained synthetic member audits, role-manager grant, seven completed import requests with row results, and P13 parties in `legacy-local`; preserve them with the P01–P12 fixtures.
+- The P13 import template is the only accepted header set. Codes that can lose leading zeros in XLSX must be stored as text; CSV remains UTF-8 text and spreadsheet-like formula prefixes are apostrophe-escaped on export.
+
 - Existing P07 fixtures remain in `erp_dev`. P08 acceptance added synthetic records that were preserved: 8 purchase requests, 8 orders, 12 receipts, and four products in the default organization. Product 16 has a main-order receipt increase of 5.000 and a separate 1.000 last-unit contention receipt at the same location; its current physical/reserved/available balance is 16.000/4.000/12.000.
 - Results establish local development behavior only.
 - P09 browser acceptance preserved its synthetic fixtures in `erp_dev`: book 1 (`P09-BR-MWRJ62AX`), five accounts, four periods, twelve journals, twenty-four lines, and ten idempotency request keys. Journals 6–9 and 11 are one-rial contention fixtures from repeated harness runs; journals 10 and 12 are drafts left by close/post races. Period 2 was closed in the UI after the final posting checks. Do not delete them as cleanup.
 
 ## Database or Migration State
+
+- P13 migration `2026_11_26_000014_create_p13_admin_exchange_tables` ran through guarded `RefreshDatabase` in `erp_test` and is batch 11 in `erp_dev`. Before migration, read-only `erp_dev` counts were organizations/memberships/role audits 2/4/3, parties/roles 2/4, products 17, P08 orders 9, P10 invoices 8, P09 journals 30, and P12 projects 1; the same counts held immediately after migration. The P13 browser harness then created synthetic local acceptance data. Current read-only `erp_dev` counts are organizations/memberships/role audits 2/7/6, parties/roles 31/40, products 17, P08 orders 9, P10 invoices 8, P09 journals 30, P12 projects 1, role-manager grants 1, party import requests/rows 7/35. The 7 imports are completed; do not clean them up.
 
 - P10 migration `2026_11_24_000012_create_p10_settlement_tables` is applied as batch 9 in `erp_dev` and `erp_test` reports it `Ran` through the guarded suite.
 - Before/after `erp_dev` counts matched for all observed P01–P09 tables: organizations 2, products 16, parties/roles 2/4, units 3, warehouses/locations 17/17, price lists/entries 3/11, leads/activities 12/5, quotes/lines 11/13, sales orders/lines 9/11, stock locks/operations/movements/reservations 15/32/33/14, deliveries 4, purchase requests/lines 8/8, purchase orders/lines 8/8, receipts 12, accounting books/accounts/periods/journals/lines/request keys 1/5/4/12/24/10. The volume was not reset.
@@ -308,17 +353,24 @@ No P12 implementation or acceptance work remains. Event `erp-p12-local-mvp-accep
 
 ## Configuration and Environment Notes
 
+- OpenSpout 5.15.4 is in `composer.json`/`composer.lock` for XLSX reading. It supports PHP 8.5; the checked local PHP 8.5.13 runtime has `ext-xmlreader` and `ext-zip` enabled.
+- The local Chrome tab was authenticated and rendered `/` at baseline. The isolated P13 harness uses a task-prefixed directory under the OS temp path and must stop Chrome before removing that exact profile.
+
 - `erp_dev` P09 migration state and P01–P09 row counts were read before migration 000012 was applied. `.env` and `.env.testing` were not changed; the test guard targets `erp_test`.
 - P10 invoice/settlement writes are internally replayable and transaction-bound. Its profile remains `synthetic_test` with the exact six local accounts in ADR-008; the user approval did not create or enable a live `approved` profile.
 
 - `.env`, `.env.testing`, and examples were not changed. PHP 8.5.13 is at `C:\php8.5\php.exe`; MariaDB uses loopback port 3307. P03/P08 synthetic credentials remain only in ignored private storage and were not printed.
 - The P12 date-only due/reminder contract reads `config('app.timezone')`; the current value is UTC. No new environment variable is required.
 - P12 date-only task cutoffs use `config('app.timezone')`, currently `UTC`; reminder eligibility begins at 00:00 on the due date and overdue starts the following day.
-- The normal command sandbox cannot reach the DB host port; database/Docker commands were run through the permitted elevated path.
+- The normal command sandbox cannot reach the DB host port; tests, the additive migration, and local Chrome harness provisioning used the permitted elevated path.
 - During Chrome acceptance, `npm run dev` served the app on ports 8000/5173 and was stopped after the final run; the ports were free afterward. The final P11 harness uses OS temp for isolated Chrome profiles so Laravel's watcher does not scan Chrome cache files. Seven earlier `p11-browser-*` directories under ignored `storage/framework/testing` were confirmed unheld and removed by exact-path cleanup; none remain.
 - P12 Chrome ran in a fresh `erp-p12-browser-*` directory under OS temp and the harness removed that generated profile after Chrome exited. The P12 acceptance run saved six final linked screenshots and some earlier unlinked retry captures under `docs/screenshots/`.
 
 ## Uncommitted or Partially Applied Changes
+
+- P13 code/docs/screenshots are unstaged on `main` at the original HEAD `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6`; no staging/commit/push/branch change has occurred.
+- P13 migration 000014 and retained synthetic browser fixtures are present in `erp_dev`. `erp_test` was rebuilt only through the guarded passing test workflow.
+- The mandatory P13 Notion queue event is blocked by the workspace write boundary; no event was appended and no Notion API was called.
 
 - All P12 code, tests, documentation, and screenshots are unstaged on `main` at HEAD `b18e24054962e1bf6648b2b31755d0ea8e709c86`, matching `origin/main` (0 ahead/behind). No files are staged, committed, pushed, or on a new branch. No unrelated pre-existing worktree changes existed at P12 start.
 - P10 migration 000012 is applied in both `erp_test` and `erp_dev`. The `P10-SYNTH-BROWSER` book, invoices, treasury movements, allocations, linked journals, and screenshots are intentional synthetic acceptance data retained for review.

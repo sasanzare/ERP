@@ -232,3 +232,27 @@ At 1280×900 Chrome captured the project and linked purchase line. At 390×844 t
 | Project in bright forced fallback at scroll end, 390×844 | [P12 bright fallback](screenshots/p12-bright-fallback-mobile-2026-11-26T18-19-15-239Z.png) |
 
 The repeat harness is [scripts/Verify-P12Browser.mjs](../scripts/Verify-P12Browser.mjs). It reuses the synthetic project, task, comment, and purchase association, uses only a temporary Chrome profile, and does not print credentials. The date-boundary and reminder-reassignment cases are covered by fixed-clock guarded feature tests. P12's focused suite passed 7 tests / 133 assertions; the full serial guarded suite passed 97 / 1,216. `npm run typecheck`, `npm run build`, changed-file Pint, PHP/Node syntax, and `git diff --check` passed. **P12 status: ACCEPTED (2026-11-26) at the local project-work boundary.**
+
+## P13 administration and data exchange evidence
+
+P13 follows the existing Lens Inspector hierarchy. The member/party table stays on a sharp, solid content surface; one grouped policy note and the import preview/result table form the secondary information group. The existing workspace shell, toolbar, glass buttons, and mobile dock remain the command layer. Preview is labeled as read-only, and the apply action is separate and disabled until a valid preview exists.
+
+The isolated task-prefixed Chrome harness used the local editor fixture, provisioned that account as a role manager for `legacy-local`, and created a synthetic reader member. The browser changed that member from reader to editor; the scoped history showed one event with the actor and reader→editor values. Repeating the unchanged API submission returned `changed:false` and did not add an audit event. The feature suite also verifies self-change refreshes permissions on the next request, ordinary editor/reader denial, foreign membership 404s, and refusal to remove the last role manager.
+
+Equivalent CSV and XLSX uploads produced the same five row outcomes: two valid, two duplicate, and one invalid. Preview left parties, party roles, import requests, and row results unchanged. Apply created the two valid parties and roles once; same-key retry returned those results, an interrupted apply resumed its pending row, a row made duplicate after preview was skipped, and changed content under the same key returned 409. Existing party names/roles remained unchanged.
+
+The filtered customer export used the same `P13` search as the visible register. The downloaded CSV IDs matched the full filtered register in stable order: `6, 11, 13, 17, 21, 25, 29, 5, 10, 15, 19, 23, 27, 31, 4, 9, 14, 18, 22, 26, 30, 3, 7, 8, 12, 16, 20, 24, 28`. Code `00021-065900390Z` retained its leading zeros in the CSV, Persian names were preserved, and formula-like display text was apostrophe-escaped. Empty-result and foreign-organization query cases are covered by guarded feature tests.
+
+At 1280×900, the document/client widths were 1265/1265 CSS px. At 390×844, they were 375/375 CSS px; after scrolling to the end, content cleared the fixed dock by 82.05 px. The bright forced fallback retained six shared glass surfaces and zero active refraction, with 81.88 px dock clearance. Tab focus remained visible. The live Vite client and `p13.css` loaded; Chrome reported zero runtime errors.
+
+| View | Screenshot |
+|---|---|
+| Membership table and role controls, 1280×900 | [P13 role editor](screenshots/p13-role-history-desktop-2026-11-27T06-59-40-028Z.png) |
+| Actual before/after role audit and actor, 1280×900 | [P13 role history](screenshots/p13-role-history-audit-detail-desktop-2026-11-27T06-59-40-028Z.png) |
+| CSV row classifications before apply, 1280×900 | [P13 import preview](screenshots/p13-party-import-preview-desktop-2026-11-27T06-59-40-028Z.png) |
+| Durable create/duplicate row results, 1280×900 | [P13 import result](screenshots/p13-party-import-result-desktop-2026-11-27T06-59-40-028Z.png) |
+| Search and customer filter on the party register, 1280×900 | [P13 filtered export](screenshots/p13-filtered-party-export-desktop-2026-11-27T06-59-40-028Z.png) |
+| Filtered party register, 390×844 | [P13 mobile register](screenshots/p13-filtered-party-export-mobile-2026-11-27T06-59-40-028Z.png) |
+| Party register at scroll end in bright forced fallback, 390×844 | [P13 bright fallback](screenshots/p13-bright-fallback-mobile-2026-11-27T06-59-40-028Z.png) |
+
+The repeat harness is [scripts/Verify-P13Browser.mjs](../scripts/Verify-P13Browser.mjs). It keeps Chrome profiles under the OS temp directory, uses the ignored P03 editor credential without printing it, provisions only synthetic local fixtures, and saves screenshots under `docs/screenshots/`. The full serial guarded suite passed 110 tests / 1,344 assertions. `npm run typecheck`, `npm run build`, changed-file Pint, Composer validation, PHP/Node syntax, and `git diff --check` passed. **P13 status: ACCEPTED (2026-11-27) at the local administration and data-exchange boundary.** Live/production posting remains disabled.

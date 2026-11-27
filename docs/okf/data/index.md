@@ -11,5 +11,6 @@ This section documents organization-owned records and their persisted relationsh
 - [P10 settlement records](p10-settlement.md) — invoices, open items, treasury movements, allocations, whole-Rial amounts, and P11 as-of reporting.
 - [P11 reporting contract](p11-reporting.md) — metric source rows, date/unit boundaries, organization/book scope, exact currency display, and all-page reconciliation.
 - [P12 project work](p12-project-work.md) — project/task/comment/reminder persistence and exact whole-rial project purchase costs.
+- [P13 role administration and party imports](p13-administration-and-data-exchange.md) — explicit organization role-manager grants and durable import-request/row outcomes.
 
 Read the [P04 architecture](../architecture/p04-master-data.md) for routes and request behavior, and the [P04 decision](../decisions/adr-003-p04-master-data-ownership-and-pricing.md) for the ownership and pricing rationale.

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Enums\OrganizationRole;
 use App\Models\Organization;
+use App\Models\OrganizationRoleManager;
 use App\Models\User;
 
 class OrganizationPolicy
@@ -96,5 +97,23 @@ class OrganizationPolicy
             ->where('user_id', $user->getKey())
             ->where('role', OrganizationRole::Editor->value)
             ->exists();
+    }
+
+    public function viewMembershipRoles(User $user, Organization $organization): bool
+    {
+        return OrganizationRoleManager::query()
+            ->where('organization_id', $organization->getKey())
+            ->where('user_id', $user->getKey())
+            ->exists();
+    }
+
+    public function manageMembershipRoles(User $user, Organization $organization): bool
+    {
+        return $this->viewMembershipRoles($user, $organization);
+    }
+
+    public function viewMembershipRoleHistory(User $user, Organization $organization): bool
+    {
+        return $this->viewMembershipRoles($user, $organization);
     }
 }
