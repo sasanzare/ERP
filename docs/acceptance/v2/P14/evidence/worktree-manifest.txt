@@ -1,0 +1,42 @@
+# P14 Final Worktree Manifest
+
+Algorithm: SHA-256 over UTF-8 bytes of lexicographically sorted records, each `status|slash-normalized-path|content-sha256`, joined by LF with no final LF.
+
+Self-reference exclusions: content hashes are `SELFREF-EXCLUDED` for HANDOFF.md, docs/acceptance/v2/P14/report.md, docs/acceptance/v2/P14/evidence/command-results.md, and this worktree-manifest.txt. Their Git status/path entries remain in the records. All other changed/untracked file contents are SHA-256 hashed.
+
+Record count: 29
+P14_WORKTREE_MANIFEST_SHA256: 320cfaa38ccb48dc968bf6c8240a9b4923ee2652819048ae0ab485394a9c9635
+
+## Records
+
+```text
+ M|AGENTS.md|8667df85f627b6f717897e17821983b478c92c5519d1106ed28c75c63bde7e20
+ M|HANDOFF.md|SELFREF-EXCLUDED
+ M|docs/okf/decisions/index.md|19538e80fffdd3a32a81e89f99c27167b95b5f0c419b782bf6b07f81050ca7e7
+ M|docs/okf/index.md|2a7a4ceb7344d131e9581253aed742fde73117078f3719c7a6bb88e7b5a41c9e
+ M|docs/okf/log.md|97ec8881305ae8ca83f706559e8597336a1ee758fc16c2d969c50f085bfd29a9
+ M|docs/okf/project-overview.md|43fb1ddc5139bc559e009e35b54857e61a544cd73d594dd9a7122742cbb6024c
+??|docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md|d812925116d4f5005d99c4965b08d6a183c69077e92a7d4eb4d1b1398a789618
+??|docs/acceptance/v2/P14/ARCHITECTURE_AUDIT.md|e66695baf5f25f35f2931c347aa940536ec72e32f3b0a22b5f2bb3ea5eba19b8
+??|docs/acceptance/v2/P14/BASELINE_INVENTORY.md|4838876b1607fca1c8e74fff104a0c2104e47aefad5f63adc9777eeabbf9cdc2
+??|docs/acceptance/v2/P14/CHECKPOINTS.md|84c7f027c6372ad4bf791fc741366bdae27c057787c8cfbae6bc7bdeaf1a45f7
+??|docs/acceptance/v2/P14/DATABASE_AND_FINANCIAL_AUDIT.md|466a8153e766c271ade17d012d98bfb4747f88ae0c2022636b759f9a74bdf9fb
+??|docs/acceptance/v2/P14/DECISION_REGISTER.md|192c24c1d40aa813b96fd739b05943c1ba5ee851eb55567464a276a30cd61151
+??|docs/acceptance/v2/P14/GAP_ANALYSIS_V2.md|ae72c3fdf5beee25ce1af93db7380e0a36f6991afe33c19a83882917224127d1
+??|docs/acceptance/v2/P14/INFRASTRUCTURE_READINESS.md|93e7f425a633debf283d5c6053c6ea8a42fa0b704b7e07bce9f066ac7f99396b
+??|docs/acceptance/v2/P14/P15_READINESS.md|8c4980c476ff53ef3f4d19ec9f6b04d516b098dffc6ed22dd1d69b35b8ae2ab1
+??|docs/acceptance/v2/P14/PROPOSED_ADR_SCOPE_AND_GOVERNANCE.md|bf5cbdeb19a0d28d6c7b92580b121f40631e23d63ba557cc55d909edefac532d
+??|docs/acceptance/v2/P14/REQUIREMENTS_TRACEABILITY_MATRIX.md|1623ccf7135deb2ec51d90bcf57c5fc85bd52685b29323072b0d6609170177c6
+??|docs/acceptance/v2/P14/RISK_REGISTER.md|0d128e7dfcc44677b6d93c33e4746fd1a519c3c8fed08fad02d3f9efe590f309
+??|docs/acceptance/v2/P14/SECURITY_AND_THREAT_MODEL.md|c2c78c7f418b9796cbefbf8322392d4579e46fe674ebd0b1b17249bd2ea3cd37
+??|docs/acceptance/v2/P14/UI_UX_AUDIT.md|6351e6d2c010780c0b6ad3e6669c72316711eec08192768b47bd9814b0cf8bcf
+??|docs/acceptance/v2/P14/evidence/README.md|be8f42b94b6ea205de74e66a465502d170fa30fab5ad3d821354b41ad5f49e59
+??|docs/acceptance/v2/P14/evidence/SHA256SUMS.txt|44e43a52aa942dc1705047dc62a451f1529db5a21d6d24ce2b03bafed0cc7c6e
+??|docs/acceptance/v2/P14/evidence/browser-capture.md|ec24ab60c77a8dc8e22b02826d622da253ed3dc3f680c43b5e1d844b70ad40df
+??|docs/acceptance/v2/P14/evidence/command-results.md|SELFREF-EXCLUDED
+??|docs/acceptance/v2/P14/evidence/worktree-manifest.txt|SELFREF-EXCLUDED
+??|docs/acceptance/v2/P14/report.md|SELFREF-EXCLUDED
+??|docs/acceptance/v2/P14/requirements_traceability.json|1bef15b13997e282e25349ae33f7ae0dfbbd7ad8c559ef30cc5fca28d17f64b5
+??|docs/okf/decisions/adr-010-v2-scope-and-governance.md|e5bfd021f931a21f685debcc378d2b096f1ab56bc7dca1d070d30ca8891a207c
+??|docs/requirements/NoSyntax_ERP_Requirements_Questionnaire_FA_Answered.md|3ce92ef4cf9590cee06c0fcd08a17eb9039b0998cc213183308ce93458793879
+```

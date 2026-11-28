@@ -4,11 +4,13 @@ okf_version: "0.2"
 
 # ERP Project Knowledge
 
-This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P13 are accepted at their local-development boundaries. P10 approval is limited to the exact local synthetic invoice and settlement mapping in ADR-008; live/production posting remains disabled. See the handoff for current runtime and acceptance evidence.
+This bundle records the scope, architecture, and decisions for the local-development ERP project. P01–P13 are accepted at their local-development boundaries. P14 is PASS after the explicit CEO approval of D01 on 2026-11-28; P15 has not started and awaits a separate execution instruction. D02-D14 remain open. P10 approval is limited to the exact local synthetic invoice and settlement mapping in ADR-008; live/production posting remains disabled. See the handoff for current runtime and acceptance evidence.
 
 ## Start here
 
 - [Project overview](project-overview.md) — scope and phase boundaries.
+- [P14 audit report](../acceptance/v2/P14/report.md) — current repository baseline, Q01-Q54 traceability, gaps, risks, owner decisions, and P15 gate.
+- [ADR-010 V2 scope and governance](decisions/adr-010-v2-scope-and-governance.md) — accepted CEO decision D01; later decisions and production gates remain separate.
 - [Architecture](architecture/index.md) — current and planned runtime shape.
 - [P04 master-data architecture](architecture/p04-master-data.md) — scoped APIs, shared registers/forms, and selected-list pricing.
 - [P05 sales workflow](architecture/p05-sales-workflow.md) — leads, follow-ups, quote snapshots, and confirmed order conversion.
@@ -47,6 +49,7 @@ This bundle records the scope, architecture, and decisions for the local-develop
 - [ADR-007: P08 approval, currency, and receipt locking](decisions/adr-007-p08-purchase-approval-and-pricing.md) — no self-approval, whole-rial snapshots, and atomic inbound trace.
 - [ADR-008: P09 accounting scope and posting decisions](decisions/adr-008-p09-accounting-scope-and-posting-decisions.md) — P09 manual scope, the user-approved local P10 mapping and paths, and remaining live/production gates.
 - [ADR-009: P13 separate membership role manager](decisions/adr-009-p13-role-management.md) — local membership role administration is distinct from operational editor access.
+- [ADR-010: V2 scope and governance](decisions/adr-010-v2-scope-and-governance.md) — CEO-approved D01 boundary for internal V2 development; D02-D14 remain open.
 - [Maintenance log](log.md) — significant knowledge updates.
 
 Read [HANDOFF.md](../../HANDOFF.md) for current repository state, validation evidence, and exact next steps.

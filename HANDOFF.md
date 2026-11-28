@@ -2,30 +2,35 @@
 
 ## Last Updated
 
-2026-11-27
+2026-11-28
 
 ## Project Summary
 
-Local-development-only ERP prototype using synthetic MariaDB data. P01–P13 are accepted at their local-development boundaries; P10 approval applies only to the local synthetic ERP MVP mapping in ADR-008. P12 adds organization-scoped project work and P13 adds separately provisioned membership-role administration/audit plus create-only party CSV/XLSX exchange and filtered CSV export. Live/production posting remains disabled. Production deployment, cloud, and external integrations remain out of scope.
+Local-development-only NoSyntax ERP prototype using synthetic MariaDB data. P01-P13 remain accepted at their documented local boundaries. The CEO approved D01 on 2026-11-28, establishing the internal, project-centric V2 development scope and Modular Monolith direction while preserving the current stack, data, modules, phase gates, Git restrictions, production/real-posting prohibition, and separate customer-portal milestone. P10 remains limited to ADR-008's approved local synthetic invoice/settlement paths. P14 is PASS. P15 is ready but was not started; a separate explicit execution instruction is still required.
 
 ## Current Objective
 
-P13 is accepted at its local-development boundary. Preserve existing development records, P13 synthetic acceptance records, and the MariaDB volume; keep P10 live/production posting disabled. Do not stage, commit, push, or change branches. Sync Notion only after an explicit request; the current sandbox cannot write the shared queue path.
+P14 is closed as PASS. Preserve the accepted P01-P13 application, existing synthetic records, MariaDB volume, and the two pre-existing untracked V2/questionnaire files. D01 is APPROVED by the CEO / Project Owner (2026-11-28) and canonical ADR-010 records the scope/Git boundaries; D02-D14 remain OPEN. Do not start P15 until a separate explicit execution instruction. Keep P09/P10 live/production posting disabled and preserve all Git/data restrictions. No external sync occurred; the shared Notion queue remains outside the writable root.
 
 ## Current Phase or Milestone
 
-P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the local ERP MVP only (user approval dated 2026-11-24); live/production posting remains disabled. P11 and P12 remain ACCEPTED at their local boundaries. P13 is ACCEPTED (2026-11-27). It started from clean `main` at `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6` (`feat(p12): add projects and assigned work`), matching `origin/main`. Migration 000014 is applied in batch 11 to `erp_dev`; pre-migration counts for organizations, memberships, audits, parties/roles, products, P08 orders, P10 invoices, P09 journals, and P12 projects matched after the additive migration. The final local acceptance records include one role-manager grant, three P13 member role changes with one user audit each, seven completed import requests, and 29 P13-coded party records. Preserve them. Do not use or change XAMPP MariaDB on port 3306.
+P01-P13 remain accepted at their documented local boundaries. P14 is PASS: AC-P14-01 through AC-P14-04 are supported by the recorded baseline, 54-row RTM, actual regression results, and explicit CEO D01 approval. Canonical ADR-010 records D01 only; D02-D14 remain OPEN. P15 is READY — AWAITING EXPLICIT EXECUTION AUTHORIZATION and was not started. Current browser capture, complete package audits, intl-based row counts, backup/restore, staging, and concurrency evidence limitations remain documented and are not presented as passes. No application source/schema/dependency change was made in P14.
 
 ## Repository State
 
-- Repository path: `D:\All projects\ERP`
-- Current branch: `main`
-- Base or starting commit: `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6`
-- Current HEAD: `18b0103a1fcdc8fbab8dca37b1d1c3c6f13695c6` (`feat(p12): add projects and assigned work`)
-- Working tree status: 24 tracked paths modified and 69 untracked P13/source/evidence paths; all remain unstaged on `main`, which still matches `origin/main`. Read with `git -c core.fsmonitor=false status --short --branch`.
+- Repository path: D:/All projects/ERP
+- Current branch: main
+- Base or starting commit: 74fedb92d9b1f0a9486a9efe6f35a3ec76577d61
+- Current HEAD: 74fedb92d9b1f0a9486a9efe6f35a3ec76577d61 (P13 commit)
+- Working tree status at P14 baseline: no tracked modifications or staged files; main matched origin/main; two user-provided untracked documents were present.
+- Current P14 working tree: documentation/governance-only files are unstaged; no application source, tests, migration, manifests, lockfiles, or environment files changed.
+- Tracked modifications: AGENTS.md, HANDOFF.md, docs/okf/index.md, docs/okf/decisions/index.md, docs/okf/project-overview.md, docs/okf/log.md.
 - Staged changes: none.
-- Unstaged tracked files: `AGENTS.md`, `HANDOFF.md`, `README.md`, `app/Http/Controllers/Api/V1/PartyController.php`, `WorkspaceController.php`, `app/Policies/OrganizationPolicy.php`, `app/Services/MembershipRoleService.php`, `composer.json`, `composer.lock`, `docs/UI_DESIGN.md`, the P13-touched OKF architecture/data/decisions/security indexes and concepts, `resources/js/api/products.ts`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/js/screens/MasterDataScreen.tsx`, and `routes/api.php` / `routes/web.php`.
-- Untracked P13 files: role-manager commands/models/services, membership and party exchange controllers/parsers, migration `000014`, P13 React screen/API/component/CSS, browser fixture/harness, `tests/Feature/P13AdministrationTest.php`, new OKF concepts/ADR, and generated P13 screenshots (including earlier acceptance retries, all retained). No files are staged.
+- Pre-existing untracked user files preserved unchanged: docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md (SHA-256 d812925116d4f5005d99c4965b08d6a183c69077e92a7d4eb4d1b1398a789618); docs/requirements/NoSyntax_ERP_Requirements_Questionnaire_FA_Answered.md (SHA-256 3ce92ef4cf9590cee06c0fcd08a17eb9039b0998cc213183308ce93458793879).
+- P14 audit artifacts: docs/acceptance/v2/P14/; canonical D01 ADR: docs/okf/decisions/adr-010-v2-scope-and-governance.md.
+- Baseline fingerprint for the two pre-existing untracked documents: 4b53f690ff16f18e2e8537b60c0fa420d8d1e2b6c687fec035197d1d72a454c9.
+- P14 worktree manifest fingerprint: 320cfaa38ccb48dc968bf6c8240a9b4923ee2652819048ae0ab485394a9c9635 (29 sorted Git status/path/content-hash records; self-reference exclusions are defined in docs/acceptance/v2/P14/evidence/worktree-manifest.txt).
+- No branch, index, commit, or remote operation was performed.
 
 ## Completed Work
 
@@ -69,19 +74,25 @@ P09 remains accepted for manual and synthetic journals. P10 is ACCEPTED for the 
 - Migration 000013 applied in `erp_dev` and exercised on guarded `erp_test`; all observed pre-existing `erp_dev` counts remained unchanged. Chrome verified the assigned-editor journey, reminder deduplication, 1→0 open counts, 500,000-IRR purchase trace, 1280×900/390×844 layouts, focus, bright fallback, live Vite, and zero runtime errors.
 - Reviewed the fingerprint-matched ERP mistakes log at `D:\All projects\Mistakes\ERP\mistakes.md`; no new reusable lesson was needed. All code/document changes remain unstaged.
 
+- Closed P14 as PASS after recording the explicit CEO / Project Owner D01 approval dated 2026-11-28. D01 is the only approved decision; D02-D14 remain OPEN.
+- Finalized canonical docs/okf/decisions/adr-010-v2-scope-and-governance.md; updated the Decision Register, P14 report/status, P15 readiness, AGENTS.md, and OKF navigation/log. No P15 work occurred.
+- Preserved all P14 environment, UX, dependency-audit, Pint, database-count, backup/restore, staging, and concurrency evidence limitations as findings.
+
 ## Work in Progress
 
-P13 implementation, documentation, migration, browser acceptance, screenshots, and validation are complete. The full guarded suite passed 110 tests / 1,344 assertions. Chrome acceptance passed at 1280×900 and 390×844 plus bright forced fallback; the role change produced one audit event, no-op replay added none, CSV/XLSX preview rows matched, the retryable import created two accepted parties, and the downloaded filtered export IDs matched the register. Vite/P13 CSS loaded, keyboard focus was visible, mobile dock clearance was positive, and runtime errors were zero. Final OKF link/frontmatter validation and Git readbacks passed. The Notion queue and mistakes log are outside the writable workspace root and were not modified.
+P14 documentation and owner-approval closure are complete at PASS. P15 implementation has not started. The explicit CEO D01 approval is recorded in canonical ADR-010. Browser/dependency/intl/operations evidence limitations remain disclosed; no source, schema, dependency, or business-data changes are pending within P14.
 
 ## Remaining Work
 
-P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md` exists outside the writable workspace root, so no local event could be appended. The fingerprint-matching mistakes log was reviewed; its React `currentTarget` lesson recurred, but the path is outside the writable root. The project AGENTS file now carries the correction. Do not call Notion APIs or use another path. P01–P13 remain local-development-only; do not use XAMPP or enable live/production posting.
+- P15 requires a separate explicit execution instruction.
+- D02-D14 remain OPEN and must be resolved at their appropriate phase gates; do not infer their approval from D01.
+- Browser capture, full package audits, row-count snapshot, backup/restore, staging, and concurrency evidence remain future validation work as scoped in the P14 registers.
 
 ## Exact Next Steps
 
-1. For future P13 changes, run one guarded Laravel test process at a time and refresh only `erp_test` in tests.
-2. Preserve the P13 role-manager grant, synthetic membership/audit rows, completed imports, imported parties, and screenshots in `erp_dev`.
-3. Leave Git staging, commits, pushes, and branch changes to the user. Sync the shared Notion queue only after an explicit request and when its exact path is writable.
+1. Stop at the P14 boundary; do not start P15.
+2. Await a separate explicit user instruction to execute P15.
+3. Resolve D02-D14 only at their appropriate phase gates; do not infer approval from D01.
 
 ## Files Created
 
@@ -116,6 +127,9 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - P13 OKF: architecture, data, and security concepts; ADR-009; updated root, architecture, data, decisions, and security indexes, project overview/current architecture, and maintenance log.
 - P13 Chrome evidence: seven final screenshots linked from `docs/UI_DESIGN.md#p13-administration-and-data-exchange-evidence`; earlier retries also left additional captures under `docs/screenshots/` and were preserved.
 
+- P14 audit: docs/acceptance/v2/P14/ includes report.md, baseline/gap/architecture/database/security/UX/infrastructure audits, Q01-Q54 matrix and JSON, D01-D14 register, risks, P15 readiness, checkpoints, proposed ADR disposition, sanitized evidence files, and evidence/SHA256SUMS.txt.
+- Canonical governance decision: docs/okf/decisions/adr-010-v2-scope-and-governance.md.
+
 ## Files Modified
 
 - `AGENTS.md`, `HANDOFF.md`, `README.md`, `docs/UI_DESIGN.md`, `routes/api.php`, `routes/web.php`, `resources/js/app.tsx`, `resources/js/components/WorkspaceShell.tsx`, `resources/css/app.css`, and `app/Policies/OrganizationPolicy.php`.
@@ -132,6 +146,14 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - P09 OKF: root/architecture/data/security/decision indexes, P09 architecture/data/security concepts, ADR-008, and `docs/okf/log.md`.
 - OKF root/indexes, P05/P06 architecture/data/security/ADR documents, P08 concepts/ADR-007, project overview, and maintenance log.
 - P13: `AGENTS.md`, `README.md`, `HANDOFF.md`, `docs/UI_DESIGN.md`, API/web routes, workspace/policy/role-service code, `PartyController.php`, Composer manifests, and related OKF indexes/concepts were updated with the local permission and exchange boundaries.
+
+- P14 governance closure updated AGENTS.md, HANDOFF.md, docs/okf/index.md, docs/okf/decisions/index.md, docs/okf/log.md, and P14 acceptance/readiness documents. No application implementation file changed.
+
+### P14 D01 closure
+
+- `AGENTS.md`, `HANDOFF.md`, `docs/okf/index.md`, `docs/okf/decisions/index.md`, `docs/okf/project-overview.md`, and `docs/okf/log.md` were updated to record approved D01 scope and P14 closure.
+- Added canonical `docs/okf/decisions/adr-010-v2-scope-and-governance.md` and updated P14 acceptance/readiness/checkpoint/evidence documents.
+- No application, test, schema, dependency, lockfile, environment, or persistent data file was changed.
 
 ## Important Architecture and Design Decisions
 
@@ -154,6 +176,9 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - P13 party exchange uses the same active-organization party register query for search/role filtering. The import template is `party_id,party_code,display_name,roles`; `party_id` is informational on import and exported as a source ID. `roles` accepts `customer`, `supplier`, or `customer|supplier`. CSV/XLSX normalize into one payload; only the first valid row per collated code is eligible. Existing codes are create-only duplicates and retain their data.
 - P13 import preview is read-only. Apply binds organization + UUID key + normalized payload hash, rejects a changed payload for that key, and commits each party, its roles, and its row outcome atomically. Pending rows remain resumable after interruption. The existing organization-scoped `parties(organization_id, code)` unique index is the final concurrent-write guard.
 - P13 XLSX reads only the first visible worksheet and rejects formula cells. CSV is UTF-8 with optional BOM and comma delimiters; the file limit is 5 MiB / 1000 data rows. XLSX codes must be stored as text. CSV exports preserve UTF-8 and code text, apply the same search/role filters, order by name then ID, and prefix formula-like cells with an apostrophe.
+
+- D01 was approved by the CEO / Project Owner on 2026-11-28: internal project-centric V2 scope, Modular Monolith, current Laravel/React/TypeScript/MariaDB stack, preservation of P01-P13/modules/data, separate future portal after internal acceptance, one authorized phase at a time, and preserved production/Git/data safety boundaries. Canonical record is ADR-010. D02-D14 remain OPEN.
+- The directive names docs/MASTER_PLAN_V2.md, which is absent. The available reviewed V2 source is docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md; it was not copied or renamed.
 
 ## Commands Executed
 
@@ -237,6 +262,12 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - `node --check scripts/Verify-P12Browser.mjs` passed. `node scripts/Verify-P12Browser.mjs` passed in isolated Chrome: P08 editor inbox count 1 → 0 after completion; reminder count 1, two repeated processor calls created 0/0 additional reminders; project list and board reconciled to 0 open / 1 completed; P11 `PO-000009` line 9 linked at exactly 500,000 IRR and its source row opened. At 1280×900 and 390×844, mobile width was 375/375 CSS px with the dock visible and no overlap, keyboard focus was visible, bright forced fallback showed 6 surfaces / 0 active refraction, live Vite client and `project-work.css` loaded, and Chrome reported 0 runtime errors. Six final screenshots are linked from `docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence`.
 - `npm run dev` started Laravel/Vite only after port checks and was stopped after browser acceptance. The existing Docker MariaDB service was left running. No P10/P11 source record or XAMPP database was changed.
 
+
+### P14
+
+- No source tests, migrations, formatter, dependency update, or Git mutation were run for this documentation-only owner-approval closure. P14's earlier actual command results remain in docs/acceptance/v2/P14/evidence/command-results.md.
+- Validated the 54-record RTM JSON, changed-document Markdown links/fences/whitespace, canonical ADR frontmatter, and Git diff after closure.
+
 ## Validation and Test Results
 
 ### P13 task
@@ -300,6 +331,15 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - Chrome 1280×900/390×844: keyboard Tab reached request quantity and receipt submit with visible focus; invalid 6.000 receipt showed UI feedback and left the balance unchanged; mobile had zero horizontal overflow and 99.03 CSS px clearance from the final panel to dock. Bright fallback retained four glass surfaces and zero SVG-refraction surfaces.
 - P08 final fixture: request 7, order 7, product 16, line 7. Receipts 10/11 received 3.000/2.000 and link to operations 30/31 and movements 31/32. The closed-order replay returned receipt 11 / operation 31 / movement 32. Contention order 8 / line 8 saved one 1.000 receipt 12 / operation 32 / movement 33 (the other request returned 409). Because the contention fixture used the same product/location, its separate receipt raised current physical/reserved/available to 16.000/4.000/12.000; the canonical 5.000 flow readback before that extra test was 15.000/4.000/11.000.
 
+
+### P14
+
+- AC-P14-01 VERIFIED: baseline, runtimes, DB targets, migration ledgers, and limitations documented.
+- AC-P14-02 VERIFIED: every Q01-Q54 has a unique RTM record with actual status/evidence/gap/owner/phase/decision.
+- AC-P14-03 VERIFIED: actual full suite 110/1,347, focused P10 4/129, typecheck, build, routes, and failures/blocked checks are recorded.
+- AC-P14-04 VERIFIED: explicit CEO D01 approval is recorded in DECISION_REGISTER.md and canonical ADR-010; AGENTS/HANDOFF/OKF were updated within the authorized scope.
+- P14 final status PASS. The documentation-only closure did not rerun tests; it does not change their recorded result.
+
 ## Known Issues and Blockers
 
 - P13 is accepted at its local boundary. Live/production role administration and posting remain out of scope.
@@ -320,6 +360,13 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - The requested GPT-6 Luna/max execution profile was not exposed for verification.
 - The prior handoff's `dc0c130` HEAD and unstaged P07 state did not match the actual clean `f876fc5` P07 commit at this task's start; the handoff was reconciled before P08 work.
 
+
+### P14
+
+- P14 is closed PASS. Evidence limitations are not passing checks: local browser screenshots timed out; Composer/NPM audits were blocked by DNS; PHP intl is absent for db:show --counts; Pint reports existing findings in unchanged DatabaseTestSafetyGuard.php; backup/restore, staging, and 100-staff/200-user concurrency remain unverified.
+- D02-D14 remain OPEN. The English path docs/MASTER_PLAN_V2.md is absent; the reviewed V2 source available is docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md.
+- P15 is ready only to the extent of the D01/P14 gate and still awaits separate explicit execution authorization.
+
 ## Risks and Assumptions
 
 - P13 remains local-only. Role-manager CLI commands are restricted to local/testing; no live role administration or external deployment is authorized.
@@ -329,6 +376,13 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - Existing P07 fixtures remain in `erp_dev`. P08 acceptance added synthetic records that were preserved: 8 purchase requests, 8 orders, 12 receipts, and four products in the default organization. Product 16 has a main-order receipt increase of 5.000 and a separate 1.000 last-unit contention receipt at the same location; its current physical/reserved/available balance is 16.000/4.000/12.000.
 - Results establish local development behavior only.
 - P09 browser acceptance preserved its synthetic fixtures in `erp_dev`: book 1 (`P09-BR-MWRJ62AX`), five accounts, four periods, twelve journals, twenty-four lines, and ten idempotency request keys. Journals 6–9 and 11 are one-rial contention fixtures from repeated harness runs; journals 10 and 12 are drafts left by close/post races. Period 2 was closed in the UI after the final posting checks. Do not delete them as cleanup.
+
+
+### P14
+
+- D01's approved internal development scope does not authorize production deployment, production database access, real financial posting, customer portal exposure, external integrations, destructive data operations, or Git staging/commit/push/branch/history actions.
+- Laravel 13.43.0 has a current high-severity numeric-validation advisory match; source review found none of the affected relative-comparison rules. Plan an authorized update to >=13.44.1 before network exposure.
+- V2 contract/installment, approved project progress, HR/time/payroll, profitability, backup/restore, and granular authorization gaps remain recorded in P14; resolve D02-D14 as gated.
 
 ## Database or Migration State
 
@@ -351,6 +405,12 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - `erp_dev`: MariaDB 11.8.9 has P08 migration `2026_11_21_000009_create_p08_purchase_tables` applied in batch 7 to the existing volume. At migration time, products were 11/1 by organization, inventory operations were 10 opening / 5 issue / 1 transfer, and sales orders were 9; those counts were unchanged by migration.
 - `erp_test`: full guarded suite passed 78 tests / 825 assertions after migrations through 000011. Do not reset `erp_dev`; `Tests\TestCase` guards test database refreshes.
 
+
+### P14
+
+- P14 read-only metadata after regression: erp_dev MariaDB 11.8.9, 56 tables, all 14 migrations Ran (latest batch 11); erp_test all 14 migrations Ran. Row counts were not collected because PHP intl is absent.
+- No P14 or closure migration ran. Tests were limited to guarded erp_test; erp_dev and volume erp_mariadb_data were preserved.
+
 ## Configuration and Environment Notes
 
 - OpenSpout 5.15.4 is in `composer.json`/`composer.lock` for XLSX reading. It supports PHP 8.5; the checked local PHP 8.5.13 runtime has `ext-xmlreader` and `ext-zip` enabled.
@@ -365,6 +425,12 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - The normal command sandbox cannot reach the DB host port; tests, the additive migration, and local Chrome harness provisioning used the permitted elevated path.
 - During Chrome acceptance, `npm run dev` served the app on ports 8000/5173 and was stopped after the final run; the ports were free afterward. The final P11 harness uses OS temp for isolated Chrome profiles so Laravel's watcher does not scan Chrome cache files. Seven earlier `p11-browser-*` directories under ignored `storage/framework/testing` were confirmed unheld and removed by exact-path cleanup; none remain.
 - P12 Chrome ran in a fresh `erp-p12-browser-*` directory under OS temp and the harness removed that generated profile after Chrome exited. The P12 acceptance run saved six final linked screenshots and some earlier unlinked retry captures under `docs/screenshots/`.
+
+
+### P14
+
+- D01-approved plan path currently present: docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md. The named docs/MASTER_PLAN_V2.md path is absent and was not synthesized/renamed.
+- P14 validated host versions and sanitized local/test DB identifiers; secrets were not displayed. No environment setting changed. Temporary local server processes/browser tab were stopped after loopback capture failed.
 
 ## Uncommitted or Partially Applied Changes
 
@@ -381,6 +447,13 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - P10 events `erp-p10-customer-supplier-settlement-20261124-1e0754c4-488d-41e7-a858-5998c508ac84` and `erp-p10-local-mvp-acceptance-20261124-65bf8ae5-d503-4d00-92be-6d1cc4288a5e`, and P11 event `erp-p11-local-mvp-acceptance-20261126-f12edeed-504f-41d5-bb7c-78966676ce3a`, are in the shared queue with `PENDING` state. No Notion API was called.
 - P12 event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` was appended under the existing queue lock and read back as `PENDING` with no changes. No Notion API was called.
 - P12 synthetic acceptance data in `erp_dev` is retained for review: project 1, completed task 1, project/task comments, one persistent due reminder, and one unique 500,000-IRR cost link to P11 line 9. P08 source row snapshots remain unchanged.
+
+
+### P14
+
+- D01 closure adds documentation only: canonical ADR-010, D01 register update, P14 PASS/readiness/checkpoint updates, AGENTS.md scope/navigation, HANDOFF, and OKF index/log links. All work remains unstaged.
+- No application source, tests, migrations, dependencies, lockfiles, environment config, persistent business records, or Docker volume were changed.
+- The two pre-existing untracked V2/questionnaire files remain byte-identical to their recorded hashes. No Notion event was appended because the exact queue path is outside the writable root; no API call occurred.
 
 ## Recovery or Rollback Notes
 
@@ -403,8 +476,17 @@ P13 is accepted. The shared Notion queue path `D:\All projects\notion\notion.md`
 - [P11 workflow](docs/okf/architecture/p11-dashboard.md), [reporting data](docs/okf/data/p11-reporting.md), [security](docs/okf/security/p11-reporting.md), and [P11 UI evidence](docs/UI_DESIGN.md#p11-reconciled-dashboard-evidence).
 - [P12 workflow](docs/okf/architecture/p12-project-work.md), [data](docs/okf/data/p12-project-work.md), [security](docs/okf/security/p12-project-work.md), and [P12 UI evidence](docs/UI_DESIGN.md#p12-projects-and-assigned-work-evidence).
 
+### D01 / P14 closure
+
+- [P14 report](docs/acceptance/v2/P14/report.md), [Decision Register](docs/acceptance/v2/P14/DECISION_REGISTER.md), [P15 readiness](docs/acceptance/v2/P14/P15_READINESS.md), [canonical ADR-010](docs/okf/decisions/adr-010-v2-scope-and-governance.md), and [P14 checkpoints](docs/acceptance/v2/P14/CHECKPOINTS.md).
+- Available V2 plan source: docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md (the directive's English path docs/MASTER_PLAN_V2.md is absent).
+
 ## Notes for the Next Agent
 
 P09 remains accepted at its local manual/synthetic boundary. P10 is ACCEPTED for the local ERP MVP only; P11 is ACCEPTED for local read-only reporting and synthetic walkthroughs only. Preserve P08 fixtures, P09 manual journals, P10 synthetic book 2/profile and prior settlements, the new P11 product/workflow fixtures, and screenshots. No P11 migration was added. Live/production posting remains disabled. Read [ADR-008](docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md) before changing posting gates. Run only one guarded Laravel test process at a time; capture and poll its session to completion. The fingerprint-verified ERP mistakes log now records the temp-profile watcher correction. Local queue events `erp-p10-customer-supplier-settlement-20261124-1e0754c4-488d-41e7-a858-5998c508ac84`, `erp-p10-local-mvp-acceptance-20261124-65bf8ae5-d503-4d00-92be-6d1cc4288a5e`, and `erp-p11-local-mvp-acceptance-20261126-f12edeed-504f-41d5-bb7c-78966676ce3a` remain `PENDING`; do not sync unless the user explicitly requests it. No Notion API was called.
 
 P12 is ACCEPTED at its local boundary. Preserve the P12 project/task/comments/reminder/cost link and the P11 source line 9; the linked amount is an immutable 500,000-IRR snapshot. Migration 000013 is applied to `erp_dev`; use only guarded `erp_test` for rollback rehearsals. `config('app.timezone')` is currently UTC for task due-date/reminder cutoffs. The isolated P12 Chrome profile and local dev servers were stopped after acceptance. Queue event `erp-p12-local-mvp-acceptance-20261126-3d75bfe0-0b2d-40b7-8b0d-9f1ee2b44c98` remains `PENDING` until an explicit user sync request.
+
+### P14 closure and P15 boundary
+
+P14 is PASS after explicit CEO / Project Owner D01 approval on 2026-11-28, recorded in canonical ADR-010. D02-D14 remain OPEN. Preserve the P01-P13 application/data, P10-SYNTH-BROWSER/manual P09 records, the two pre-existing untracked V2/questionnaire files, and erp_mariadb_data. No P15 work has started; wait for a separate explicit execution instruction. P10 stays limited to ADR-008 synthetic local paths. Browser/DNS/intl/Pint/operations evidence limits are disclosed and are not passes. No Notion event was appended; the exact shared queue is outside the writable root. The fingerprint-verified mistakes log was reviewed and unchanged.

@@ -1,0 +1,281 @@
+{
+  "schema": "nosyntax-erp-p14-rtm/v1",
+  "review_date": "2026-11-28",
+  "questionnaire": "docs/requirements/NoSyntax_ERP_Requirements_Questionnaire_FA_Answered.md",
+  "planning_matrix": "docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md#11",
+  "authority_note": "Q01-Q54 originate in the answered owner questionnaire. D01 scope/governance is approved and recorded in ADR-010; other V2 implementation details, formulas, phase assignments, and D02-D14 remain proposals unless separately approved.",
+  "classification_legend": {
+    "VERIFIED": "Current implementation has sufficient current static or test evidence for the stated requirement.",
+    "PARTIAL": "Some relevant implementation exists but the full requirement is not met.",
+    "MISSING": "The reviewed routes, models, migrations, screens, and tests provide sufficient evidence that the capability is absent.",
+    "UNVERIFIED": "The current environment or evidence cannot establish that the requirement is met or absent.",
+    "OUT_OF_SCOPE": "The V2 plan explicitly defers the capability from the internal ERP release."
+  },
+  "evidence_register": {
+    "E-AUTH": {
+      "sources": [
+        "routes/web.php:8-18",
+        "routes/api.php:28-30",
+        "app/Http/Controllers/Auth/SessionController.php:11-45",
+        "app/Models/User.php:17-34",
+        "app/Http/Middleware/ResolveActiveOrganization.php:9-46",
+        "app/Policies/OrganizationPolicy.php:12-120",
+        "app/Http/Middleware/RequireExplicitCsrfToken.php:9-24"
+      ],
+      "tests": [
+        "tests/Feature/SessionAuthenticationTest.php",
+        "tests/Feature/P03OrganizationAccessTest.php",
+        "tests/Unit/DatabaseTestSafetyGuardTest.php"
+      ],
+      "note": "Session password authentication, organization membership scoping, fixed editor/reader roles, explicit CSRF enforcement, and a login throttle are present."
+    },
+    "E-MASTER": {
+      "sources": [
+        "routes/api.php:29-50",
+        "routes/api.php:83-104",
+        "app/Http/Controllers/Api/V1/PartyController.php:14-43",
+        "app/Http/Controllers/Api/V1/ProductController.php:14-67",
+        "app/Http/Controllers/Api/V1/PriceListController.php"
+      ],
+      "tests": [
+        "tests/Feature/P04MasterDataTest.php",
+        "tests/Feature/P13AdministrationTest.php"
+      ],
+      "note": "Shared organization-scoped parties, party roles, products, units, warehouses, locations, and Rial price lists exist."
+    },
+    "E-CRM": {
+      "sources": [
+        "routes/api.php:53-61",
+        "routes/api.php:105-114",
+        "app/Http/Controllers/Api/V1/LeadController.php:12-58",
+        "app/Http/Controllers/Api/V1/LeadActivityController.php:12-72",
+        "app/Http/Controllers/Api/V1/SalesQuoteController.php:23-285",
+        "app/Services/Sales/SalesDocumentCalculator.php"
+      ],
+      "tests": [
+        "tests/Feature/P05SalesWorkflowTest.php",
+        "tests/Unit/SalesDocumentCalculatorTest.php"
+      ],
+      "note": "P05 supports leads, dated follow-ups, quotes, exact Toman snapshots, confirmation, and conversion to sales orders."
+    },
+    "E-STOCK": {
+      "sources": [
+        "routes/api.php:62-65",
+        "routes/api.php:115-123",
+        "app/Http/Controllers/Api/V1/StockController.php:21-220",
+        "app/Services/Stock/StockService.php:21-352",
+        "database/migrations/2026_11_21_000007_create_p06_inventory_tables.php"
+      ],
+      "tests": [
+        "tests/Feature/P06StockWorkflowTest.php"
+      ],
+      "note": "P06 maintains organization-scoped stock operations, movements, balances, reservations, and explicit locking."
+    },
+    "E-FULFILL": {
+      "sources": [
+        "routes/api.php:60-61",
+        "routes/api.php:117-119",
+        "app/Services/Sales/SalesFulfillmentService.php:16-100",
+        "database/migrations/2026_11_21_000008_add_p07_sales_fulfillment.php"
+      ],
+      "tests": [
+        "tests/Feature/P07SalesFulfillmentTest.php"
+      ],
+      "note": "P07 provides reserved order-line delivery, remainder cancellation, and stock issue trace."
+    },
+    "E-PURCHASE": {
+      "sources": [
+        "routes/api.php:66-70",
+        "routes/api.php:124-129",
+        "app/Http/Controllers/Api/V1/PurchasingController.php:17-175",
+        "app/Services/Purchasing/PurchasingService.php:27-390",
+        "database/migrations/2026_11_21_000009_create_p08_purchase_tables.php"
+      ],
+      "tests": [
+        "tests/Feature/P08PurchasingTest.php"
+      ],
+      "note": "P08 implements purchase requests, separate approval, supplier orders, exact Rial snapshots, and receipts."
+    },
+    "E-LEDGER": {
+      "sources": [
+        "routes/api.php:71-73",
+        "routes/api.php:130-137",
+        "app/Services/Accounting/AccountingService.php:20-370",
+        "app/Services/Accounting/AccountingMoneyCalculator.php",
+        "database/migrations/2026_11_22_000010_create_p09_accounting_tables.php"
+      ],
+      "tests": [
+        "tests/Feature/P09AccountingTest.php",
+        "tests/Unit/AccountingMoneyCalculatorTest.php"
+      ],
+      "note": "P09 supports manual whole-Rial books, periods, journals, balanced posting, idempotency, closure, and append-only reversal."
+    },
+    "E-SETTLEMENT": {
+      "sources": [
+        "routes/api.php:74-75",
+        "routes/api.php:138-144",
+        "app/Http/Controllers/Api/V1/SettlementController.php:16-126",
+        "app/Services/Settlements/P10SettlementService.php:29-220",
+        "app/Services/Settlements/P10PostingProfileResolver.php:11-74",
+        "docs/okf/decisions/adr-008-p09-accounting-scope-and-posting-decisions.md:14-80"
+      ],
+      "tests": [
+        "tests/Feature/P10SettlementTest.php"
+      ],
+      "note": "P10 is accepted locally only for the synthetic invoice and settlement paths in ADR-008; live posting is not approved."
+    },
+    "E-REPORTING": {
+      "sources": [
+        "routes/api.php:50-52",
+        "app/Http/Controllers/Api/V1/DashboardController.php:14-52",
+        "app/Services/Reporting/P11DashboardService.php:15-160"
+      ],
+      "tests": [
+        "tests/Feature/P11DashboardTest.php"
+      ],
+      "note": "P11 provides read-only dashboard metrics, drill-downs, selected-book financial reporting, and synthetic walkthrough evidence."
+    },
+    "E-WORK": {
+      "sources": [
+        "routes/api.php:76-81",
+        "routes/api.php:146-157",
+        "app/Http/Controllers/Api/V1/ProjectWorkController.php:24-264",
+        "app/Services/ProjectWork/ProjectWorkService.php:17-243",
+        "app/Services/ProjectWork/DueReminderService.php:12-125",
+        "database/migrations/2026_11_26_000013_create_project_work_tables.php:11-120",
+        "resources/js/screens/ProjectWorkScreen.tsx:95-215",
+        "resources/js/screens/ProjectWorkScreen.tsx:240-401"
+      ],
+      "tests": [
+        "tests/Feature/P12ProjectWorkTest.php"
+      ],
+      "note": "P12 provides projects, assigned tasks, three task statuses, comments, a local due-reminder inbox, and unique P08 purchase-line cost links."
+    },
+    "E-ADMIN": {
+      "sources": [
+        "routes/api.php:36-37",
+        "routes/api.php:84-90",
+        "app/Http/Controllers/Api/V1/MembershipAdministrationController.php:18-114",
+        "app/Http/Controllers/Api/V1/PartyDataExchangeController.php:19-170",
+        "app/Services/MembershipRoleService.php:16-160",
+        "app/Services/Parties/PartyImportService.php:17-225",
+        "database/migrations/2026_11_26_000014_create_p13_admin_exchange_tables.php:11-75"
+      ],
+      "tests": [
+        "tests/Feature/P13AdministrationTest.php"
+      ],
+      "note": "P13 provides separately granted role-manager authority, membership-role history, create-only CSV/XLSX party import, and filtered CSV party export."
+    },
+    "E-UI": {
+      "sources": [
+        "resources/js/app.tsx:22-43",
+        "resources/js/components/WorkspaceShell.tsx:28-69",
+        "resources/js/components/WorkspaceShell.tsx:123-175",
+        "resources/js/components/WorkspaceShell.tsx:192-309",
+        "resources/js/screens/ProjectWorkScreen.tsx:176-215",
+        "resources/js/screens/ProjectWorkScreen.tsx:240-401",
+        "resources/css/app.css",
+        "resources/css/project-work.css",
+        "docs/UI_DESIGN.md:1-43"
+      ],
+      "tests": [
+        "Historical browser evidence in docs/UI_DESIGN.md P01-P13 sections; not current P14 evidence."
+      ],
+      "note": "Static review only. Current P14 browser capture was blocked by loopback timeouts; historical screenshots were not reused as current audit evidence."
+    },
+    "E-ENV": {
+      "sources": [
+        "compose.yaml:1-31",
+        "config/database.php:20-92",
+        "app/Support/DatabaseTestSafetyGuard.php:12-79",
+        "tests/TestCase.php:1-17",
+        ".env.example:4-51",
+        ".env.testing.example:1-14"
+      ],
+      "tests": [
+        "tests/Unit/DatabaseTestSafetyGuardTest.php"
+      ],
+      "note": "The test guard requires testing/mariadb/127.0.0.1/erp_test/erp_test and matching DB_PORT/DB_FORWARD_PORT, rejecting URL and socket overrides."
+    },
+    "E-ABSENCE": {
+      "sources": [
+        "routes/api.php:28-160",
+        "routes/web.php:8-45",
+        "database/migrations/",
+        "app/Models/",
+        "app/Http/Controllers/",
+        "resources/js/screens/",
+        "tests/"
+      ],
+      "tests": [],
+      "note": "Absence findings use the full route, migration, model, screen, and test inventories plus a cross-repository search for contracts, installments, payroll, time tracking, HR, documents, notifications, global search, service catalogs, project phases, capacity, profitability, backup, and restore. One missing name in one file was never used as the sole basis."
+    },
+    "E-GOV": {
+      "sources": [
+        "docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md:291-301",
+        "docs/NoSyntax_ERP_MASTER_PLAN_V2_FA.md:656-716",
+        "AGENTS.md",
+        "docs/MASTER_PLAN.md",
+        "HANDOFF.md"
+      ],
+      "tests": [],
+      "note": "P14 AC-P14-04 explicitly requires owner approval; the V2 document is untracked and is not itself approval."
+    }
+  },
+  "requirements": [
+    {"id":"Q01","summary":"Configurable service catalog, categories, and multi-service projects","authority":"C","status":"MISSING","current_state":"No service-catalog API, model, migration, or screen was found; product catalog is for goods.","evidence":["E-MASTER","E-ABSENCE"],"tests":[],"owner":"CEO","target_phases":["P20","P24"],"decisions":["D14"],"risk":"P1"},
+    {"id":"Q02","summary":"Internal/customer project ownership and multiple revenue models","authority":"C","status":"PARTIAL","current_state":"P12 has organization-owned work projects and P10 has synthetic sales-order receivables; no contract-to-project revenue model exists.","evidence":["E-WORK","E-SETTLEMENT","E-ABSENCE"],"tests":["P12ProjectWorkTest","P10SettlementTest"],"owner":"CEO/PM","target_phases":["P23","P24","P33"],"decisions":["D03"],"risk":"P1"},
+    {"id":"Q03","summary":"Five initial users, 100 staff, 10,000 customer accounts, and about 200 concurrent users","authority":"C","status":"UNVERIFIED","current_state":"The local app and MariaDB are available, but no load test or scaled environment was run; concurrency and capacity are not established.","evidence":["E-ENV","E-ABSENCE"],"tests":[],"owner":"Tech Lead/CEO","target_phases":["P16","P28","P40","P46"],"decisions":["D08"],"risk":"P1"},
+    {"id":"Q04","summary":"Internal ERP first; customer portal later and kept separate/disabled","authority":"C","status":"PARTIAL","current_state":"The current web and API routes require internal authentication and active organization membership; no customer portal exists, as planned for later phases.","evidence":["E-AUTH","E-ABSENCE"],"tests":["SessionAuthenticationTest","P03OrganizationAccessTest"],"owner":"CEO/Tech Lead","target_phases":["P15","P16","P41","P42-P46"],"decisions":["D01"],"risk":"P1"},
+    {"id":"Q05","summary":"Configurable CRM intake/stages and lead-to-contract flow","authority":"C","status":"PARTIAL","current_state":"P05 supports leads, dated follow-ups, quotes, confirmation, and sales-order conversion; configurable CRM stages and contract conversion are absent.","evidence":["E-CRM","E-ABSENCE"],"tests":["P05SalesWorkflowTest"],"owner":"CEO/PM","target_phases":["P20","P22","P24","P45"],"decisions":["D14"],"risk":"P1"},
+    {"id":"Q06","summary":"Person/company customer records, representatives, personal data, and notes","authority":"C","status":"PARTIAL","current_state":"P04 stores parties and customer/supplier roles; no separate representative/contact model or customer document/PII policy was identified.","evidence":["E-MASTER","E-ADMIN","E-ABSENCE"],"tests":["P04MasterDataTest","P13AdministrationTest"],"owner":"CEO","target_phases":["P16","P20","P21"],"decisions":["D13"],"risk":"P2"},
+    {"id":"Q07","summary":"Quotes, follow-ups, meetings, and reminders","authority":"C","status":"PARTIAL","current_state":"P05 has quotes and dated follow-up activities; meeting records and a general reminder service are absent.","evidence":["E-CRM","E-ABSENCE"],"tests":["P05SalesWorkflowTest"],"owner":"CEO/PM","target_phases":["P20","P22","P34","P35","P37"],"decisions":["D11"],"risk":"P2"},
+    {"id":"Q08","summary":"Fixed, hourly, subscription, milestone, percentage, product, and hybrid pricing","authority":"C","status":"PARTIAL","current_state":"P04 price lists and P05 product-line quotes cover selected goods pricing with exact Toman snapshots; the contract pricing models are not represented.","evidence":["E-MASTER","E-CRM","E-ABSENCE"],"tests":["P04MasterDataTest","P05SalesWorkflowTest","SalesDocumentCalculatorTest"],"owner":"CEO/Finance","target_phases":["P19","P22","P23","P29"],"decisions":["D03","D04"],"risk":"P1"},
+    {"id":"Q09","summary":"Structured contract record and signed contract document","authority":"C","status":"MISSING","current_state":"No contract model, route, migration, screen, or contract-document storage was found.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM","target_phases":["P20","P21","P22"],"decisions":["D07","D10"],"risk":"P1"},
+    {"id":"Q10","summary":"50/50 or installment schedule, due dates, and reminders","authority":"C","status":"PARTIAL","current_state":"P10 invoices have effective/due dates and settlement records; there is no contract installment schedule or contract-level due reminder.","evidence":["E-SETTLEMENT","E-WORK","E-ABSENCE"],"tests":["P10SettlementTest","P12ProjectWorkTest"],"owner":"CEO/Finance","target_phases":["P23","P30","P34"],"decisions":["D04"],"risk":"P1"},
+    {"id":"Q11","summary":"Change requests, contract amendments, and version history","authority":"C","status":"MISSING","current_state":"No contract amendment/change-request model or version history exists in the inspected application.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM","target_phases":["P23","P24","P25","P26"],"decisions":["D03"],"risk":"P2"},
+    {"id":"Q12","summary":"Contract generation from templates, approval, and signed-version tracking","authority":"C","status":"MISSING","current_state":"No contract template, document generation, approval workflow, signature storage, or contract versioning was found.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/Legal/Tech Lead","target_phases":["P21","P22"],"decisions":["D07"],"risk":"P2"},
+    {"id":"Q13","summary":"Versioned Markdown masterplan with configurable project phases","authority":"C","status":"PARTIAL","current_state":"P12 has projects and tasks but no persisted phase hierarchy or Markdown masterplan import/version model.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P24","P25","P26"],"decisions":["D03"],"risk":"P1"},
+    {"id":"Q14","summary":"Project/phase/task/subtask hierarchy with optional milestones, sprints, or modules","authority":"C","status":"PARTIAL","current_state":"P12 implements projects and assigned tasks only; phases, subtasks, milestones, sprints, and modules are absent.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P24","P25","P26"],"decisions":["D03"],"risk":"P1"},
+    {"id":"Q15","summary":"Weighted phase progress, approval, and progress-source versioning","authority":"C","status":"MISSING","current_state":"P12 reports task counts and status, not weighted phase progress, approval records, or a versioned progress source.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P25","P26"],"decisions":["D03","D11"],"risk":"P1"},
+    {"id":"Q16","summary":"Project waiting/paused/cancelled states, PM approval, and CEO closure","authority":"C","status":"PARTIAL","current_state":"P12 constrains task transitions to open/in-progress/completed; project lifecycle states and approval/closure roles are absent.","evidence":["E-WORK","E-AUTH","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P24","P26"],"decisions":["D02"],"risk":"P1"},
+    {"id":"Q17","summary":"Task deadlines, priority, overdue state, risk, and change audit","authority":"C","status":"PARTIAL","current_state":"P12 supports due dates, overdue calculation, assignment, status, comments, and reminders; no priority/risk register or general task audit history was found.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"PM","target_phases":["P24","P26","P27","P34","P35"],"decisions":["D02","D11"],"risk":"P2"},
+    {"id":"Q18","summary":"Acceptance criteria, PM/customer review, satisfaction, and timeout policy","authority":"C","status":"MISSING","current_state":"No customer acceptance or satisfaction lifecycle exists in the internal application.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM","target_phases":["P26","P41","P44"],"decisions":["D13"],"risk":"P1"},
+    {"id":"Q19","summary":"Four project views and reusable phase templates","authority":"C","status":"PARTIAL","current_state":"P12 offers a project list and task list/board views; the four requested project views and reusable phase templates are absent.","evidence":["E-UI","E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"PM/UX","target_phases":["P24","P27"],"decisions":[],"risk":"P2"},
+    {"id":"Q20","summary":"Task assignment, priority, checklist, estimates/actuals, attachments, and tags","authority":"C","status":"PARTIAL","current_state":"P12 supports task title, assignment, date, status, and comments; checklist, effort, time actuals, task attachments, and tags are absent.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"PM","target_phases":["P21","P26","P29"],"decisions":["D03"],"risk":"P1"},
+    {"id":"Q21","summary":"Project-manager authority and team-member work reports","authority":"C","status":"PARTIAL","current_state":"P12 writes require the fixed editor role and assignments are organization-member scoped; a PM role/capability and submitted work reports are absent.","evidence":["E-AUTH","E-WORK","E-ABSENCE"],"tests":["P03OrganizationAccessTest","P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P16","P26"],"decisions":["D02"],"risk":"P2"},
+    {"id":"Q22","summary":"Timer/manual time logs, approval, and hourly cost","authority":"C","status":"MISSING","current_state":"No time-entry, timer, timesheet approval, or hourly labor-cost model or route was found.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/HR/Finance","target_phases":["P29","P32","P37"],"decisions":["D06","D11"],"risk":"P1"},
+    {"id":"Q23","summary":"Staff capacity, active workload, and available hours","authority":"C","status":"MISSING","current_state":"No capacity calendar, active-workload rollup, or available-hours calculation exists.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM/HR","target_phases":["P28","P29","P37"],"decisions":["D06","D11"],"risk":"P1"},
+    {"id":"Q24","summary":"Meeting notes, decisions, files, and history for collaboration","authority":"C","status":"PARTIAL","current_state":"P12 comments exist on projects/tasks; meetings, decision records, documents, and general collaboration history do not.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"PM","target_phases":["P21","P26","P35"],"decisions":[],"risk":"P2"},
+    {"id":"Q25","summary":"Quality/deadline performance, approved work, and lessons learned","authority":"C","status":"MISSING","current_state":"No quality scoring, approved-work ledger, or lessons-learned feature exists in the application.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM/HR","target_phases":["P26","P29","P35","P37"],"decisions":["D06"],"risk":"P2"},
+    {"id":"Q26","summary":"Managerial finance in IRR/Toman/USD/EUR with manual exchange rates, separated from statutory accounting","authority":"C","status":"PARTIAL","current_state":"P05 uses Toman and P08-P10 use Rial; P09/P10 are synthetic/local boundaries. Multi-currency managerial finance and conversion policy are absent.","evidence":["E-CRM","E-LEDGER","E-SETTLEMENT","E-ABSENCE"],"tests":["P05SalesWorkflowTest","P09AccountingTest","P10SettlementTest"],"owner":"CEO/Finance","target_phases":["P19","P30","P31","P32","P33"],"decisions":["D04"],"risk":"P1"},
+    {"id":"Q27","summary":"External receipts against installments, allocations, and refunds","authority":"C","status":"PARTIAL","current_state":"P10 supports fully allocated customer receipts and supplier payments against one invoice; installment scheduling, unapplied advances, multi-invoice allocation, and refunds are absent.","evidence":["E-SETTLEMENT","E-ABSENCE"],"tests":["P10SettlementTest"],"owner":"CEO/Finance","target_phases":["P23","P30"],"decisions":["D04"],"risk":"P1"},
+    {"id":"Q28","summary":"Contract total, received amount, and outstanding receivable","authority":"C","status":"PARTIAL","current_state":"P10/P11 derive local synthetic sales-order receivables; no contract-linked receivable balance exists.","evidence":["E-SETTLEMENT","E-REPORTING","E-ABSENCE"],"tests":["P10SettlementTest","P11DashboardTest"],"owner":"CEO/Finance","target_phases":["P23","P30","P37"],"decisions":["D04"],"risk":"P1"},
+    {"id":"Q29","summary":"Direct/overhead project costs, receipts, and labor costs","authority":"C","status":"PARTIAL","current_state":"P12 links one eligible P08 purchase line and snapshots its Rial amount; overhead, labor, and general project receipt allocation are absent.","evidence":["E-WORK","E-PURCHASE","E-ABSENCE"],"tests":["P12ProjectWorkTest","P08PurchasingTest"],"owner":"CEO/Finance/PM","target_phases":["P21","P31","P32"],"decisions":["D06","D10"],"risk":"P1"},
+    {"id":"Q30","summary":"Project profit with cost/revenue/cash/budget reporting","authority":"C","status":"PARTIAL","current_state":"P11 has read-only cross-domain metrics and P12 has a purchase-cost snapshot; no reconciled project revenue/profit/budget model exists. Q30 details remain ambiguous.","evidence":["E-WORK","E-REPORTING","E-SETTLEMENT","E-ABSENCE"],"tests":["P10SettlementTest","P11DashboardTest","P12ProjectWorkTest"],"owner":"CEO/Finance","target_phases":["P31","P32","P33","P37"],"decisions":["D05"],"risk":"P1"},
+    {"id":"Q31","summary":"Five managerial payroll models, combinations, bonuses, and settlements","authority":"C","status":"MISSING","current_state":"No employee, payroll, compensation, bonus, or staff-settlement model or route was found.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/HR/Finance","target_phases":["P28","P29","P32"],"decisions":["D06"],"risk":"P1"},
+    {"id":"Q32","summary":"Authorized financial corrections with audit history","authority":"C","status":"PARTIAL","current_state":"P09 has append-only journal reversals and P13 audits membership-role changes; P10 intentionally has no invoice/settlement correction path and no coordinated correction workflow exists.","evidence":["E-LEDGER","E-SETTLEMENT","E-ADMIN"],"tests":["P09AccountingTest","P10SettlementTest","P13AdministrationTest"],"owner":"CEO/Finance","target_phases":["P16","P19","P30","P31","P32"],"decisions":["D02","D04"],"risk":"P1"},
+    {"id":"Q33","summary":"Excel/PDF project profit/debt reports and accountant exports","authority":"C","status":"PARTIAL","current_state":"P13 exports filtered parties to CSV; P11 provides read-only dashboard drill-downs. No project-profit/debt Excel/PDF or accountant package exists.","evidence":["E-ADMIN","E-REPORTING","E-ABSENCE"],"tests":["P11DashboardTest","P13AdministrationTest"],"owner":"CEO/Finance","target_phases":["P30","P31","P32","P33","P38"],"decisions":["D04"],"risk":"P2"},
+    {"id":"Q34","summary":"Dynamic multi-role grants and user title separate from authorization","authority":"C","status":"PARTIAL","current_state":"P03 uses fixed editor/reader membership roles; P13 adds a separate organization role-manager grant. Dynamic role definitions and titles are absent.","evidence":["E-AUTH","E-ADMIN","E-ABSENCE"],"tests":["P03OrganizationAccessTest","P13AdministrationTest"],"owner":"CEO/Tech Lead","target_phases":["P16","P17","P28"],"decisions":["D02"],"risk":"P1"},
+    {"id":"Q35","summary":"Granular role/field access and strict customer isolation","authority":"C","status":"PARTIAL","current_state":"Domain policies enforce organization/editor/reader boundaries; fine-grained PM/finance/HR fields and customer-facing isolation are absent.","evidence":["E-AUTH","E-ABSENCE"],"tests":["P03OrganizationAccessTest","P04MasterDataTest","P05SalesWorkflowTest","P06StockWorkflowTest","P10SettlementTest","P12ProjectWorkTest"],"owner":"CEO/Tech Lead","target_phases":["P16","P17","P21","P38","P42-P46"],"decisions":["D02","D13"],"risk":"P1"},
+    {"id":"Q36","summary":"Employee profile, attendance/leave, and offboarding","authority":"C","status":"MISSING","current_state":"User accounts and organization memberships exist; no HR employee record, attendance, leave, or offboarding workflow exists.","evidence":["E-AUTH","E-ABSENCE"],"tests":["P03OrganizationAccessTest"],"owner":"CEO/HR","target_phases":["P17","P28","P29","P32"],"decisions":["D06","D09"],"risk":"P1"},
+    {"id":"Q37","summary":"Versioned documents with hybrid storage, links, and backups","authority":"C","status":"MISSING","current_state":"P13 imports temporary CSV/XLSX data but does not provide document management, versioning, asset storage, or backup/restore.","evidence":["E-ADMIN","E-ABSENCE"],"tests":["P13AdministrationTest"],"owner":"Tech Lead/CEO","target_phases":["P21","P36","P39"],"decisions":["D10"],"risk":"P1"},
+    {"id":"Q38","summary":"Customer support tickets and ERP bug intake","authority":"C","status":"MISSING","current_state":"No support-ticket or customer-facing bug-intake routes, models, or screens were found.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/Support","target_phases":["P36","P45"],"decisions":["D11"],"risk":"P2"},
+    {"id":"Q39","summary":"Future customer portal for project/contract read, acceptance, tickets, and satisfaction","authority":"C","status":"OUT_OF_SCOPE","current_state":"The V2 plan places customer portal work in P42-P46, after internal ERP acceptance; no portal route exists in P01-P13.","evidence":["E-GOV","E-ABSENCE"],"tests":[],"owner":"CEO/Legal","target_phases":["P42","P43","P44","P45","P46"],"decisions":["D13"],"risk":"P3"},
+    {"id":"Q40","summary":"Lightweight project masterplans, notes, ideas, decisions, lessons, and help","authority":"C","status":"PARTIAL","current_state":"P12 has project/task comments; the Markdown knowledge/masterplan, idea, decision, lesson, and help features are absent.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P18","P25","P35","P43"],"decisions":["D01"],"risk":"P2"},
+    {"id":"Q41","summary":"CEO KPIs and role-specific dashboards","authority":"C","status":"PARTIAL","current_state":"P11 provides read-only finance, stock, approval, and overdue metrics; the requested role-specific project, customer, team-capacity, and KPI model is incomplete.","evidence":["E-REPORTING","E-ABSENCE"],"tests":["P11DashboardTest"],"owner":"CEO/PM","target_phases":["P29","P33","P37"],"decisions":["D11"],"risk":"P2"},
+    {"id":"Q42","summary":"Monthly profit/overdue/project/team/debt reporting and Excel/PDF export","authority":"C","status":"PARTIAL","current_state":"P11 offers as-of read-only metrics and drill-downs; monthly project/team profit and portable financial export are absent.","evidence":["E-REPORTING","E-SETTLEMENT","E-ABSENCE"],"tests":["P10SettlementTest","P11DashboardTest"],"owner":"CEO/Finance","target_phases":["P29","P33","P35","P37","P38"],"decisions":["D05","D11"],"risk":"P1"},
+    {"id":"Q43","summary":"In-app notifications for due, overdue, and workflow events","authority":"C","status":"PARTIAL","current_state":"P12 materializes local task-due reminders in the signed-in inbox; cross-domain notifications, delivery channels, and customer notifications are absent.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"CEO/PM","target_phases":["P34","P36","P44","P45"],"decisions":["D11"],"risk":"P2"},
+    {"id":"Q44","summary":"Risk, decision, idea tracking, and periodic review","authority":"C","status":"MISSING","current_state":"Audit documents can record risks/decisions, but the ERP application has no corresponding operational register or review workflow.","evidence":["E-ABSENCE"],"tests":[],"owner":"CEO/PM","target_phases":["P35","P37","P41","P46"],"decisions":["D11"],"risk":"P2"},
+    {"id":"Q45","summary":"Avoid mass migration, start with current work, and provide portable export","authority":"C","status":"PARTIAL","current_state":"P13 provides filtered party CSV export; no full ERP export package or approved operational cutover/opening-balance workflow exists.","evidence":["E-ADMIN","E-ABSENCE"],"tests":["P13AdministrationTest"],"owner":"CEO/Finance","target_phases":["P38","P40","P41"],"decisions":["D12"],"risk":"P2"},
+    {"id":"Q46","summary":"Manual GitHub/Codex workflow and Drive links without broad integrations","authority":"C","status":"PARTIAL","current_state":"The repository and Codex documentation support manual work; no first-class GitHub/Codex/Drive link or integration model exists in the app.","evidence":["E-WORK","E-ABSENCE"],"tests":["P12ProjectWorkTest"],"owner":"Tech Lead/PM","target_phases":["P21","P25","P36"],"decisions":["D10"],"risk":"P3"},
+    {"id":"Q47","summary":"Persian responsive UI with search, tags, export, and help","authority":"C","status":"PARTIAL","current_state":"Persian RTL shell and module screens exist; search is module-specific, P13 export is limited to parties, and global tags/help are absent. Current P14 browser rendering could not be verified.","evidence":["E-UI","E-ADMIN","E-ABSENCE"],"tests":["P13AdministrationTest"],"owner":"CEO/UX","target_phases":["P18","P26","P27","P37","P38","P43"],"decisions":["D07"],"risk":"P1"},
+    {"id":"Q48","summary":"Use preferred existing hosting, support capacity, and separate portal architecture","authority":"C","status":"UNVERIFIED","current_state":"Only the local Windows/Docker environment is inspected; no hosting account, staging, production topology, or load evidence was inspected.","evidence":["E-ENV","E-ABSENCE"],"tests":[],"owner":"Tech Lead/CEO","target_phases":["P14","P40","P42","P46"],"decisions":["D08","D10"],"risk":"P1"},
+    {"id":"Q49","summary":"Password/Google login, offboarding, audit, and daily 30-day backup","authority":"C","status":"PARTIAL","current_state":"Local password login, role-change audit, and guarded synthetic workflows exist; Google login, MFA policy, offboarding, general audit, and backup/restore are absent or unverified.","evidence":["E-AUTH","E-ADMIN","E-ENV","E-ABSENCE"],"tests":["SessionAuthenticationTest","P03OrganizationAccessTest","P13AdministrationTest"],"owner":"CEO/Tech Lead","target_phases":["P16","P17","P21","P39-P42","P46"],"decisions":["D09","D10"],"risk":"P1"},
+    {"id":"Q50","summary":"Future API, multilingual UI, and configurable services/stages/roles","authority":"C","status":"PARTIAL","current_state":"An authenticated same-origin /api/v1 exists; no approved external API contract, multi-language support, or dynamic service/stage/role catalog exists.","evidence":["E-AUTH","E-ABSENCE"],"tests":["P03OrganizationAccessTest"],"owner":"CEO/Tech Lead","target_phases":["P15","P16","P18","P20","P24"],"decisions":["D01","D14"],"risk":"P2"},
+    {"id":"Q51","summary":"Preserve existing modules and hide optional modules from the daily workflow","authority":"C","status":"PARTIAL","current_state":"P01-P13 modules remain in the repository and route inventory; no module activation/visibility registry was found, and the shared shell exposes legacy product, stock, purchase, and accounting navigation.","evidence":["E-UI","E-MASTER","E-CRM","E-STOCK","E-PURCHASE","E-LEDGER","E-SETTLEMENT"],"tests":["P04MasterDataTest","P05SalesWorkflowTest","P06StockWorkflowTest","P08PurchasingTest","P09AccountingTest","P10SettlementTest"],"owner":"CEO/Tech Lead","target_phases":["P14","P15","P40","P41"],"decisions":["D01"],"risk":"P1"},
+    {"id":"Q52","summary":"Prioritize project, financial control, and task workflows before daily use","authority":"C","status":"PARTIAL","current_state":"P12 projects/tasks and P10 local synthetic settlements exist, but contract-based financial control, phase progress, and operational acceptance remain incomplete.","evidence":["E-WORK","E-SETTLEMENT","E-REPORTING","E-GOV"],"tests":["P10SettlementTest","P11DashboardTest","P12ProjectWorkTest"],"owner":"CEO/PM/Finance","target_phases":["P23-P27","P30","P37","P41"],"decisions":["D01","D04"],"risk":"P1"},
+    {"id":"Q53","summary":"Phase-based Codex delivery, quality first, simple scope, no arbitrary deadline","authority":"C","status":"VERIFIED","current_state":"The repository has sequential phase plans and this P14 task follows the one-phase boundary, documents evidence, avoids implementation scope, and keeps owner decisions open.","evidence":["E-GOV"],"tests":[],"owner":"CEO/Tech Lead","target_phases":["P14-P46"],"decisions":["D01"],"risk":"P3"},
+    {"id":"Q54","summary":"Daily adoption, decisions based on ERP, and owner/user acceptance","authority":"C","status":"OUT_OF_SCOPE","current_state":"The answered plan places internal UAT and CEO Gate I in P41 and final portal/customer acceptance in P46; neither is part of P14.","evidence":["E-GOV","E-ABSENCE"],"tests":[],"owner":"CEO/Users","target_phases":["P41","P46"],"decisions":["D01","D12"],"risk":"P1"}
+  ]
+}
